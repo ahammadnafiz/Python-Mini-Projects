@@ -2,7 +2,7 @@
 
 This is a simple Tic-Tac-Toe game implemented using Python and the Tkinter library for the graphical user interface.
 
-![Gameplay GIF]("tic-tac-toe-gif.gif")
+![Tic-Tac-Toe Gameplay](https://github.com/ahammadnafiz/Python-Mini-Projects/raw/main/Tic-Tac-Toe/tic-tac-toe-gif.gif)
 
 ## Features
 
