@@ -6,17 +6,20 @@ class TicTacToe(Tk):
         super().__init__()
 
         self.title('Tic-Tac-Toe')
+        self.configure(bg='#F0F0F0')
         self.players = ['X', 'O']
         self.player = random.choice(self.players)
         self.label = Label(self,
                       text=f"{self.player}'s turn",
-                      font=('consolas', 40),
+                      font=('consolas', 30),
+                      bg='#F0F0F0',  
+                      fg='#333333'
                       )
-        self.label.pack(side=TOP)
+        self.label.pack(side=TOP, pady=10)
         
         self.restart()
 
-        self.frame = Frame(self)
+        self.frame = Frame(self, bg='#F0F0F0')  
         self.frame.pack()
 
         self.buttons = [
@@ -31,18 +34,30 @@ class TicTacToe(Tk):
             for col in range(3):
                 self.buttons[row][col] = Button(self.frame,
                                           text="",
-                                           font=('consolas', 40),
-                                           width=5,
-                                           height=2,
-                                           command= lambda row=row, col=col: self.next_turn(row, col),
-                                           padx=5,
-                                          pady=5 )
-                self.buttons[row][col].grid(row=row, column=col)
+                                          font=('consolas', 40),
+                                          width=5,
+                                          height=2,
+                                          command= lambda row=row, col=col: self.next_turn(row, col),
+                                          padx=5,
+                                          pady=5,
+                                          bg='#CCCCCC',  
+                                          fg='#333333', 
+                                          activebackground='#AAAAAA', 
+                                          activeforeground='#FFFFFF',  
+                                          borderwidth=0,  
+                                          relief="flat",
+                                          )
+                self.buttons[row][col].grid(row=row, column=col, padx=3, pady=3)
 
     def restart(self):
-        Button(text='Restart',
-               font=('consolas', 20),
-               command=self.new_game).pack(side=TOP)
+        restart_btn = Button(text='Restart',
+                            font=('consolas', 20, 'bold'),
+                             command=self.new_game,
+                             bg='#4CAF50',  
+                             fg='#FFFFFF',  
+                             relief="flat", 
+                             )
+        restart_btn.pack(side=TOP, pady=10)
 
     def next_turn(self, row, col):
         if self.buttons[row][col]['text'] == "" and self.check_winner() is False:
@@ -68,30 +83,30 @@ class TicTacToe(Tk):
     def check_winner(self):
         for row in range(3):
             if self.buttons[row][0]['text'] == self.buttons[row][1]['text'] == self.buttons[row][2]['text'] != "":
-                self.buttons[row][0].config(bg='green')
-                self.buttons[row][1].config(bg='green')
-                self.buttons[row][2].config(bg='green')
+                self.buttons[row][0].config(bg='#4CAF50')  # Highlight winning line
+                self.buttons[row][1].config(bg='#4CAF50')
+                self.buttons[row][2].config(bg='#4CAF50')
                 return True
         for col in range(3):
             if self.buttons[0][col]['text'] == self.buttons[1][col]['text'] == self.buttons[2][col]['text'] != "":
-                self.buttons[0][col].config(bg='green')
-                self.buttons[1][col].config(bg='green')
-                self.buttons[2][col].config(bg='green')
+                self.buttons[0][col].config(bg='#4CAF50')
+                self.buttons[1][col].config(bg='#4CAF50')
+                self.buttons[2][col].config(bg='#4CAF50')
                 return True
         if self.buttons[0][0]['text'] == self.buttons[1][1]['text'] == self.buttons[2][2]['text'] != "":
-            self.buttons[0][0].config(bg='green')
-            self.buttons[1][1].config(bg='green')
-            self.buttons[2][2].config(bg='green')
+            self.buttons[0][0].config(bg='#4CAF50')
+            self.buttons[1][1].config(bg='#4CAF50')
+            self.buttons[2][2].config(bg='#4CAF50')
             return True
         elif self.buttons[0][2]['text'] == self.buttons[1][1]['text'] == self.buttons[2][0]['text'] != "":
-            self.buttons[0][2].config(bg='green')
-            self.buttons[1][1].config(bg='green')
-            self.buttons[2][0].config(bg='green')
+            self.buttons[0][2].config(bg='#4CAF50')
+            self.buttons[1][1].config(bg='#4CAF50')
+            self.buttons[2][0].config(bg='#4CAF50')
             return True
         elif not self.empty_space():
             for row in range(3):
                 for col in range(3):
-                    self.buttons[row][col].config(bg='yellow')
+                    self.buttons[row][col].config(bg='#FFC107')  
             return 'Tie'
         else:
             return False
@@ -111,7 +126,8 @@ class TicTacToe(Tk):
 
         for row in range(3):
             for col in range(3):
-                self.buttons[row][col].config(text="", bg='#F0F0F0')
+                self.buttons[row][col].config(text="", bg='#CCCCCC')
+                self.buttons[row][col].config(state='normal')
 
 
 if __name__ == '__main__':
