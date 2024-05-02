@@ -7,7 +7,7 @@ import io
 class NewsApp:
     def __init__(self):
         # Fetch data from the API
-        api_key = 'pub_43358e797ad8bf913471fd633926d712c129c'
+        api_key = 'Your API Key'
         country_code = 'bd'
         api_url = f'https://newsdata.io/api/1/news?country={country_code}&apikey={api_key}'
         self.data = self.fetch_data(api_url)
