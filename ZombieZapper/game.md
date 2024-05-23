@@ -2,7 +2,7 @@
 
 Zombie Zapper is an exciting 2D platformer game where you battle hordes of zombies in a post-apocalyptic world. With simple controls and addictive gameplay, it offers hours of fun and excitement!
 
-![Screenshot](ZombieZapper/Game_Assets/ss.png)
+![Screenshot](Game_Assets/ss.png)
 
 ## How to Play
 
