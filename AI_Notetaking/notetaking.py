@@ -89,7 +89,7 @@ class NoteTakingApp:
     def setup_gui(self):
         self.root.title("AI Note Taking App")
         ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+        ctk.set_default_color_theme("green")
 
         self.canvas = ctk.CTkCanvas(self.root, width=640, height=480)
         self.canvas.pack(padx=10, pady=10)
@@ -121,6 +121,28 @@ class NoteTakingApp:
 
         self.save_button = ctk.CTkButton(self.root, text="Save", command=self.save_note)
         self.save_button.pack(pady=10)
+    
+    def parse_ai_response(self, response):
+        # Split the response into lines
+        lines = response.strip().split('\n')
+
+        # Extract title, note, and tags from the response
+        title = None
+        note = []
+        tags = None
+
+        for line in lines:
+            if line.startswith("Title:"):
+                title = line.split(":")[1].strip()
+            elif line.startswith("Note:"):
+                note.append(line.split(":")[1].strip())
+            elif line.startswith("Tags:"):
+                tags = line.split(":")[1].strip().split(", ")
+
+        # Combine note lines into a single string
+        note = '\n'.join(note)
+
+        return title, note, tags
     
     def upload_image(self):
         file_path = tk.filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
