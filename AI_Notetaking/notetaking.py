@@ -18,7 +18,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 logging.basicConfig(level=logging.INFO)
 os.environ["GOOGLE_API_KEY"] = "AIzaSyADTZNqgOittRnTXuZTh8wSn_yFI-73_1c"
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Update this path
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
 
 class WebcamStream:
     def __init__(self, index=0):
@@ -192,27 +192,6 @@ class NoteTakingApp:
         title, note, tags = self.parse_ai_response(response)
         self.display_note(image_base64, title, note, tags)
     
-    def parse_ai_response(self, response):
-        lines = response.split('\n')
-        title = ""
-        note = []
-        tags = []
-
-        parsing_note = False  # Flag to indicate when to start parsing the note content
-
-        for line in lines:
-            if line.startswith("Title:"):
-                title = line.replace('Title:', '').strip()
-            elif line.startswith("Tags:"):
-                tags = [tag.strip() for tag in line.replace('Tags:', '').split(',')]
-            elif line.startswith("Note:"):
-                parsing_note = True
-            elif parsing_note:
-                if line:  # Skip empty lines
-                    note.append(line.strip())
-
-        return title, '\n'.join(note), tags
-
     def display_note(self, image_base64, title, note, tags):
         self.notes_text.delete("1.0", tk.END)
         self.notes_text.insert(tk.END, f"{title}\n\n{note}\n\nTags: {', '.join(tags)}")
@@ -283,24 +262,31 @@ class NoteTakingApp:
     
     def search_notes(self, event=None):
         query = self.search_entry.get().lower()
+        save_dir = "saved_notes"
         results = []
-        for note in self.notes_data:
-            if (query in note['title'].lower() or 
-                query in note['note'].lower() or 
-                any(query in tag.lower() for tag in note['tags'])):
-                results.append(note)
-        
+
+        # List all files in the saved_notes directory
+        for filename in os.listdir(save_dir):
+            if filename.endswith(".txt"):  # Assuming all notes are saved as .txt files
+                note_path = os.path.join(save_dir, filename)
+                with open(note_path, 'r') as f:
+                    note_content = f.read().lower()  # Read note content and convert to lowercase
+                    if query in note_content:
+                        # If query is found in note content, add the note to results
+                        image_filename = filename.replace(".txt", ".jpg")  # Get corresponding image filename
+                        results.append({"text": filename, "image": image_filename, "content": note_content})
+
         if results:
-            result = results[0]  # Just using the first result for now
-            with open(os.path.join("saved_notes", result['text']), 'r') as f:
-                self.notes_text.delete("1.0", tk.END)
-                self.notes_text.insert(tk.END, f.read())
-            
-            image = Image.open(os.path.join("saved_notes", result['image']))
-            image = image.resize((200, 200), Image.LANCZOS)
-            photo = ctk.CTkImage(light_image=image, dark_image=image, size=(200, 200))
-            self.image_label.configure(image=photo)
-            self.image_label.image = photo
+            for result in results:
+                with open(os.path.join(save_dir, result['text']), 'r') as f:
+                    self.notes_text.delete("1.0", tk.END)
+                    self.notes_text.insert(tk.END, f.read())
+
+                image = Image.open(os.path.join(save_dir, result['image']))
+                image = image.resize((200, 200), Image.LANCZOS)
+                photo = ctk.CTkImage(light_image=image, dark_image=image, size=(200, 200))
+                self.image_label.configure(image=photo)
+                self.image_label.image = photo
         else:
             logging.info("No matching notes found.")
 
