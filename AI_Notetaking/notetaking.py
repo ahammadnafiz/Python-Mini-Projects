@@ -1,27 +1,24 @@
 import os
+import io
 import numpy as np
 import tkinter as tk
 from PIL import Image, ImageTk
 import base64
 import logging
-import datetime
 from threading import Thread
 import cv2
 import customtkinter as ctk
 import pytesseract
-import speech_recognition as sr
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
-# from langchain_google_genai import ChatGoogleGenerativeAIessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 logging.basicConfig(level=logging.INFO)
 os.environ["GOOGLE_API_KEY"] = "AIzaSyADTZNqgOittRnTXuZTh8wSn_yFI-73_1c"
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  # Update this path
-
 
 class WebcamStream:
     def __init__(self, index=0):
@@ -82,8 +79,6 @@ class NoteTakingApp:
         self.root = root
         self.model = model
         self.webcam_stream = webcam_stream
-        self.recognizer = sr.Recognizer()
-        self.microphone = sr.Microphone()
 
         self.setup_gui()
         self.last_note_image = None
@@ -113,25 +108,64 @@ class NoteTakingApp:
 
         self.tags_entry = ctk.CTkEntry(self.root, placeholder_text="Enter tags (comma-separated)")
         self.tags_entry.pack(pady=10, fill=tk.X, padx=10)
-
-        self.save_button = ctk.CTkButton(self.root, text="Save", command=self.save_note)
-        self.save_button.pack(pady=10)
         
-        self.record_button = ctk.CTkButton(self.root, text="Record Voice Note", command=self.record_voice_note)
-        self.record_button.pack(pady=5)
-
-        self.ocr_button = ctk.CTkButton(self.root, text="Extract Text (OCR)", command=self.extract_text_from_image)
-        self.ocr_button.pack(pady=5)
-
         self.search_entry = ctk.CTkEntry(self.root, placeholder_text="Search notes...")
         self.search_entry.pack(pady=5, fill=tk.X, padx=10)
         self.search_entry.bind('<Return>', self.search_notes)
+        
+        self.upload_button = ctk.CTkButton(self.root, text="Upload Image", command=self.upload_image)
+        self.upload_button.pack(pady=10)
+        
+        self.ocr_button = ctk.CTkButton(self.root, text="Extract Text (OCR)", command=self.extract_text_from_image)
+        self.ocr_button.pack(pady=5)
+
+        self.save_button = ctk.CTkButton(self.root, text="Save", command=self.save_note)
+        self.save_button.pack(pady=10)
+    
+    def upload_image(self):
+        file_path = tk.filedialog.askopenfilename(filetypes=[("Image files", "*.jpg;*.jpeg;*.png")])
+        if file_path:
+            with open(file_path, "rb") as f:
+                image_base64 = base64.b64encode(f.read())
+            self.process_image_with_ai(image_base64)
+
+    def process_image_with_ai(self, image_base64):
+        # Send the image to the AI model for processing
+        prompt = '''
+        You are a note-taking assistant equipped with image recognition capabilities.
+        Analyze the image and provide:
+        1. A concise, engaging title for the note (max 5 words)
+        2. Description of the main subject (2 sentence)
+        3. Additional details or context (2-5 sentences)
+        4. Personal observations or reflections (2 sentence)
+        5. A list of 3-5 relevant tags, comma-separated
+
+        Structure your response as:
+        Title: [Note Title]
+        Note:
+        [Your structured note here]
+        Tags: [tag1], [tag2], [tag3], ...
+        '''
+        response = self.inference_chain.invoke(
+            {"prompt": prompt, "image_base64": image_base64.decode()},
+            config={"configurable": {"session_id": "unused"}}
+        ).strip()
+
+        title, note, tags = self.parse_ai_response(response)
+        self.display_note(image_base64, title, note, tags)
+
+        # Convert image to RGB mode
+        image = Image.open(io.BytesIO(base64.b64decode(image_base64)))
+        image = image.convert("RGB")
+
+        # Set the last_note_image attribute
+        self.last_note_image = image
 
     def capture_photo(self):
         frame = self.webcam_stream.read()
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image_base64 = self.webcam_stream.read(encode=True)
         self.last_note_image = Image.fromarray(frame_rgb)
+        image_base64 = self.webcam_stream.read(encode=True)
         self.process_image(image_base64)
 
     def process_image(self, image_base64):
@@ -140,7 +174,7 @@ class NoteTakingApp:
         Analyze the image and provide:
         1. A concise, engaging title for the note (max 5 words)
         2. Description of the main subject (1 sentence)
-        3. Additional details or context (1-2 sentences)
+        3. Additional details or context (1-3 sentences)
         4. Personal observations or reflections (1 sentence)
         5. A list of 3-5 relevant tags, comma-separated
 
@@ -164,16 +198,20 @@ class NoteTakingApp:
         note = []
         tags = []
 
+        parsing_note = False  # Flag to indicate when to start parsing the note content
+
         for line in lines:
             if line.startswith("Title:"):
                 title = line.replace('Title:', '').strip()
             elif line.startswith("Tags:"):
                 tags = [tag.strip() for tag in line.replace('Tags:', '').split(',')]
-                break
-            elif line and not line.startswith("Note:"):
-                note.append(line.strip())
+            elif line.startswith("Note:"):
+                parsing_note = True
+            elif parsing_note:
+                if line:  # Skip empty lines
+                    note.append(line.strip())
 
-        return title, '\n'.join(note), tags if tags else []
+        return title, '\n'.join(note), tags
 
     def display_note(self, image_base64, title, note, tags):
         self.notes_text.delete("1.0", tk.END)
@@ -186,6 +224,7 @@ class NoteTakingApp:
         image_array = np.frombuffer(base64.b64decode(image_base64), dtype=np.uint8)
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.flip(image, 1)  # Mirror the image horizontally for display
         image = cv2.resize(image, (200, 200), interpolation=cv2.INTER_AREA)
         photo_image = ctk.CTkImage(light_image=Image.fromarray(image), dark_image=Image.fromarray(image), size=(200, 200))
         self.image_label.configure(image=photo_image)
@@ -212,9 +251,8 @@ class NoteTakingApp:
         title = note.split('\n')[0]
         tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
 
-        timestamp = int(datetime.datetime.now().timestamp())
-        image_filename = f"{timestamp}.jpg"
-        note_filename = f"{timestamp}.txt"
+        image_filename = f"{title}.jpg"
+        note_filename = f"{title}.txt"
 
         save_dir = "saved_notes"
         os.makedirs(save_dir, exist_ok=True)
@@ -229,23 +267,13 @@ class NoteTakingApp:
         self.notes_data.append({"title": title, "note": note, "tags": tags, "image": image_filename, "text": note_filename})
         logging.info(f"Saved note: {title}")
     
-    def record_voice_note(self):
-        try:
-            with self.microphone as source:
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
-                audio = self.recognizer.listen(source, timeout=5)
-                text = self.recognizer.recognize_google(audio)
-                self.notes_text.insert(tk.END, f"\n\nVoice Note: {text}")
-        except (sr.WaitTimeoutError, sr.UnknownValueError, sr.RequestError) as e:
-            logging.error(f"Voice recognition error: {e}")
-    
     def extract_text_from_image(self):
         if self.last_note_image is None:
             logging.warning("No image available for OCR.")
             return
         
         try:
-            text = pytesseract.image_to_string(self.last_note_image)
+            text = pytesseract.image_to_string(self.last_note_image.transpose(Image.FLIP_LEFT_RIGHT))  # Flip image for OCR
             if text.strip():
                 self.notes_text.insert(tk.END, f"\n\nExtracted Text:\n{text}")
             else:
@@ -284,7 +312,7 @@ class NoteTakingApp:
 
         Structure your notes like this:
         1. Description of the main subject (1 sentence)
-        2. Additional details or context (1-2 sentences)
+        2. Additional details or context (1-3 sentences)
         3. Personal observations or reflections (1 sentence)
 
         Keep your notes concise, descriptive, and engaging. Imagine you're writing a
