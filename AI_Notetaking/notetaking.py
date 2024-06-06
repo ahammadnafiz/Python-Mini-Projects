@@ -205,7 +205,7 @@ class NoteTakingApp:
         You are a note-taking assistant equipped with image recognition capabilities.
         Analyze the image and provide:
         1. A concise, engaging title for the note (max 5 words)
-        2. Description of the main subject (2 sentence)
+        2. Description of the main subject (2 sentence), Must give it, if it is code snippet give additional details
         3. Additional details or context (2-5 sentences)
         4. Personal observations or reflections (2 sentence)
         5. A list of 3-5 relevant tags, comma-separated
@@ -243,7 +243,7 @@ class NoteTakingApp:
         You are a note-taking assistant equipped with image recognition capabilities.
         Analyze the image and provide:
         1. A concise, engaging title for the note (max 5 words)
-        2. Description of the main subject (1 sentence)
+        2. Description of the main subject (1 sentence), Must give it, if it is code snippet give additional details
         3. Additional details or context (1-3 sentences)
         4. Personal observations or reflections (1 sentence)
         5. A list of 3-5 relevant tags, comma-separated
@@ -367,8 +367,8 @@ class NoteTakingApp:
         of the scene or object in the image.
 
         Structure your notes like this:
-        1. Description of the main subject (1 sentence)
-        2. Additional details or context (1-3 sentences)
+        1. Description of the main subject (2 sentence) Must give it, if it is code snippet give additional details
+        2. Additional details or context (2-4 sentences)
         3. Personal observations or reflections (1 sentence)
 
         Keep your notes concise, descriptive, and engaging. Imagine you're writing a
