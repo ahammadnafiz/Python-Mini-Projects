@@ -90,7 +90,7 @@ class NoteTakingApp:
         self.root.after(1, self.update_camera_feed)
         
     def setup_gui(self):
-        self.root.title("AI Note Taking App")
+        self.root.title("SnapNote")
         ctk.set_appearance_mode("#070707")
         ctk.set_default_color_theme("blue")
 
