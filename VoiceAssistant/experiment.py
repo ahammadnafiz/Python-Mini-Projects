@@ -168,26 +168,49 @@ class AssistantApp:
         self.canvas = ctk.CTkCanvas(inner_frame, width=440, height=480)
         self.canvas.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.voice_label = ctk.CTkLabel(inner_frame, text="🎙️", font=("Arial", 48))
-        self.voice_label.grid(row=1, column=0, pady=20)
+        # Add a button to toggle voice mode
+        self.voice_button = ctk.CTkButton(inner_frame, text="Start Voice Mode", command=self.toggle_voice_mode)
+        self.voice_button.grid(row=2, column=0, pady=10)
 
-        self.activate_voice_mode()
+    def toggle_voice_mode(self):
+        if self.voice_mode:
+            self.deactivate_voice_mode()
+        else:
+            self.activate_voice_mode()
 
     def activate_voice_mode(self):
         self.voice_mode = True
+        self.voice_button.configure(text="Stop Voice Mode")  # Change 'config' to 'configure'
         with self.microphone as source:
             self.recognizer.adjust_for_ambient_noise(source)
         self.stop_listening = self.recognizer.listen_in_background(self.microphone, self.audio_callback)
 
+    def deactivate_voice_mode(self):
+        self.voice_mode = False
+        self.voice_button.configure(text="Start Voice Mode")  # Change 'config' to 'configure'
+        if hasattr(self, 'stop_listening'):
+            self.stop_listening(wait_for_stop=False)
+
+
     def audio_callback(self, recognizer, audio):
         try:
+            # Recognize speech from audio
             prompt = recognizer.recognize_google(audio)
+            logging.info("Recognized speech: %s", prompt)
+
+            # Read the latest frame from the webcam
             image = self.webcam_stream.read(encode=True)
+            if image is None:
+                logging.error("Failed to capture frame from webcam.")
+                return
+
+            # Process the prompt and image using the assistant
             self.assistant.answer(prompt, image)
         except UnknownValueError:
             logging.warning("Audio not recognized.")
         except Exception as e:
-            logging.error("Error during audio recognition: %s", e)
+            logging.error("Error during audio recognition or processing: %s", e)
+
 
     def update_camera_feed(self):
         frame = self.webcam_stream.read()
