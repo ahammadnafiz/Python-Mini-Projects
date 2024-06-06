@@ -54,9 +54,8 @@ Synapto is an intelligent note-taking application that leverages computer vision
    - Integrates with the Google Generative AI model for sophisticated note generation.
 
 **Setup and Usage**:
-- Ensure all dependencies are installed (listed in `requirements.txt`).
 - Configure the `.env` file with the necessary API keys.
-- Run the application using `python main.py`.
+- Run the application using `python synapto.py`.
 
 **Future Enhancements**:
 - Adding support for different languages in OCR.
