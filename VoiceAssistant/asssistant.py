@@ -17,7 +17,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 logging.basicConfig(level=logging.INFO)
-os.environ["GOOGLE_API_KEY"] = "AIzaSyADTZNqgOittRnTXuZTh8wSn_yFI-73_1c"
+os.environ["GOOGLE_API_KEY"] = "Your_Api_Key"
 
 class WebcamStream:
     def __init__(self, index=0):
