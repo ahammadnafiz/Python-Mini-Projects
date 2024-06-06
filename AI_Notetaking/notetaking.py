@@ -1,5 +1,6 @@
 import os
 import io
+from dotenv import load_dotenv
 import numpy as np
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -17,7 +18,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 logging.basicConfig(level=logging.INFO)
-os.environ["GOOGLE_API_KEY"] = "Your_Api_Key"
+load_dotenv('.env')
+os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
 
 class WebcamStream:
@@ -27,8 +29,9 @@ class WebcamStream:
             logging.warning(f"Failed to open camera at index {index}, trying next index")
             self.stream = cv2.VideoCapture(1 - index, cv2.CAP_DSHOW)
         
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 520)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 440)
+
         self.stream.set(cv2.CAP_PROP_FPS, 30)
         self.running = False
         self.frame = None
@@ -88,40 +91,85 @@ class NoteTakingApp:
         
     def setup_gui(self):
         self.root.title("AI Note Taking App")
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("green")
+        ctk.set_appearance_mode("#070707")
+        ctk.set_default_color_theme("blue")
 
-        self.canvas = ctk.CTkCanvas(self.root, width=640, height=480)
-        self.canvas.pack(padx=10, pady=10)
+        # Create a main frame to hold the UI elements
+        main_frame = ctk.CTkFrame(self.root)
+        main_frame.grid(row=0, column=0, sticky="nsew")
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
 
-        self.snap_button = ctk.CTkButton(self.root, text="Snap", command=self.capture_photo)
-        self.snap_button.pack(pady=10)
+        # Create an inner frame with padding
+        inner_frame = ctk.CTkFrame(main_frame, border_width=2, border_color="#9AD2CB")
+        inner_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
-        self.notes_frame = ctk.CTkFrame(self.root)
-        self.notes_frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        # Create a canvas for camera feed
+        self.canvas = ctk.CTkCanvas(inner_frame, width=520, height=440)
+        self.canvas.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
-        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=200)
-        self.notes_text.pack(side=tk.LEFT, padx=10, pady=10, fill=tk.BOTH, expand=True)
+        # Create a snap button with an icon
+        assets_dir = os.path.join(os.path.dirname(__file__), "assets")
+        camera_light_path = os.path.join(assets_dir, "camera_light.png")
+        camera_dark_path = os.path.join(assets_dir, "camera_dark.png")
 
-        self.image_label = ctk.CTkLabel(self.notes_frame, text="", image=None)
-        self.image_label.pack(side=tk.LEFT, padx=10, pady=10)
+        light_image = Image.open(camera_light_path)
+        dark_image = Image.open(camera_dark_path)
 
-        self.tags_entry = ctk.CTkEntry(self.root, placeholder_text="Enter tags (comma-separated)")
-        self.tags_entry.pack(pady=10, fill=tk.X, padx=10)
-        
-        self.search_entry = ctk.CTkEntry(self.root, placeholder_text="Search notes...")
-        self.search_entry.pack(pady=5, fill=tk.X, padx=10)
+        snap_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
+        self.snap_button = ctk.CTkButton(inner_frame, text="Snap", image=snap_icon, compound="left",
+                                        command=self.capture_photo, fg_color="#e76f51", hover_color="#f4a261")
+        self.snap_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+        # Create a frame for notes and image display
+        notes_frame = ctk.CTkFrame(inner_frame)
+        notes_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        notes_frame.grid_rowconfigure(0, weight=1)
+        notes_frame.grid_columnconfigure(0, weight=1)
+        notes_frame.grid_columnconfigure(1, weight=0)
+
+        self.notes_text = ctk.CTkTextbox(notes_frame, height=130, font=("Helvetica", 12))
+        self.notes_text.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        self.image_label = ctk.CTkLabel(notes_frame, text="", image=None)
+        self.image_label.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+
+        self.tags_entry = ctk.CTkEntry(inner_frame, placeholder_text="Enter tags (comma-separated)", font=("Helvetica", 12))
+        self.tags_entry.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+
+        separator = ctk.CTkLabel(inner_frame, text="-" * 50, font=("Helvetica", 10))
+        separator.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        self.search_entry = ctk.CTkEntry(inner_frame, placeholder_text="Search notes...", font=("Helvetica", 12))
+        self.search_entry.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         self.search_entry.bind('<Return>', self.search_notes)
-        
-        self.upload_button = ctk.CTkButton(self.root, text="Upload Image", command=self.upload_image)
-        self.upload_button.pack(pady=10)
-        
-        self.ocr_button = ctk.CTkButton(self.root, text="Extract Text (OCR)", command=self.extract_text_from_image)
-        self.ocr_button.pack(pady=5)
 
-        self.save_button = ctk.CTkButton(self.root, text="Save", command=self.save_note)
-        self.save_button.pack(pady=10)
-    
+        upload_light_path = os.path.join(assets_dir, "upload_light.png")
+        upload_dark_path = os.path.join(assets_dir, "upload_dark.png")
+
+        light_image = Image.open(upload_light_path)
+        dark_image = Image.open(upload_dark_path)
+
+        upload_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
+        self.upload_button = ctk.CTkButton(inner_frame, text="Upload Image", image=upload_icon, compound="left",
+                                        command=self.upload_image, fg_color="#e76f51", hover_color="#f4a261")
+        self.upload_button.grid(row=6, column=0, padx=10, pady=10, sticky="w")
+
+        ocr_light_path = os.path.join(assets_dir, "ocr_light.png")
+        ocr_dark_path = os.path.join(assets_dir, "ocr_dark.png")
+
+        light_image = Image.open(ocr_light_path)
+        dark_image = Image.open(ocr_dark_path)
+
+        ocr_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
+        self.ocr_button = ctk.CTkButton(inner_frame, text="Extract Text (OCR)", image=ocr_icon, compound="left",
+                                        command=self.extract_text_from_image, fg_color="#e76f51", hover_color="#f4a261")
+        self.ocr_button.grid(row=6, column=1, padx=10, pady=10, sticky="e")
+
+        self.save_button = ctk.CTkButton(inner_frame, text="Save", fg_color="#e76f51", hover_color="#f4a261",
+                                        command=self.save_note)
+        self.save_button.grid(row=7, column=0, columnspan=2, padx=10, pady=10)
+            
     def parse_ai_response(self, response):
         # Split the response into lines
         lines = response.strip().split('\n')
@@ -226,8 +274,8 @@ class NoteTakingApp:
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.flip(image, 1)  # Mirror the image horizontally for display
-        image = cv2.resize(image, (200, 200), interpolation=cv2.INTER_AREA)
-        photo_image = ctk.CTkImage(light_image=Image.fromarray(image), dark_image=Image.fromarray(image), size=(200, 200))
+        image = cv2.resize(image, (130, 130), interpolation=cv2.INTER_AREA)
+        photo_image = ctk.CTkImage(light_image=Image.fromarray(image), dark_image=Image.fromarray(image), size=(130, 130))
         self.image_label.configure(image=photo_image)
         self.image_label.image = photo_image
 
@@ -305,8 +353,8 @@ class NoteTakingApp:
                     self.notes_text.insert(tk.END, f.read())
 
                 image = Image.open(os.path.join(save_dir, result['image']))
-                image = image.resize((200, 200), Image.LANCZOS)
-                photo = ctk.CTkImage(light_image=image, dark_image=image, size=(200, 200))
+                image = image.resize((130, 130), Image.LANCZOS)
+                photo = ctk.CTkImage(light_image=image, dark_image=image, size=(130, 130))
                 self.image_label.configure(image=photo)
                 self.image_label.image = photo
         else:

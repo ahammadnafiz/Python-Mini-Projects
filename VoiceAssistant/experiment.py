@@ -1,11 +1,11 @@
+import os
+import threading
 import base64
 import io
-import os
-from dotenv import load_dotenv
 import logging
-from threading import Lock, Thread
 import cv2
-from cv2 import VideoCapture, imencode
+import tkinter as tk
+from PIL import Image, ImageTk
 from gtts import gTTS
 import pygame
 from speech_recognition import Microphone, Recognizer, UnknownValueError
@@ -15,23 +15,23 @@ from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
+import customtkinter as ctk
 
 logging.basicConfig(level=logging.INFO)
-load_dotenv('.env')
-os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
+os.environ["GOOGLE_API_KEY"] = "AIzaSyADTZNqgOittRnTXuZTh8wSn_yFI-73_1c"
 
 class WebcamStream:
     def __init__(self, index=0):
-        self.stream = VideoCapture(index)
+        self.stream = cv2.VideoCapture(index)
         self.running = False
-        self.lock = Lock()
+        self.lock = threading.Lock()
         self.frame = None
 
     def start(self):
         if self.running:
             return self
         self.running = True
-        self.thread = Thread(target=self.update, daemon=True)
+        self.thread = threading.Thread(target=self.update, daemon=True)
         self.thread.start()
         return self
 
@@ -49,7 +49,7 @@ class WebcamStream:
         with self.lock:
             frame = self.frame.copy()
         if encode:
-            _, buffer = imencode(".jpeg", frame)
+            _, buffer = cv2.imencode(".jpeg", frame)
             return base64.b64encode(buffer)
         return frame
 
@@ -75,6 +75,8 @@ class Assistant:
                 config={"configurable": {"session_id": "unused"}}
             ).strip()
             logging.info("Response: %s", response)
+            print(f"Prompt: {prompt}")
+            print(f"Response: {response}")
             if response:
                 self._tts(response)
         except Exception as e:
@@ -139,32 +141,73 @@ class Assistant:
             history_messages_key="chat_history"
         )
 
-def audio_callback(recognizer, audio):
-    try:
-        prompt = recognizer.recognize_whisper(audio, model="base", language="english")
-        assistant.answer(prompt, webcam_stream.read(encode=True))
-    except UnknownValueError:
-        logging.warning("Audio not recognized.")
-    except Exception as e:
-        logging.error("Error during audio recognition: %s", e)
+class AssistantApp:
+    def __init__(self, root, assistant, webcam_stream):
+        self.root = root
+        self.assistant = assistant
+        self.webcam_stream = webcam_stream
+        self.recognizer = Recognizer()
+        self.microphone = Microphone()
+        self.voice_mode = False
+        self.setup_gui()
+        self.root.after(1, self.update_camera_feed)
 
-webcam_stream = WebcamStream().start()
-model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
-assistant = Assistant(model)
+    def setup_gui(self):
+        self.root.title("AI Assistant App")
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
 
-recognizer = Recognizer()
-microphone = Microphone()
-with microphone as source:
-    recognizer.adjust_for_ambient_noise(source)
+        main_frame = ctk.CTkFrame(self.root)
+        main_frame.grid(row=0, column=0, sticky="nsew")
+        main_frame.grid_rowconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(0, weight=1)
 
-stop_listening = recognizer.listen_in_background(microphone, audio_callback)
+        inner_frame = ctk.CTkFrame(main_frame, border_width=2, border_color="#9AD2CB")
+        inner_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
-try:
-    while True:
-        cv2.imshow("Webcam", webcam_stream.read())
-        if cv2.waitKey(1) in [27, ord("q")]:
-            break
-finally:
-    webcam_stream.stop()
-    cv2.destroyAllWindows()
-    stop_listening(wait_for_stop=False)
+        self.canvas = ctk.CTkCanvas(inner_frame, width=440, height=480)
+        self.canvas.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+        self.voice_label = ctk.CTkLabel(inner_frame, text="🎙️", font=("Arial", 48))
+        self.voice_label.grid(row=1, column=0, pady=20)
+
+        self.activate_voice_mode()
+
+    def activate_voice_mode(self):
+        self.voice_mode = True
+        with self.microphone as source:
+            self.recognizer.adjust_for_ambient_noise(source)
+        self.stop_listening = self.recognizer.listen_in_background(self.microphone, self.audio_callback)
+
+    def audio_callback(self, recognizer, audio):
+        try:
+            prompt = recognizer.recognize_google(audio)
+            image = self.webcam_stream.read(encode=True)
+            self.assistant.answer(prompt, image)
+        except UnknownValueError:
+            logging.warning("Audio not recognized.")
+        except Exception as e:
+            logging.error("Error during audio recognition: %s", e)
+
+    def update_camera_feed(self):
+        frame = self.webcam_stream.read()
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_resized = cv2.resize(frame_rgb, (640, 480), interpolation=cv2.INTER_AREA)
+        photo_image = ImageTk.PhotoImage(image=Image.fromarray(frame_resized))
+        if not hasattr(self, 'camera_image_id'):
+            self.camera_image_id = self.canvas.create_image(320, 240, image=photo_image, anchor=tk.CENTER)
+        else:
+            self.canvas.itemconfig(self.camera_image_id, image=photo_image)
+        self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection
+        self.root.after(1, self.update_camera_feed)  # Update as fast as possible
+
+def main():
+    root = tk.Tk()
+    webcam_stream = WebcamStream().start()
+    model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
+    assistant = Assistant(model)
+    app = AssistantApp(root, assistant, webcam_stream)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
