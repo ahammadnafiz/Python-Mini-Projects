@@ -7,6 +7,9 @@ from PIL import Image, ImageTk
 import base64
 import logging
 from threading import Thread
+import pyaudio
+import speech_recognition as sr
+from threading import Event
 import cv2
 import customtkinter as ctk
 import notion
@@ -138,6 +141,15 @@ class NoteTakingApp:
         self.snap_button = ctk.CTkButton(inner_frame, text="Snap", image=snap_icon, compound="left",
                                         command=self.capture_photo, fg_color="#e76f51", hover_color="#f4a261")
         self.snap_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+        
+        voice_light_path = os.path.join(assets_dir, "voice_light.png")
+
+        light_image = Image.open(voice_light_path)
+
+        voice_icon = ctk.CTkImage(light_image=light_image, size=(20, 20))
+        self.voice_button = ctk.CTkButton(inner_frame, text="Voice Note", image=voice_icon, compound="left",
+                                        command=self.toggle_voice_recording, fg_color="#e76f51", hover_color="#f4a261")
+        self.voice_button.grid(row=1, column=1, padx=10, pady=10, sticky="e")
 
         # Create a frame for notes and image display
         notes_frame = ctk.CTkFrame(inner_frame)
@@ -217,7 +229,57 @@ class NoteTakingApp:
         
         # Load and display the saved notes
         self.load_saved_notes()
-        
+    
+    def toggle_voice_recording(self):
+        if not hasattr(self, 'voice_recording_thread'):
+            self.start_voice_recording()
+        else:
+            self.stop_voice_recording()
+
+    def start_voice_recording(self):
+        self.voice_recording_event = Event()
+        self.voice_recording_thread = Thread(target=self.record_voice, args=(self.voice_recording_event,))
+        self.voice_recording_thread.start()
+
+    def stop_voice_recording(self):
+        if hasattr(self, 'voice_recording_event'):
+            self.voice_recording_event.set()
+            if hasattr(self, 'voice_recording_thread'):
+                self.voice_recording_thread.join(timeout=1.0)  # Wait for 1 second for the thread to stop
+                if self.voice_recording_thread.is_alive():
+                    print("Warning: Voice recording thread did not stop gracefully. Terminating thread...")
+                    try:
+                        import ctypes
+                        thread_id = self.voice_recording_thread.ident
+                        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
+                        if res > 1:
+                            ctypes.pythonapi.PyThreadState_SetAsyncExc(thread_id, 0)
+                            print('Exception raise failure')
+                    except Exception as e:
+                        print(f"Error terminating voice recording thread: {e}")
+                del self.voice_recording_thread
+            del self.voice_recording_event
+
+    def record_voice(self, stop_event):
+        recognizer = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Start speaking...")
+            audio_data = recognizer.listen(source)
+            print("Recognizing...")
+
+            try:
+                text = recognizer.recognize_google(audio_data)
+                # Get the current cursor position in the notes_text widget
+                cursor_pos = self.notes_text.index(tk.INSERT)
+                self.notes_text.insert(cursor_pos, f"\n{text}")
+            except sr.UnknownValueError:
+                print("Speech recognition could not understand audio")
+            except sr.RequestError as e:
+                print(f"Could not request results from Speech Recognition service; {e}")
+
+        if not stop_event.is_set():
+            self.record_voice(stop_event)
+            
     def load_saved_notes(self):
         self.notes_data = []  # Clear the existing notes_data list
         save_dir = "saved_notes"
@@ -565,12 +627,22 @@ class NoteTakingApp:
             history_messages_key="chat_history"
         )
 
+    def cleanup(self):
+        if hasattr(self, 'voice_recording_thread'):
+            self.stop_voice_recording()
+        if hasattr(self, 'webcam_stream'):
+            self.webcam_stream.stop()
+
 def main():
     root = tk.Tk()
     webcam_stream = WebcamStream().start()
     model = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest")
     app = NoteTakingApp(root, model, webcam_stream)
-    root.mainloop()
+
+    try:
+        root.mainloop()
+    finally:
+        app.cleanup()
 
 if __name__ == "__main__":
     main()
