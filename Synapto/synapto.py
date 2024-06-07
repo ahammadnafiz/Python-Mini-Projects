@@ -90,7 +90,7 @@ class NoteTakingApp:
         self.root.after(1, self.update_camera_feed)
         
     def setup_gui(self):
-        self.root.title("SnapNote")
+        self.root.title("Synapto")
         ctk.set_appearance_mode("#070707")
         ctk.set_default_color_theme("blue")
 
@@ -254,7 +254,7 @@ class NoteTakingApp:
 
         if not self.notes_data:
             empty_label = ctk.CTkLabel(self.notes_feed_frame, text="No saved notes available.", font=("Helvetica", 16), anchor="center")
-            empty_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+            empty_label.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
             return
 
         for i, note in enumerate(self.notes_data):
