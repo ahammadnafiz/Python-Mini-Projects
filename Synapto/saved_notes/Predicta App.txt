@@ -1,5 +1,0 @@
-Predicta App
-
-The image is a screenshot of a web application called Predicta. The application appears to be a platform for data analysis and machine learning, with a user interface that allows users to upload datasets, clean data, and perform various analysis tasks.
-
-Tags: data analysis, machine learning, web application, user interface, dark theme
