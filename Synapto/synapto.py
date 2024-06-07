@@ -93,6 +93,7 @@ class NoteTakingApp:
         self.root.title("Synapto")
         ctk.set_appearance_mode("#070707")
         ctk.set_default_color_theme("blue")
+        # self.root.geometry('520x440')
 
         # Create a main frame to hold the UI elements
         main_frame = ctk.CTkFrame(self.root)
@@ -101,7 +102,7 @@ class NoteTakingApp:
         main_frame.grid_columnconfigure(0, weight=1)
 
         # Create a notebook (tabs)
-        notebook = ctk.CTkTabview(main_frame, width=520, height=440)
+        notebook = ctk.CTkTabview(main_frame, width=510, height=640)
         notebook.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
         # Create the first tab for the existing UI
@@ -190,13 +191,13 @@ class NoteTakingApp:
         self.save_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
 
         # Create a frame for the saved notes feed
-        notes_feed_frame = ctk.CTkFrame(notes_tab, border_width=2, border_color="#9AD2CB", width=520, height=440)
+        notes_feed_frame = ctk.CTkFrame(notes_tab, border_width=2, border_color="#9AD2CB", width=500, height=640)
         notes_feed_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        notes_feed_frame.grid_rowconfigure(0, weight=1)
+        notes_feed_frame.grid_rowconfigure(0, weight=1)                         
         notes_feed_frame.grid_columnconfigure(0, weight=1)
 
         # Create a canvas to display the saved notes feed
-        self.notes_canvas = ctk.CTkCanvas(notes_feed_frame)
+        self.notes_canvas = ctk.CTkCanvas(notes_feed_frame,width=470, height=600)
         self.notes_canvas.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         # Create a vertical scrollbar for the notes canvas
@@ -205,16 +206,15 @@ class NoteTakingApp:
         self.notes_canvas.configure(yscrollcommand=scrollbar.set)
 
         # Create a frame to hold the notes feed
-        self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas)
+        self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas, width=500, height=640)
         self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw")
 
         # Bind the canvas configure event to update the scrollregion
-        self.notes_canvas.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))
-
+        self.notes_canvas.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))        
+        
         # Load and display the saved notes
         self.load_saved_notes()
-
-    
+        
     def load_saved_notes(self):
         self.notes_data = []  # Clear the existing notes_data list
         save_dir = "saved_notes"
@@ -253,28 +253,48 @@ class NoteTakingApp:
             widget.destroy()
 
         if not self.notes_data:
-            empty_label = ctk.CTkLabel(self.notes_feed_frame, text="No saved notes available.", font=("Helvetica", 16), anchor="center")
-            empty_label.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+            empty_label = ctk.CTkLabel(
+                self.notes_feed_frame, 
+                text="No saved notes available.", 
+                font=("Helvetica", 16, "italic"), 
+                fg_color="#e76f51", 
+                anchor="center"
+            )
+            empty_label.pack(padx=10, pady=10, fill="both", expand=True)
             return
 
-        for i, note in enumerate(self.notes_data):
-            note_frame = ctk.CTkFrame(self.notes_feed_frame, border_width=1, border_color="#9AD2CB")
-            note_frame.grid(row=i, column=0, padx=5, pady=5, sticky="ew")
-            note_frame.grid_columnconfigure(0, weight=1)
-            note_frame.grid_columnconfigure(1, weight=0)
+        for note in self.notes_data:
+            note_frame = ctk.CTkFrame(self.notes_feed_frame, border_width=2, border_color="#9AD2CB", corner_radius=10)
+            note_frame.pack(padx=10, pady=10, fill="x", expand=True)
+
+            # Note frame internal packing
+            note_frame_inner = ctk.CTkFrame(note_frame, fg_color=None)
+            note_frame_inner.pack(padx=5, pady=5, fill="x", expand=True)
 
             # Load and display the note image
             image_path = os.path.join(save_dir, note["image"])
-            pil_image = Image.open(image_path)
-            pil_image = pil_image.resize((100, 100), Image.LANCZOS)
-            photo_image = ctk.CTkImage(pil_image, size=(100, 100))
-            image_label = ctk.CTkLabel(note_frame, image=photo_image)
-            image_label.image = photo_image  # Keep a reference to prevent garbage collection
-            image_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+            try:
+                pil_image = Image.open(image_path)
+                pil_image = pil_image.resize((100, 100), Image.LANCZOS)
+                photo_image = ctk.CTkImage(pil_image, size=(100, 100))
+                image_label = ctk.CTkLabel(note_frame_inner, image=photo_image)
+                image_label.image = photo_image  # Keep a reference to prevent garbage collection
+                image_label.pack(side="left", padx=5, pady=5)
+            except Exception as e:
+                print(f"Error loading image {image_path}: {e}")
+                image_label = ctk.CTkLabel(note_frame_inner, text="No Image", width=100, height=100, fg_color="#E0E0E0")
+                image_label.pack(side="left", padx=5, pady=5)
+
+            text_frame = ctk.CTkFrame(note_frame_inner, fg_color=None)
+            text_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+
+            # Display the note title
+            note_title = ctk.CTkLabel(text_frame, text=note["title"], font=("Helvetica", 14, "bold"), anchor="w")
+            note_title.pack(fill="x")
 
             # Display the note text
-            note_text = ctk.CTkLabel(note_frame, text=note["note"], wraplength=323, anchor="w", justify="left")
-            note_text.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+            note_text = ctk.CTkLabel(text_frame, text=note["note"], wraplength=330, anchor="w", justify="left")
+            note_text.pack(fill="x")
 
         # Update the canvas scrollregion
         self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all"))
@@ -318,6 +338,7 @@ class NoteTakingApp:
         3. Additional details or context (2-5 sentences)
         4. Personal observations or reflections (2 sentence)
         5. A list of 3-5 relevant tags, comma-separated
+        6. If there is text on the image please describe it
 
         Structure your response as:
         Title: [Note Title]
@@ -355,7 +376,8 @@ class NoteTakingApp:
         2. Description of the main subject (1 sentence), Must give it, if it is code snippet give additional details
         3. Additional details or context (1-3 sentences)
         4. Personal observations or reflections (1 sentence)
-        5. A list of 3-5 relevant tags, comma-separated
+        5. If there is text on the image please describe it
+        6. A list of 3-5 relevant tags, comma-separated
 
         Structure your response as:
         Title: [Note Title]
@@ -497,6 +519,7 @@ class NoteTakingApp:
         1. Description of the main subject (2 sentence) Must give it, if it is code snippet give additional details
         2. Additional details or context (2-4 sentences)
         3. Personal observations or reflections (1 sentence)
+        4. If there is text on the image please describe it
 
         Keep your notes concise, descriptive, and engaging. Imagine you're writing a
         snapshot description for someone who can't see the image.
