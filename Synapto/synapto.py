@@ -9,6 +9,9 @@ import logging
 from threading import Thread
 import cv2
 import customtkinter as ctk
+import notion
+from notion.client import NotionClient
+from notion.block import TextBlock, PageBlock
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -422,6 +425,19 @@ class NoteTakingApp:
             self.canvas.itemconfig(self.camera_image_id, image=photo_image)
         self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection
         self.root.after(1, self.update_camera_feed)  # Update as fast as possible
+    
+    def save_note_to_notion(self, title, note, tags):
+        client = NotionClient(token_v2="secret_Tdf2druvMDaGCOo5USs1Lp7kFh69kuJ28A7PwPWgIm1e")
+        page = client.get_block("2716877ddc644c98924087a9446fbfda")
+
+        new_page = page.children.add_new(PageBlock)
+        new_page.title = title
+
+        new_page.children.add_new(TextBlock, title="Note", children=[notion.Text(note)])
+        new_page.children.add_new(TextBlock, title="Tags", children=[notion.Text(", ".join(tags))])
+
+        client.sync()
+
 
     def save_note(self):
         if self.last_note_image is None:
@@ -431,6 +447,9 @@ class NoteTakingApp:
         note = self.notes_text.get("1.0", tk.END).strip()
         title = note.split('\n')[0]
         tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
+        
+        # Save note to Notion
+        # self.save_note_to_notion(title, note, tags)
 
         image_filename = f"{title}.jpg"
         note_filename = f"{title}.txt"
@@ -503,7 +522,7 @@ class NoteTakingApp:
             image_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
             # Display the note text
-            note_text = ctk.CTkLabel(note_frame, text=result["content"], wraplength=323, anchor="w", justify="left")
+            note_text = ctk.CTkLabel(note_frame, text=result["content"], wraplength=330, anchor="w", justify="left")
             note_text.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
         # Update the canvas scrollregion
