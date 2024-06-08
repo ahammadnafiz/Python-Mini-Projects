@@ -1,7 +1,6 @@
-```markdown
 # Oratio: Advanced Voice and Vision Assistant
 
-Oratio is an advanced application that serves as a versatile Voice and Vision Assistant, integrating sophisticated AI models for enriched user interaction. Built upon CustomTkinter for an elegant UI, Oratio offers seamless voice command recognition and vision functionalities, making it an indispensable tool for diverse applications.
+Oratio is an advanced application that is a versatile Voice and Vision Assistant, integrating sophisticated AI models for enriched user interaction. Built upon CustomTkinter for an elegant UI, Oratio offers seamless voice command recognition and vision functionalities, making it an indispensable tool for diverse applications.
 
 ## Features
 
@@ -18,7 +17,7 @@ Oratio is an advanced application that serves as a versatile Voice and Vision As
 ### Clone the repository
 
 ```sh
-git clone https://github.com/yourusername/oratio.git
+git clone https://github.com/ahammadnafiz/Python-Mini-Projects.git
 cd Oratio
 ```
 
@@ -80,6 +79,5 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 
 ## Contact
 
-For questions or suggestions, feel free to open an issue or contact me at ahammadnafiz@outlook.com.
+If you have any questions or suggestions, feel free to open an issue or contact me at ahammadnafiz@outlook.com.
 
-```
