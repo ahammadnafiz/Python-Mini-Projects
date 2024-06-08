@@ -6,8 +6,8 @@ import logging
 from threading import Lock, Thread
 import cv2
 from cv2 import VideoCapture, imencode
-from gtts import gTTS
-import pygame
+import speech_recognition as sr
+import pyttsx3
 from speech_recognition import Microphone, Recognizer, UnknownValueError
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -19,6 +19,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 logging.basicConfig(level=logging.INFO)
 load_dotenv('.env')
 os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
+engine  = pyttsx3.init()
 
 class WebcamStream:
     def __init__(self, index=0):
@@ -81,19 +82,8 @@ class Assistant:
             logging.error("Error processing request: %s", e)
 
     def _tts(self, response, slow=False):
-        try:
-            tts = gTTS(text=response, lang='en', slow=slow)
-            fp = io.BytesIO()
-            tts.write_to_fp(fp)
-            fp.seek(0)
-            pygame.mixer.init()
-            pygame.mixer.music.load(fp)
-            pygame.mixer.music.play()
-            while pygame.mixer.music.get_busy():
-                pygame.time.Clock().tick(10)
-            logging.info("Spoken Response: %s", response)
-        except Exception as e:
-            logging.error("TTS error: %s", e)
+        engine.say(response)
+        engine.runAndWait()
 
     def _create_inference_chain(self, model):
         SYSTEM_PROMPT = """
