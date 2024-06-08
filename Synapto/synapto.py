@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import base64
 import logging
 from threading import Thread
-import pyaudio
+import ctypes
 import speech_recognition as sr
 from threading import Event
 import cv2
@@ -249,7 +249,7 @@ class NoteTakingApp:
                 if self.voice_recording_thread.is_alive():
                     print("Warning: Voice recording thread did not stop gracefully. Terminating thread...")
                     try:
-                        import ctypes
+                        
                         thread_id = self.voice_recording_thread.ident
                         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
                         if res > 1:
