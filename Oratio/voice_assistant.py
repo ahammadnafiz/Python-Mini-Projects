@@ -11,10 +11,6 @@ from langchain_core.messages import SystemMessage
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain_groq import ChatGroq
 from threading import Thread
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO)
