@@ -403,7 +403,7 @@ class NoteTakingApp:
         3. Additional details or context (2-5 sentences)
         4. Personal observations or reflections (2 sentence)
         5. A list of 3-5 relevant tags, comma-separated
-        6. If there is text on the image please describe it
+        6. If there is text(first use OCR and extract the text) on the image please describe it
 
         Structure your response as:
         Title: [Note Title]
