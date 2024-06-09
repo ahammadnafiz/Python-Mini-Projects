@@ -37,11 +37,11 @@ voice_button_image = ImageTk.PhotoImage(transparent_image)
 
 # Create voice button
 voice_button = tk.Button(root, image=voice_button_image, command=process_voice_assistant, bd=0, highlightthickness=0, bg=window_bg_color)
-voice_button.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+voice_button.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
 
 # Create camera button
 camera_button = ctk.CTkButton(root, text="Vision Assistant", command=process_multimodel_assistant)
-camera_button.place(relx=0.9, rely=0.9, anchor=tk.SE)
+camera_button.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 
 # Start the main event loop
 root.mainloop()
