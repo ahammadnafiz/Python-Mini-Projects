@@ -9,7 +9,6 @@ from langchain_core.messages import SystemMessage
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
 from langchain_groq import ChatGroq
 from threading import Thread
-import requests
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -81,58 +80,6 @@ class VoiceAssistant:
         engine.say(response)
         engine.runAndWait()
 
-    def search(self, query):
-        """
-        Perform a search using a search engine API.
-
-        Args:
-            query (str): The search query.
-
-        Returns:
-            str: The search results.
-        """
-        search_engine_api_key = os.getenv('GOOGLE_API_KEY')
-        search_engine_id = os.getenv('SEARCH_ENGINE_ID')
-        url = f"https://www.googleapis.com/customsearch/v1"
-        try:
-            prams = {
-                'q':query,
-                'key':search_engine_api_key,
-                'cx':search_engine_id
-            }
-            response = requests.get(url, params=prams)
-            response.raise_for_status()
-            search_results = response.json()
-            # Extract relevant information from search_results and format it
-            # Return the formatted search results
-            formatted_results = self._format_search_results(search_results)
-            return formatted_results
-        except Exception as e:
-            print("Error performing search:", e)
-            return "Sorry, I couldn't perform the search at the moment."
-
-    def _format_search_results(self, search_results):
-        """
-        Format the search results for speech output.
-
-        Args:
-            search_results (dict): The search results JSON.
-
-        Returns:
-            str: The formatted search results.
-        """
-        # Implement your logic to format the search results here
-        # For demonstration purposes, we'll just return the top search result
-        if search_results.get('items'):
-            top_result = search_results['items'][0]
-            result_title = top_result['title']
-            result_snippet = top_result['snippet']
-            result_link = top_result['link']
-            formatted_result = f"Here's a summary of the top search result:\n\nTitle: {result_title}\nSnippet: {result_snippet}\nLink: {result_link}"
-            return formatted_result
-        else:
-            return "No search results found."
-
     def _create_chat_prompt(self):
         """
         Create a chat prompt template.
@@ -174,13 +121,7 @@ def audio_callback(recognizer, audio, assistant):
     """
     try:
         prompt = recognizer.recognize_whisper(audio, model="base", language="english")
-        if "search" in prompt.lower():
-            search_query = prompt.split("search", 1)[-1].strip()
-            rephrased_query = f"Can you please search for: {search_query}"
-            search_results = assistant.search(search_query)
-            assistant._tts(search_results)
-        else:
-            assistant.answer(prompt)
+        assistant.answer(prompt)
     except sr.UnknownValueError:
         print("Audio not recognized.")
     except Exception as e:
