@@ -1,4 +1,6 @@
 import os
+import requests
+import json
 import io
 from dotenv import load_dotenv
 import numpy as np
@@ -12,9 +14,7 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
-import notion
-from notion.client import NotionClient
-from notion.block import TextBlock, PageBlock
+import mimetypes
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -26,6 +26,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 logging.basicConfig(level=logging.INFO)
 load_dotenv('.env')
 os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
+NOTION_TOKEN = os.getenv('NOTION_TOKEN')
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
 
 class WebcamStream:
@@ -488,19 +489,90 @@ class NoteTakingApp:
         self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection
         self.root.after(1, self.update_camera_feed)  # Update as fast as possible
     
-    def save_note_to_notion(self, title, note, tags):
-        client = NotionClient(token_v2="secret_Tdf2druvMDaGCOo5USs1Lp7kFh69kuJ28A7PwPWgIm1e")
-        page = client.get_block("2716877ddc644c98924087a9446fbfda")
 
-        new_page = page.children.add_new(PageBlock)
-        new_page.title = title
+    def create_notion_page(self, token, database_id, title, content, tags, image_path=None):
+        url = "https://api.notion.com/v1/pages"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+        }
 
-        new_page.children.add_new(TextBlock, title="Note", children=[notion.Text(note)])
-        new_page.children.add_new(TextBlock, title="Tags", children=[notion.Text(", ".join(tags))])
+        # Prepare the content blocks
+        blocks = [
+            {
+                "object": "block",
+                "type": "heading_1",
+                "heading_1": {
+                    "rich_text": [{"type": "text", "text": {"content": title}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"type": "text", "text": {"content": content}}]
+                }
+            }
+        ]
 
-        client.sync()
+        # Add image block if image_path is provided
+        if image_path:
+            # First, get a signed URL for file upload
+            get_upload_url = "https://api.notion.com/v1/files"
+            mime_type, _ = mimetypes.guess_type(image_path)
+            file_name = image_path.split('/')[-1]
+            upload_url_payload = {
+                "parent": {"page_id": database_id},
+                "name": file_name,
+                "type": "file",
+            }
+            upload_url_response = requests.post(get_upload_url, headers=headers, json=upload_url_payload)
+            
+            if upload_url_response.status_code == 200:
+                upload_data = upload_url_response.json()
+                upload_url = upload_data['url']
+                signed_put_url = upload_data['signed_put_url']
+                
+                # Now upload the file to the signed URL
+                with open(image_path, 'rb') as file:
+                    files = {'file': (file_name, file, mime_type)}
+                    upload_response = requests.put(signed_put_url, files=files)
+                    
+                    if upload_response.status_code == 200:
+                        blocks.append({
+                            "object": "block",
+                            "type": "image",
+                            "image": {
+                                "type": "file",
+                                "file": {"url": upload_url}
+                            }
+                        })
+                    else:
+                        print(f"Failed to upload image: {upload_response.status_code} - {upload_response.text}")
+            else:
+                print(f"Failed to get upload URL: {upload_url_response.status_code} - {upload_url_response.text}")
 
+        data = {
+            "parent": {"database_id": database_id},
+            "properties": {
+                "Name": {
+                    "title": [{"text": {"content": title}}]
+                },
+                "Tags": {
+                    "multi_select": [{"name": tag} for tag in tags]
+                }
+            },
+            "children": blocks
+        }
 
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            print("Page created successfully in Notion!")
+        else:
+            print(f"Failed to create page in Notion: {response.status_code} - {response.text}")
+            print(f"Request data: {json.dumps(data, indent=2)}")  # For debugging
+            
     def save_note(self):
         if self.last_note_image is None:
             logging.warning("No image to save.")
@@ -510,9 +582,7 @@ class NoteTakingApp:
         title = note.split('\n')[0]
         tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
         
-        # Save note to Notion
-        # self.save_note_to_notion(title, note, tags)
-
+        # Save note locally
         image_filename = f"{title}.jpg"
         note_filename = f"{title}.txt"
 
@@ -527,7 +597,12 @@ class NoteTakingApp:
             f.write(note)
 
         self.notes_data.append({"title": title, "note": note, "tags": tags, "image": image_filename, "text": note_filename})
-        logging.info(f"Saved note: {title}")
+        logging.info(f"Saved note locally: {title}")
+        
+        # Save note to Notion
+        notion_token = NOTION_TOKEN
+        notion_database_id = '70ef93d9e15c46048efc2513bbe7b67e'
+        self.create_notion_page(notion_token, notion_database_id, title, note, tags)
         
         self.load_saved_notes()
     
