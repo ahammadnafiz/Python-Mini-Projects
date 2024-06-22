@@ -542,7 +542,7 @@ class NoteTakingApp:
                     if upload_response.status_code == 200:
                         blocks.append({
                             "object": "block",
-                            "type": "image",
+                            "type": "image", 
                             "image": {
                                 "type": "file",
                                 "file": {"url": upload_url}

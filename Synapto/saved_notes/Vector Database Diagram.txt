@@ -1,5 +1,0 @@
-Vector Database Diagram
-
-The image is a diagram that explains the process of creating and querying a vector database. The diagram shows a series of steps, starting with creating chunks of data, embedding those chunks into vectors, and then indexing those vectors. The diagram also shows how to query the database using a query vector and find the most similar vectors in the database.
-
-Tags: vector database, data science, machine learning, data storage, diagram
