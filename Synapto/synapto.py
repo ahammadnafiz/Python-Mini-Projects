@@ -516,6 +516,8 @@ class NoteTakingApp:
             }
         ]
 
+        image_url = None
+
         # Add image block if image_path is provided
         if image_path:
             # First, get a signed URL for file upload
@@ -528,24 +530,23 @@ class NoteTakingApp:
                 "type": "file",
             }
             upload_url_response = requests.post(get_upload_url, headers=headers, json=upload_url_payload)
-            
+
             if upload_url_response.status_code == 200:
                 upload_data = upload_url_response.json()
-                upload_url = upload_data['url']
+                image_url = upload_data['url']
                 signed_put_url = upload_data['signed_put_url']
-                
+
                 # Now upload the file to the signed URL
                 with open(image_path, 'rb') as file:
-                    files = {'file': (file_name, file, mime_type)}
-                    upload_response = requests.put(signed_put_url, files=files)
-                    
+                    upload_response = requests.put(signed_put_url, data=file, headers={"Content-Type": mime_type})
+
                     if upload_response.status_code == 200:
                         blocks.append({
                             "object": "block",
                             "type": "image", 
                             "image": {
                                 "type": "file",
-                                "file": {"url": upload_url}
+                                "file": {"url": image_url}
                             }
                         })
                     else:
@@ -561,10 +562,23 @@ class NoteTakingApp:
                 },
                 "Tags": {
                     "multi_select": [{"name": tag} for tag in tags]
+                },
+                "Content": {
+                    "files": [
+                        {
+                            "name": "Uploaded Image",
+                            "type": "external",
+                            "external": {"url": image_url} if image_url else None
+                        }
+                    ]
                 }
             },
             "children": blocks
         }
+
+        # Remove Content property if no image was uploaded
+        if not image_url:
+            del data['properties']['Content']
 
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
@@ -572,6 +586,25 @@ class NoteTakingApp:
         else:
             print(f"Failed to create page in Notion: {response.status_code} - {response.text}")
             print(f"Request data: {json.dumps(data, indent=2)}")  # For debugging
+
+    def image_add(self, parent_id: str, image_url: str):
+        append_children = [
+            {
+                "type": "image",
+                "image": {
+                    "type": "external",
+                    "external": {
+                        "url": image_url
+                    }
+                }
+            }
+        ]
+        
+        return self.append_child_blocks(parent_id, append_children)
+
+    def append_child_blocks(self, parent_id, children):
+        # Implement the method to append blocks to an existing page.
+        pass
             
     def save_note(self):
         if self.last_note_image is None:
