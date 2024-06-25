@@ -15,7 +15,7 @@ ConvertirseAI is an advanced code conversion platform powered by LLaMA3 70b, Lan
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your-username/convertirse-ai.git
+   git clone https://github.com/ahammadnafiz/Python-Mini-Projects.git
    ```
 
 2. Navigate to the project directory:
