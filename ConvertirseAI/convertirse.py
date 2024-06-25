@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 # Set up Groq API with LLaMA3 70b model
 load_dotenv('.env')
 os.environ["GROQ_API_KEY"] = os.getenv('GROQ_API_KEY')
-# os.environ["GROQ_API_KEY"] = "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"
 llm = ChatGroq(
     temperature=0.2,
     model_name="llama3-70b-8192",
