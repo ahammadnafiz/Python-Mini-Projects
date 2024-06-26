@@ -14,7 +14,6 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
-import mimetypes
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -502,13 +501,6 @@ class NoteTakingApp:
         blocks = [
             {
                 "object": "block",
-                "type": "heading_1",
-                "heading_1": {
-                    "rich_text": [{"type": "text", "text": {"content": title}}]
-                }
-            },
-            {
-                "object": "block",
                 "type": "paragraph",
                 "paragraph": {
                     "rich_text": [{"type": "text", "text": {"content": content}}]
@@ -516,69 +508,45 @@ class NoteTakingApp:
             }
         ]
 
-        image_url = None
-
-        # Add image block if image_path is provided
-        if image_path:
-            # First, get a signed URL for file upload
-            get_upload_url = "https://api.notion.com/v1/files"
-            mime_type, _ = mimetypes.guess_type(image_path)
-            file_name = image_path.split('/')[-1]
-            upload_url_payload = {
-                "parent": {"page_id": database_id},
-                "name": file_name,
-                "type": "file",
+        # Prepare the properties
+        properties = {
+            "Name": {
+                "title": [{"text": {"content": title}}]
+            },
+            "Tags": {
+                "multi_select": [{"name": tag} for tag in tags]
             }
-            upload_url_response = requests.post(get_upload_url, headers=headers, json=upload_url_payload)
+        }
 
-            if upload_url_response.status_code == 200:
-                upload_data = upload_url_response.json()
-                image_url = upload_data['url']
-                signed_put_url = upload_data['signed_put_url']
-
-                # Now upload the file to the signed URL
-                with open(image_path, 'rb') as file:
-                    upload_response = requests.put(signed_put_url, data=file, headers={"Content-Type": mime_type})
-
-                    if upload_response.status_code == 200:
-                        blocks.append({
-                            "object": "block",
-                            "type": "image", 
-                            "image": {
-                                "type": "file",
-                                "file": {"url": image_url}
-                            }
-                        })
-                    else:
-                        print(f"Failed to upload image: {upload_response.status_code} - {upload_response.text}")
-            else:
-                print(f"Failed to get upload URL: {upload_url_response.status_code} - {upload_url_response.text}")
-
-        data = {
-            "parent": {"database_id": database_id},
-            "properties": {
-                "Name": {
-                    "title": [{"text": {"content": title}}]
-                },
-                "Tags": {
-                    "multi_select": [{"name": tag} for tag in tags]
-                },
-                "Content": {
+        # Add image to file property if image_path is provided
+        if image_path:
+            # Upload the image to Notion
+            upload_url = "https://api.notion.com/v1/files"
+            with open(image_path, "rb") as file:
+                files = {"file": (os.path.basename(image_path), file)}
+                upload_response = requests.post(upload_url, headers=headers, files=files)
+            
+            if upload_response.status_code == 200:
+                image_url = upload_response.json()["url"]
+                properties["File"] = {
                     "files": [
                         {
-                            "name": "Uploaded Image",
+                            "name": os.path.basename(image_path),
                             "type": "external",
-                            "external": {"url": image_url} if image_url else None
+                            "external": {
+                                "url": image_url
+                            }
                         }
                     ]
                 }
-            },
+            else:
+                print(f"Failed to upload image to Notion: {upload_response.status_code} - {upload_response.text}")
+
+        data = {
+            "parent": {"database_id": database_id},
+            "properties": properties,
             "children": blocks
         }
-
-        # Remove Content property if no image was uploaded
-        if not image_url:
-            del data['properties']['Content']
 
         response = requests.post(url, headers=headers, json=data)
         if response.status_code == 200:
@@ -586,26 +554,7 @@ class NoteTakingApp:
         else:
             print(f"Failed to create page in Notion: {response.status_code} - {response.text}")
             print(f"Request data: {json.dumps(data, indent=2)}")  # For debugging
-
-    def image_add(self, parent_id: str, image_url: str):
-        append_children = [
-            {
-                "type": "image",
-                "image": {
-                    "type": "external",
-                    "external": {
-                        "url": image_url
-                    }
-                }
-            }
-        ]
-        
-        return self.append_child_blocks(parent_id, append_children)
-
-    def append_child_blocks(self, parent_id, children):
-        # Implement the method to append blocks to an existing page.
-        pass
-            
+                
     def save_note(self):
         if self.last_note_image is None:
             logging.warning("No image to save.")
@@ -635,7 +584,7 @@ class NoteTakingApp:
         # Save note to Notion
         notion_token = NOTION_TOKEN
         notion_database_id = '70ef93d9e15c46048efc2513bbe7b67e'
-        self.create_notion_page(notion_token, notion_database_id, title, note, tags)
+        self.create_notion_page(notion_token, notion_database_id, title, note, tags, image_path)
         
         self.load_saved_notes()
     
