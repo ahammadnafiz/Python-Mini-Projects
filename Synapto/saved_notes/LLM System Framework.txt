@@ -1,5 +1,6 @@
 LLM System Framework
 
-The image shows a flowchart depicting an end-to-end framework for production-ready LLM systems. It outlines various stages, including data collection, feature pipeline, training pipeline, model registry, and inference pipeline. The framework involves multiple components like data sources, ETL processes, experiment trackers, vector databases, and prompt layers.
+The image depicts a detailed diagram outlining an end-to-end framework for building production-ready Large Language Model (LLM) systems. The framework is broken down into five distinct pipelines
+I am happy to say that this is really a good note
 
-Tags: LLM, framework, machine learning, data pipeline, AI
+Tags: LLM, framework, data pipeline, machine learning, NLP

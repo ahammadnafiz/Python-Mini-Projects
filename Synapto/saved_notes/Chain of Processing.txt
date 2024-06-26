@@ -1,0 +1,5 @@
+Chain of Processing
+
+The diagram shows a chain of processing with four chains. The output of chain 1 is the input to chain 2. The output of chain 2 is the input to chain 4. The output of chain 3 is the input to chain 4.
+
+Tags: chain, processing, input, output, diagram

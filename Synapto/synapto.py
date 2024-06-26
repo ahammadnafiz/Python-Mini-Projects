@@ -14,6 +14,7 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
+import mimetypes
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -396,15 +397,18 @@ class NoteTakingApp:
     def process_image_with_ai(self, image_base64):
         # Send the image to the AI model for processing
         prompt = '''
-        You are a note-taking assistant equipped with image recognition capabilities.
-        Analyze the image and provide:
-        1. A concise, engaging title for the note (max 5 words)
-        2. Description of the main subject (2 sentence), Must give it, if it is code snippet give additional details
-        3. Additional details or context (2-5 sentences)
-        4. Personal observations or reflections (2 sentence)
-        5. A list of 3-5 relevant tags, comma-separated
-        6. If there is text(first use OCR and extract the text) on the image please describe it
-
+        You are a great note taker, for the uploaded images, generate notes contains import information.
+        The images usually taken from slides, meeting notes, what you need to do is help to take notes from the images.
+        Output the information directly, do not say anything else.
+        Make it more like a note contains important information, not a description of the image.
+        A good structure of generated notes is like: 
+        <example-structure>
+        ## <-title->
+        <-a paragraph of summary->
+        <-details information from the image->
+        </example-structure>
+        If there are some tables, try to extract all orignial information in table format.
+        Use the same language as the image, do not change the language.
         Structure your response as:
         Title: [Note Title]
         Note:
@@ -435,14 +439,18 @@ class NoteTakingApp:
 
     def process_image(self, image_base64):
         prompt = '''
-        You are a note-taking assistant equipped with image recognition capabilities.
-        Analyze the image and provide:
-        1. A concise, engaging title for the note (max 5 words)
-        2. Description of the main subject (1 sentence), Must give it, if it is code snippet give additional details
-        3. Additional details or context (1-3 sentences)
-        4. Personal observations or reflections (1 sentence)
-        5. If there is text on the image please describe it
-        6. A list of 3-5 relevant tags, comma-separated
+        You are a great note taker, for the uploaded images, generate notes contains import information.
+        The images usually taken from slides, meeting notes, what you need to do is help to take notes from the images.
+        Output the information directly, do not say anything else.
+        Make it more like a note contains important information, not a description of the image.
+        A good structure of generated notes is like: 
+        <example-structure>
+        ## <-title->
+        <-a paragraph of summary->
+        <-details information from the image->
+        </example-structure>
+        If there are some tables, try to extract all orignial information in table format.
+        Use the same language as the image, do not change the language.
 
         Structure your response as:
         Title: [Note Title]
@@ -501,6 +509,13 @@ class NoteTakingApp:
         blocks = [
             {
                 "object": "block",
+                "type": "heading_1",
+                "heading_1": {
+                    "rich_text": [{"type": "text", "text": {"content": title}}]
+                }
+            },
+            {
+                "object": "block",
                 "type": "paragraph",
                 "paragraph": {
                     "rich_text": [{"type": "text", "text": {"content": content}}]
@@ -508,43 +523,31 @@ class NoteTakingApp:
             }
         ]
 
-        # Prepare the properties
-        properties = {
-            "Name": {
-                "title": [{"text": {"content": title}}]
-            },
-            "Tags": {
-                "multi_select": [{"name": tag} for tag in tags]
-            }
-        }
-
-        # Add image to file property if image_path is provided
+        # Add image block if image_path is provided
         if image_path:
-            # Upload the image to Notion
-            upload_url = "https://api.notion.com/v1/files"
-            with open(image_path, "rb") as file:
-                files = {"file": (os.path.basename(image_path), file)}
-                upload_response = requests.post(upload_url, headers=headers, files=files)
-            
-            if upload_response.status_code == 200:
-                image_url = upload_response.json()["url"]
-                properties["File"] = {
-                    "files": [
-                        {
-                            "name": os.path.basename(image_path),
-                            "type": "external",
-                            "external": {
-                                "url": image_url
-                            }
-                        }
-                    ]
+            # Use a placeholder URL for the image
+            placeholder_image_url = "https://via.placeholder.com/400x300.png?text=Image+Placeholder"
+            blocks.append({
+                "object": "block",
+                "type": "image",
+                "image": {
+                    "type": "external",
+                    "external": {
+                        "url": placeholder_image_url
+                    }
                 }
-            else:
-                print(f"Failed to upload image to Notion: {upload_response.status_code} - {upload_response.text}")
+            })
 
         data = {
             "parent": {"database_id": database_id},
-            "properties": properties,
+            "properties": {
+                "Name": {
+                    "title": [{"text": {"content": title}}]
+                },
+                "Tags": {
+                    "multi_select": [{"name": tag} for tag in tags]
+                }
+            },
             "children": blocks
         }
 
@@ -554,7 +557,7 @@ class NoteTakingApp:
         else:
             print(f"Failed to create page in Notion: {response.status_code} - {response.text}")
             print(f"Request data: {json.dumps(data, indent=2)}")  # For debugging
-                
+            
     def save_note(self):
         if self.last_note_image is None:
             logging.warning("No image to save.")
