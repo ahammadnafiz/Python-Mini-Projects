@@ -8,20 +8,25 @@ from typing import List
 import json
 from dotenv import load_dotenv
 import os
+import random
+import time
 
 # Load environment variables
 load_dotenv()
 
 # Set up Streamlit UI
-st.set_page_config(page_title="InnoGenie", page_icon="💡")
+st.set_page_config(page_title="InnoGenie 2.0", page_icon="💡")
 st.image('Assets/InnoGenie.png')
 st.caption("Powered by LLaMA3 70b, Langchain, and Groq API")
 
-# Sidebar for API key input
+# Sidebar for API key input and creativity level
 with st.sidebar:
-    st.subheader("API Key Configuration")
+    st.subheader("Configuration")
     groq_api_key = st.text_input("Groq API Key", type="password")
     st.markdown("[Get a GROQ API key](https://console.groq.com/keys)")
+    
+    st.subheader("Customize Your Experience")
+    creativity_level = st.slider("Creativity Level", min_value=0.1, max_value=1.0, value=0.5, step=0.1)
 
 # Function to handle API key validation
 def handle_api():
@@ -36,7 +41,7 @@ handle_api()
 # Validate and initialize ChatGroq instance
 try:
     llm = ChatGroq(
-        temperature=0.2,
+        temperature=creativity_level,
         model_name="llama3-70b-8192",
         max_tokens=8192
     )
@@ -85,16 +90,13 @@ Instructions:
 
 3. Ensure that:
    - Ideas are grounded in reality and current technological capabilities
-   - You don't make unfounded claims or speculate beyond reasonable extrapolation
    - You consider ethical implications and societal impact
    - Ideas are distinct from each other and not merely variations of the same concept
 
-4. If you're unsure about any aspect, state it clearly instead of making assumptions.
-
-5. Use the following format for your output:
+4. Use the following format for your output:
 {format_instructions}
 
-Remember, quality and practicality are more important than complexity or futuristic appeal. Focus on ideas that could be realistically pursued by an entrepreneur or organization.
+Remember, quality and practicality are key. Focus on ideas that could be realistically pursued by an entrepreneur or organization.
 """
 )
 
@@ -128,12 +130,55 @@ Your response should be well-structured, using paragraphs or bullet points as ap
 idea_chain = LLMChain(llm=llm, prompt=idea_generation_template)
 exploration_chain = LLMChain(llm=llm, prompt=idea_exploration_template)
 
-# User input form
+# Define a new prompt template for generating inspiration
+inspiration_template = PromptTemplate(
+    input_variables=[],
+    template="""
+You are an innovative AI designed to spark creativity and generate unique, actionable inspiration prompts for idea generation. Your task is to provide one highly creative, thought-provoking inspiration prompt for generating innovative ideas. Consider emerging trends, interdisciplinary approaches, and unconventional thinking.
+
+Instructions:
+1. Craft a prompt that encourages thinking outside the box and exploring new possibilities.
+2. Ensure the prompt is relevant to current or near-future technologies and societal needs.
+3. Keep the prompt concise yet impactful, providing enough detail to stimulate creative thinking.
+
+Provide the inspiration prompt below:
+"""
+)
+
+# Create an LLMChain for generating inspiration
+inspiration_chain = LLMChain(llm=llm, prompt=inspiration_template)
+
+# Updated method to get random inspiration from the AI model
+def get_random_inspiration():
+    try:
+        inspiration_output = inspiration_chain.invoke({})
+        return inspiration_output['text'].strip()
+    except Exception as e:
+        st.error(f"An error occurred while generating inspiration: {str(e)}")
+        # Fallback to a predefined list in case of an error
+        inspirations = [
+            "Think about combining two unrelated industries.",
+            "How could emerging technologies solve this problem?",
+            "Consider the needs of an underserved market segment.",
+            "Imagine a world where resources are unlimited.",
+            "What if you could break one fundamental law of physics?",
+        ]
+        return random.choice(inspirations)
+
+# User input form with visual enhancements
+st.subheader("Generate Innovative Ideas")
 with st.form("idea_input"):
-    area = st.text_input("Area of Interest")
-    tags_input = st.text_input("Tags (comma-separated)")
-    subcategory = st.text_input("Subcategory")
-    submit_button = st.form_submit_button("Generate Ideas")
+    col1, col2 = st.columns(2)
+    with col1:
+        area = st.text_input("Area of Interest", help="E.g., Healthcare, Education, Transportation")
+        tags_input = st.text_input("Tags (comma-separated)", help="E.g., AI, sustainability, mobile")
+    with col2:
+        subcategory = st.text_input("Subcategory", help="E.g., Preventive care, Online learning, Last-mile delivery")
+    submit_button = st.form_submit_button("Generate Ideas", use_container_width=True)
+
+if st.button("Get Inspiration"):
+    with st.expander('Inspiration'):
+        st.info(get_random_inspiration())
 
 # Generate ideas
 if submit_button:
@@ -152,7 +197,6 @@ if submit_button:
                     "subcategory": subcategory,
                     "format_instructions": parser.get_format_instructions()
                 })
-                # st.write(f"Debug - LLMChain output: {ideas_output}")
                 ideas_list = parser.parse(ideas_output['text'])
                 st.session_state.generated_ideas = ideas_list.ideas
             except ValueError as ve:
@@ -180,27 +224,50 @@ if 'generated_ideas' in st.session_state:
             st.write(f"Market Potential: {idea.market_potential}")
             st.write(f"Innovation Factor: {idea.innovation_factor}")
 
-# Idea exploration
+# Idea exploration with chat-like interface
 if 'generated_ideas' in st.session_state:
     st.subheader("Explore an Idea")
     selected_idea_index = st.selectbox("Select an idea to explore:", 
                                        range(len(st.session_state.generated_ideas)), 
                                        format_func=lambda i: st.session_state.generated_ideas[i].title)
     selected_idea = st.session_state.generated_ideas[selected_idea_index]
+    
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
+
+    for message in st.session_state.chat_history:
+        if message['role'] == 'user':
+            st.write(f"You: {message['content']}")
+        else:
+            st.write(f"InnoGenie: {message['content']}")
+
     question = st.text_input("Ask a question about this idea:")
     if st.button("Explore") and question:
+        st.session_state.chat_history.append({'role': 'user', 'content': question})
         with st.spinner("Exploring the idea..."):
             try:
                 exploration = exploration_chain.invoke({
                     "idea": json.dumps(selected_idea.dict()),
                     "question": question
                 })
-                st.write(exploration['text'])
+                st.session_state.chat_history.append({'role': 'assistant', 'content': exploration['text']})
+                st.experimental_rerun()
             except Exception as e:
                 st.error(f"An error occurred while exploring the idea: {str(e)}")
 
-# Debugging information
-if st.checkbox("Show Debug Info"):
-    st.subheader("Debug Info")
-    st.write("Session State:")
-    st.write(st.session_state)
+# Save and load ideas
+if 'generated_ideas' in st.session_state:
+    if st.button("Save Ideas"):
+        st.session_state.saved_ideas = st.session_state.generated_ideas
+        st.success("Ideas saved successfully!")
+
+if 'saved_ideas' in st.session_state:
+    if st.button("Load Saved Ideas"):
+        st.session_state.generated_ideas = st.session_state.saved_ideas
+        st.success("Saved ideas loaded successfully!")
+
+# Debugging information (only shown when "Show Debug Info" is checked)
+if st.sidebar.checkbox("Show Debug Info"):
+    st.sidebar.subheader("Debug Info")
+    st.sidebar.write("Session State:")
+    st.sidebar.write(st.session_state)
