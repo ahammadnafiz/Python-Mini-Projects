@@ -3,7 +3,7 @@ from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.output_parsers import PydanticOutputParser
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import List
 import json
 from dotenv import load_dotenv
@@ -67,13 +67,13 @@ class Idea(BaseModel):
     market_potential: str = Field(description="Brief analysis of market potential")
     innovation_factor: str = Field(description="What makes this idea innovative")
 
-    @validator('title')
+    @field_validator('title')
     def title_not_empty(cls, v):
         if not v.strip():
             raise ValueError('Title cannot be empty')
         return v
 
-    @validator('description')
+    @field_validator('description')
     def description_length(cls, v):
         if len(v.split()) < 10:
             raise ValueError('Description should be at least 10 words')
