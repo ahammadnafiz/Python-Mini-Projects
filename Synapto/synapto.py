@@ -14,7 +14,6 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
-import mimetypes
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage

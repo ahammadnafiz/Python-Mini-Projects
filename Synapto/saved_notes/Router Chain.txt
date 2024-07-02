@@ -1,0 +1,5 @@
+Router Chain
+
+The image shows a router chain with two destination chains. The router chain takes input and routes it to a destination chain based on the subject. The subject is determined by the input. If the input is related to a subject, the input is routed to the destination chain with that subject. If the input is not related to any subject, the input is routed to the default chain.
+
+Tags: router chain, destination chain, subject, input, output, LLM
