@@ -495,7 +495,6 @@ class NoteTakingApp:
         self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection
         self.root.after(1, self.update_camera_feed)  # Update as fast as possible
     
-
     def create_notion_page(self, token, database_id, title, content, tags, image_path=None):
         url = "https://api.notion.com/v1/pages"
         headers = {
@@ -524,18 +523,21 @@ class NoteTakingApp:
 
         # Add image block if image_path is provided
         if image_path:
-            # Use a placeholder URL for the image
-            placeholder_image_url = "https://via.placeholder.com/400x300.png?text=Image+Placeholder"
-            blocks.append({
-                "object": "block",
-                "type": "image",
-                "image": {
-                    "type": "external",
-                    "external": {
-                        "url": placeholder_image_url
+            imgbb_api_key = os.getenv('IMGBB_API_KEY')  # Make sure to set this environment variable
+            image_url = self.upload_image_to_imgbb(image_path, imgbb_api_key)
+            if image_url:
+                blocks.append({
+                    "object": "block",
+                    "type": "image",
+                    "image": {
+                        "type": "external",
+                        "external": {
+                            "url": image_url
+                        }
                     }
-                }
-            })
+                })
+            else:
+                print("Failed to upload image, not including image block.")
 
         data = {
             "parent": {"database_id": database_id},
@@ -556,7 +558,21 @@ class NoteTakingApp:
         else:
             print(f"Failed to create page in Notion: {response.status_code} - {response.text}")
             print(f"Request data: {json.dumps(data, indent=2)}")  # For debugging
-            
+
+    def upload_image_to_imgbb(self, image_path, api_key):
+        with open(image_path, "rb") as file:
+            url = "https://api.imgbb.com/1/upload"
+            payload = {
+                "key": api_key,
+                "image": base64.b64encode(file.read()).decode('utf-8'),
+            }
+            res = requests.post(url, payload)
+            if res.status_code == 200:
+                return res.json()['data']['url']
+            else:
+                print(f"Failed to upload image: {res.status_code} - {res.text}")
+                return None
+    
     def save_note(self):
         if self.last_note_image is None:
             logging.warning("No image to save.")
