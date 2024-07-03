@@ -1,0 +1,5 @@
+Weather Calling API's
+
+The diagram shows how to use a 3rd party API to get the temperature of Bangalore. You send a JSON request to the API, then the API processes the request and sends back a JSON response. The response is then used to call a function that displays the temperature. The temperature of Bangalore is 27 degrees Celsius.
+
+Tags: API, JSON, function, OpenAI, LLM, weather, temperature, Bangalore

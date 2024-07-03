@@ -412,17 +412,7 @@ class NoteTakingApp:
         Title: [Note Title]
         Note:
         [Your structured note here]
-        Tags: [tag1], [tag2], [tag3], ...
-        Note:
-        [Your detailed structured note here, including:
-        1. Comprehensive description of the main subject or object.
-        2. Detailed additional context of the object.
-        3. In-depth analysis or observations of the object.
-        4. Any text visible in the image, fully described.
-        5. Additional information about the object such as notes, books, suggestions, and learning resources.
-        6. Avoid descriptions of the environment; concentrate on the subject or object.
-        7. Your main goal is to make a note centered around the subject or object, not the environment.]
-
+        Tags: [tag1], [tag2], [tag3], ...[max 5 tags]
         '''
         response = self.inference_chain.invoke(
             {"prompt": prompt, "image_base64": image_base64.decode()},
@@ -465,17 +455,7 @@ class NoteTakingApp:
         Title: [Note Title]
         Note:
         [Your structured note here]
-        Tags: [tag1], [tag2], [tag3], ...
-        Note:
-        [Your detailed structured note here, including:
-        1. Comprehensive description of the main subject or object.
-        2. Detailed additional context of the object.
-        3. In-depth analysis or observations of the object.
-        4. Any text visible in the image, fully described.
-        5. Additional information about the object such as notes, books, suggestions, and learning resources.
-        6. Avoid descriptions of the environment; concentrate on the subject or object.
-        7. Your main goal is to make a note centered around the subject or object, not the environment.]
-
+        Tags: [tag1], [tag2], [tag3], ...[max 5 tags]
         '''
         response = self.inference_chain.invoke(
             {"prompt": prompt, "image_base64": image_base64.decode()},
@@ -687,19 +667,44 @@ class NoteTakingApp:
 
     def _create_inference_chain(self):
         SYSTEM_PROMPT = """
-        You are a note-taking assistant equipped with image recognition capabilities.
-        When capturing photos, aim to provide descriptive notes that capture the essence
-        of the scene or object in the image.
+    You are an advanced note-taking assistant with image recognition capabilities. Your task is to create clear, structured, and informative notes based on the images provided. Adapt your note-taking style to the content of each image, whether it's a document, diagram, photograph, or any other visual input.
 
-        Structure your notes like this:
-        1. Description of the main subject (2 sentence) Must give it, if it is code snippet give additional details
-        2. Additional details or context (2-4 sentences)
-        3. Personal observations or reflections (1 sentence)
-        4. If there is text on the image please describe it
+    Structure your notes as follows:
 
-        Keep your notes concise, descriptive, and engaging. Imagine you're writing a
-        snapshot description for someone who can't see the image.
-        """
+    1. Title: Create a concise, descriptive title (1 line)
+
+    2. Main Subject Description (2-3 sentences):
+    - Clearly identify and describe the primary subject or focus of the image
+    - For code snippets or technical diagrams, provide a brief overview of their purpose or function
+
+    3. Detailed Analysis (3-5 bullet points):
+    - Break down key elements or components visible in the image
+    - For text-heavy images, summarize main points or sections
+    - For visual scenes, describe important details, spatial relationships, or notable features
+    - For charts or graphs, explain the data representation and any significant trends
+
+    4. Context and Significance (1-2 sentences):
+    - Provide relevant background information or explain the importance of the image content
+    - For educational or professional content, briefly mention its potential applications or implications
+
+    5. Text Transcription (if applicable):
+    - For images containing text, provide a concise summary or key excerpts
+    - For code snippets, include important function names, class definitions, or critical lines
+
+    6. Personal Insights or Action Items (1-2 bullet points):
+    - Offer a brief interpretation, reflection, or potential follow-up actions based on the image content
+
+    7. Tags: Generate 3-5 relevant tags that categorize the image content effectively [max 5 tags]
+
+    Guidelines:
+    - Maintain objectivity while providing insightful analysis
+    - Use clear, concise language appropriate for the subject matter
+    - Adapt the level of technical detail to match the complexity of the image content
+    - Ensure your notes are informative enough to stand alone without the image
+    - When uncertain about specific details, use phrases like "appears to be" or "likely represents" to indicate interpretation
+
+    Remember, your goal is to create notes that are comprehensive yet easy to understand, catering to both quick reference and in-depth review.
+    """
         prompt_template = ChatPromptTemplate.from_messages(
             [
                 SystemMessage(content=SYSTEM_PROMPT),

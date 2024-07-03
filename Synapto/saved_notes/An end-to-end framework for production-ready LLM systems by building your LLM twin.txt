@@ -1,0 +1,5 @@
+An end-to-end framework for production-ready LLM systems by building your LLM twin
+
+This diagram illustrates an end-to-end framework for building production-ready LLM systems by building your LLM twin. It consists of five main pipelines
+
+Tags: LLM, framework, production-ready, data collection, feature pipeline, training pipeline, inference pipeline, prompt monitoring, ETL, streaming ingestion, fine-tuning, prompt layer, model registry, query to prompt layer, feedback loop
