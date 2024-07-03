@@ -396,23 +396,48 @@ class NoteTakingApp:
     def process_image_with_ai(self, image_base64):
         # Send the image to the AI model for processing
         prompt = '''
-        You are a great note taker, for the uploaded images, generate notes contains import information.
-        The images usually taken from slides, meeting notes, what you need to do is help to take notes from the images.
-        Output the information directly, do not say anything else.
-        Make it more like a note contains important information, not a description of the image.
-        A good structure of generated notes is like: 
-        <example-structure>
-        ## <-title->
-        <-a paragraph of summary->
-        <-details information from the image->
-        </example-structure>
-        If there are some tables, try to extract all orignial information in table format.
-        Use the same language as the image, do not change the language.
-        Structure your response as:
-        Title: [Note Title]
+        You are an expert note-taker specializing in extracting crucial information from images, particularly those from slides, meeting notes, and various professional or academic contexts. Your task is to create comprehensive, well-structured notes that capture the essence of the image content.
+
+        Guidelines:
+        1. Focus on extracting important information, not just describing the image.
+        2. Maintain the original language of the image content; do not translate.
+        3. Organize information logically, using hierarchical structures where appropriate.
+        4. For tables, charts, or graphs, accurately represent the data in a structured format.
+        5. Identify and highlight key concepts, main ideas, and critical details.
+        6. Use bullet points, numbering, or other formatting to enhance readability.
+
+        Structure your notes as follows:
+
+        Title: [Create a concise, descriptive title that encapsulates the main topic]
+
         Note:
-        [Your structured note here]
-        Tags: [tag1], [tag2], [tag3], ...
+        ## Summary
+        [Provide a brief overview of the main topic or concept, 2-3 sentences]
+
+        ## Key Points
+        - [List the most important ideas or concepts]
+        - [Include any critical definitions, formulas, or principles]
+        - [Highlight significant relationships or comparisons]
+
+        ## Detailed Information
+        [Expand on the key points with more specific information]
+        [For complex topics, use subheadings to organize related information]
+        [Include relevant examples, case studies, or applications if present]
+
+        ## Data Representation (if applicable)
+        [For tables, charts, or graphs, represent the data accurately]
+        [Explain any trends, patterns, or significant findings]
+
+        ## Additional Notes
+        [Include any supplementary information, context, or insights]
+        [Mention any action items, next steps, or areas for further exploration]
+
+        Tags: [Generate 2-5 relevant tags that accurately categorize the content]
+
+        Remember:
+        - Prioritize clarity and conciseness while ensuring comprehensive coverage of important information.
+        - Adapt your note-taking style to the specific content and format of each image.
+        - Ensure your notes are self-contained and understandable without reference to the original image.
         '''
         response = self.inference_chain.invoke(
             {"prompt": prompt, "image_base64": image_base64.decode()},
@@ -437,33 +462,49 @@ class NoteTakingApp:
         self.process_image(image_base64)
 
     def process_image(self, image_base64):
-        prompt = '''
-        You are a great note taker, for the uploaded images, generate notes contains import information.
-        The images usually taken from slides, meeting notes, what you need to do is help to take notes from the images.
-        Output the information directly, do not say anything else.
-        Make it more like a note contains important information, not a description of the image.
-        A good structure of generated notes is like: 
-        <example-structure>
-        ## <-title->
-        <-a paragraph of summary->
-        <-details information from the image->
-        </example-structure>
-        If there are some tables, try to extract all orignial information in table format.
-        Use the same language as the image, do not change the language.
-
+        summarized_prompt = '''
+        Generate a concise summary note for the uploaded image. Keep it brief and to the point.
         Structure your response as:
-        Title: [Note Title]
+        Title: [Short Note Title]
         Note:
-        [Your structured note here]
+        [Your brief structured note here, 2-3 sentences max]
         Tags: [tag1], [tag2], [tag3], ...
         '''
-        response = self.inference_chain.invoke(
-            {"prompt": prompt, "image_base64": image_base64.decode()},
-            config={"configurable": {"session_id": "unused"}}
+        
+        detailed_prompt = '''
+        Generate a detailed and expressive note for the uploaded image. Include all relevant information and context.
+        Structure your response as:
+        Title: [Descriptive Note Title]
+        Note:
+        [Your detailed structured note here, including:
+        1. Comprehensive description of the main subject or object
+        2. One line additional context of the object
+        3. In-depth analysis or observations of the object, like give information of that object
+        4. Any text visible in the image, fully described, further information
+        5. Give additional information about object like notes, books, suggestion, how to do/learn it
+        6. Please the less descrive the enviourment, just focus on the subject or object
+        7. Your main goal is the subject or the object to make a note from that not the enviourment]
+        Tags: [tag1], [tag2], [tag3], ..., [tagN][max 5 tags]
+        '''
+
+        summarized_response = self.inference_chain.invoke(
+            {"prompt": summarized_prompt, "image_base64": image_base64.decode()},
+            config={"configurable": {"session_id": "summarized"}}
         ).strip()
         
-        title, note, tags = self.parse_ai_response(response)
-        self.display_note(image_base64, title, note, tags)
+        detailed_response = self.inference_chain.invoke(
+            {"prompt": detailed_prompt, "image_base64": image_base64.decode()},
+            config={"configurable": {"session_id": "detailed"}}
+        ).strip()
+        
+        summarized_title, summarized_note, summarized_tags = self.parse_ai_response(summarized_response)
+        detailed_title, detailed_note, detailed_tags = self.parse_ai_response(detailed_response)
+        
+        self.display_note(image_base64, summarized_title, summarized_note, summarized_tags)
+        
+        # Store both versions
+        self.current_summarized_note = (summarized_title, summarized_note, summarized_tags)
+        self.current_detailed_note = (detailed_title, detailed_note, detailed_tags)
     
     def display_note(self, image_base64, title, note, tags):
         self.notes_text.delete("1.0", tk.END)
@@ -574,17 +615,16 @@ class NoteTakingApp:
                 return None
     
     def save_note(self):
-        if self.last_note_image is None:
-            logging.warning("No image to save.")
+        if self.last_note_image is None or not hasattr(self, 'current_detailed_note'):
+            logging.warning("No image or detailed note to save.")
             return
 
-        note = self.notes_text.get("1.0", tk.END).strip()
-        title = note.split('\n')[0]
-        tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
+        detailed_title, detailed_note, detailed_tags = self.current_detailed_note
         
-        # Save note locally
-        image_filename = f"{title}.jpg"
-        note_filename = f"{title}.txt"
+        # Save note locally (using summarized version)
+        summarized_title, summarized_note, summarized_tags = self.current_summarized_note
+        image_filename = f"{summarized_title}.jpg"
+        note_filename = f"{summarized_title}.txt"
 
         save_dir = "saved_notes"
         os.makedirs(save_dir, exist_ok=True)
@@ -594,15 +634,21 @@ class NoteTakingApp:
 
         self.last_note_image.save(image_path)
         with open(note_path, "w") as f:
-            f.write(note)
+            f.write(f"{summarized_title}\n\n{summarized_note}\n\nTags: {', '.join(summarized_tags)}")
 
-        self.notes_data.append({"title": title, "note": note, "tags": tags, "image": image_filename, "text": note_filename})
-        logging.info(f"Saved note locally: {title}")
+        self.notes_data.append({
+            "title": summarized_title,
+            "note": summarized_note,
+            "tags": summarized_tags,
+            "image": image_filename,
+            "text": note_filename
+        })
+        logging.info(f"Saved summarized note locally: {summarized_title}")
         
-        # Save note to Notion
+        # Save detailed note to Notion
         notion_token = NOTION_TOKEN
         notion_database_id = '70ef93d9e15c46048efc2513bbe7b67e'
-        self.create_notion_page(notion_token, notion_database_id, title, note, tags, image_path)
+        self.create_notion_page(notion_token, notion_database_id, detailed_title, detailed_note, detailed_tags, image_path)
         
         self.load_saved_notes()
     
@@ -655,7 +701,7 @@ class NoteTakingApp:
             pil_image = pil_image.resize((100, 100), Image.LANCZOS)
             photo_image = ctk.CTkImage(pil_image, size=(100, 100))
             image_label = ctk.CTkLabel(note_frame, image=photo_image)
-            image_label.image = photo_image  # Keep a reference to prevent garbage collection
+            image_label.image = photo_image  # Keep a reference to prevent garbagecd collection
             image_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
             # Display the note text
@@ -667,18 +713,43 @@ class NoteTakingApp:
 
     def _create_inference_chain(self):
         SYSTEM_PROMPT = """
-        You are a note-taking assistant equipped with image recognition capabilities.
-        When capturing photos, aim to provide descriptive notes that capture the essence
-        of the scene or object in the image.
+        You are an advanced note-taking assistant with image recognition capabilities. Your task is to create clear, structured, and informative notes based on the images provided. Adapt your note-taking style to the content of each image, whether it's a document, diagram, photograph, or any other visual input.
 
-        Structure your notes like this:
-        1. Description of the main subject (2 sentence) Must give it, if it is code snippet give additional details
-        2. Additional details or context (2-4 sentences)
-        3. Personal observations or reflections (1 sentence)
-        4. If there is text on the image please describe it
+        Structure your notes as follows:
 
-        Keep your notes concise, descriptive, and engaging. Imagine you're writing a
-        snapshot description for someone who can't see the image.
+        1. Title: Create a concise, descriptive title (1 line)
+
+        2. Main Subject Description (2-3 sentences):
+        - Clearly identify and describe the primary subject or focus of the image
+        - For code snippets or technical diagrams, provide a brief overview of their purpose or function
+
+        3. Detailed Analysis (3-5 bullet points):
+        - Break down key elements or components visible in the image
+        - For text-heavy images, summarize main points or sections
+        - For visual scenes, describe important details, spatial relationships, or notable features
+        - For charts or graphs, explain the data representation and any significant trends
+
+        4. Context and Significance (1-2 sentences):
+        - Provide relevant background information or explain the importance of the image content
+        - For educational or professional content, briefly mention its potential applications or implications
+
+        5. Text Transcription (if applicable):
+        - For images containing text, provide a concise summary or key excerpts
+        - For code snippets, include important function names, class definitions, or critical lines
+
+        6. Personal Insights or Action Items (1-2 bullet points):
+        - Offer a brief interpretation, reflection, or potential follow-up actions based on the image content
+
+        7. Tags: Generate 3-5 relevant tags that categorize the image content effectively
+
+        Guidelines:
+        - Maintain objectivity while providing insightful analysis
+        - Use clear, concise language appropriate for the subject matter
+        - Adapt the level of technical detail to match the complexity of the image content
+        - Ensure your notes are informative enough to stand alone without the image
+        - When uncertain about specific details, use phrases like "appears to be" or "likely represents" to indicate interpretation
+
+        Remember, your goal is to create notes that are comprehensive yet easy to understand, catering to both quick reference and in-depth review.
         """
         prompt_template = ChatPromptTemplate.from_messages(
             [
