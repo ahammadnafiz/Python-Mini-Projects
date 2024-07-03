@@ -269,7 +269,7 @@ if 'generated_ideas' in st.session_state:
                     "question": chat_input
                 })
                 st.session_state.chat_history.append({'role': 'assistant', 'content': exploration['text']})
-                st.experimental_rerun()
+                st.rerun()
             except Exception as e:
                 logger.error(f"An error occurred while exploring the idea: {e}")
                 st.error("An error occurred while exploring the idea. Please try again.")
