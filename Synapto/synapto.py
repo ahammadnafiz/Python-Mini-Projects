@@ -460,8 +460,7 @@ class NoteTakingApp:
         response = self.inference_chain.invoke(
             {"prompt": prompt, "image_base64": image_base64.decode()},
             config={"configurable": {"session_id": "unused"}}
-        ).strip()
-        
+        ).strip() 
         title, note, tags = self.parse_ai_response(response)
         self.display_note(image_base64, title, note, tags)
     
