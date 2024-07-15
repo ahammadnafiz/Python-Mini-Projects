@@ -64,8 +64,8 @@ def scrape_book_details(book_url, driver):
     return category, reviews
 
 # Set up the base URL and number of pages to scrape
-base_url = 'https://www.rokomari.com/book/publisher/2/anannya?ref=mm_p28'
-num_pages = 1
+base_url = 'https://www.rokomari.com/book/publisher/572/batighor-prokashoni?ref=mm_p12'
+num_pages = 10
 
 # Scrape all book listings from the publisher's pages
 scraped_data = scrape_all_pages(base_url, num_pages)
@@ -86,7 +86,7 @@ driver.quit()
 # Save the scraped data to a CSV file if data scraping was successful
 if scraped_data:
     df = pd.DataFrame(scraped_data)
-    df.to_csv('anannya_books_data.csv', index=False)
-    print(f"Scraped {len(df)} books and saved to books_data.csv")
+    df.to_csv('batighor_books_data.csv', index=False)
+    print(f"Scraped {len(df)} books and saved")
 else:
     print("Failed to scrape data from the webpage.")

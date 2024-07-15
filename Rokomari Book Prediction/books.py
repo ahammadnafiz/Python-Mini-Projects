@@ -42,6 +42,6 @@ def process_data(input_file, output_file):
     result_df.to_csv(output_file, index=False, encoding='utf-8')
 
 # Usage
-input_file = 'anannya_books_data.csv'
-output_file = 'anannya_books_data_clean.csv'
+input_file = 'batighor_books_data.csv'
+output_file = 'batighor_books_data_cleaned.csv'
 process_data(input_file, output_file)
