@@ -1,33 +1,47 @@
 import pandas as pd
+import re
 
-# Load the CSV file
-df = pd.read_csv('adarsa_books_data.csv')
+def clean_price(price_str):
+    if pd.isna(price_str):
+        return pd.NA
+    # Remove 'TK.' and any commas, then convert to float
+    return float(price_str.replace('TK.', '').replace(',', '').strip())
 
-# Function to parse price and extract original and discounted prices
-def parse_price(price_str):
-    # Split the price string into parts based on 'TK.'
-    parts = price_str.split('TK.')
-    
-    # Extract original price and discounted price
-    if len(parts) == 3:  # If both original and discounted prices are present
-        original_price = parts[1].strip()
-        discounted_price = parts[2].strip()
-    else:
-        original_price = 'N/A'
-        discounted_price = parts[1].strip() if len(parts) == 2 else 'N/A'
-    
-    return original_price, discounted_price
+def extract_ratings(ratings_str):
+    # Extract the number from parentheses
+    match = re.search(r'\((\d+)\)', str(ratings_str))
+    return int(match.group(1)) if match else pd.NA
 
-# Apply the parse_price function to Price column
-df['Original Price'], df['Discounted Price'] = zip(*df['Price'].apply(parse_price))
+def process_prices(price_str):
+    if pd.isna(price_str):
+        return pd.NA, pd.NA
+    # Split the string by 'TK.'
+    prices = price_str.split('TK.')
+    # Clean and return the prices
+    original = clean_price(prices[1]) if len(prices) > 1 else pd.NA
+    discounted = clean_price(prices[2]) if len(prices) > 2 else pd.NA
+    return original, discounted
 
-# Split Text Secondary to extract the number in parenthesis
-df['Text Secondary'] = df['Text Secondary'].str.extract(r'\((\d+)\)', expand=False)
+def process_data(input_file, output_file):
+    # Read the CSV file
+    df = pd.read_csv(input_file)
 
-# Reorder columns as per the requested structure
-df = df[['Title', 'Author', 'Text Secondary', 'Original Price', 'Discounted Price']]
+    # Rename columns
+    df.columns = ['Title', 'Author', 'Text Secondary', 'Price', 'Detail Link', 'Category', 'Number of Reviews']
 
-# Save the updated DataFrame back to CSV
-df.to_csv('adarsa_books_data_updated.csv', index=False)
+    # Extract total ratings
+    df['Total Ratings'] = df['Text Secondary'].apply(extract_ratings)
 
-print("Updated CSV file 'books_data_updated.csv' created successfully.")
+    # Process prices
+    df[['Original Price', 'Discounted Price']] = df['Price'].apply(process_prices).tolist()
+
+    # Select and reorder columns
+    result_df = df[['Title', 'Author', 'Total Ratings', 'Original Price', 'Discounted Price', 'Category', 'Number of Reviews']]
+
+    # Write to CSV
+    result_df.to_csv(output_file, index=False, encoding='utf-8')
+
+# Usage
+input_file = 'anannya_books_data.csv'
+output_file = 'anannya_books_data_clean.csv'
+process_data(input_file, output_file)
