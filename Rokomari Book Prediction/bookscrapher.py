@@ -75,7 +75,7 @@ def scrape_all_pages(base_url, num_pages):
     return all_data
 
 # Base URL of the webpage you want to scrape (without page number)
-base_url = 'https://www.rokomari.com/book/publisher/1/anyaprokash'
+base_url = 'https://www.rokomari.com/book/publisher/91/adarsha?ref=mm_p16'
 # Number of pages to scrape
 num_pages = 30  # Adjust this based on how many pages you want to scrape
 
@@ -85,7 +85,7 @@ scraped_data = scrape_all_pages(base_url, num_pages)
 # If data is scraped successfully, convert to DataFrame and save to CSV
 if scraped_data:
     df = pd.DataFrame(scraped_data)
-    df.to_csv('books_data.csv', index=False)
+    df.to_csv('adarsa_books_data.csv', index=False)
     print(f"Scraped {len(df)} books and saved to books_data.csv")
 else:
     print("Failed to scrape data from the webpage.")

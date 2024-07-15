@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv('books_data.csv')
+df = pd.read_csv('adarsa_books_data.csv')
 
 # Function to parse price and extract original and discounted prices
 def parse_price(price_str):
@@ -28,6 +28,6 @@ df['Text Secondary'] = df['Text Secondary'].str.extract(r'\((\d+)\)', expand=Fal
 df = df[['Title', 'Author', 'Text Secondary', 'Original Price', 'Discounted Price']]
 
 # Save the updated DataFrame back to CSV
-df.to_csv('books_data_updated.csv', index=False)
+df.to_csv('adarsa_books_data_updated.csv', index=False)
 
 print("Updated CSV file 'books_data_updated.csv' created successfully.")
