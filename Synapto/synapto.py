@@ -95,139 +95,142 @@ class NoteTakingApp:
         self.notes_data = []
         self.root.after(1, self.update_camera_feed)
         
+class NoteTakingApp:
+    def __init__(self, root, model, webcam_stream):
+        self.root = root
+        self.model = model
+        self.webcam_stream = webcam_stream
+
+        self.setup_gui()
+        self.last_note_image = None
+        self.inference_chain = self._create_inference_chain()
+        self.notes_data = []
+        self.root.after(1, self.update_camera_feed)
+        
     def setup_gui(self):
-        self.root.title("Synapto")
-        ctk.set_appearance_mode("#070707")
+        self.root.title("Synapto - Smart Note-Taking Assistant")
+        ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
-        # self.root.geometry('520x440')
+        
+        self.root.geometry('1000x700')
+        self.root.minsize(1000, 700)
 
         # Create a main frame to hold the UI elements
         main_frame = ctk.CTkFrame(self.root)
-        main_frame.grid(row=0, column=0, sticky="nsew")
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Create a notebook (tabs)
-        notebook = ctk.CTkTabview(main_frame, width=510, height=640)
-        notebook.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+        self.notebook = ctk.CTkTabview(main_frame)
+        self.notebook.pack(fill="both", expand=True)
 
-        # Create the first tab for the existing UI
-        main_tab = notebook.add("Synapto")
-        main_tab.grid_columnconfigure(0, weight=1)
-        main_tab.grid_rowconfigure(0, weight=1)
+        # Create the tabs
+        main_tab = self.notebook.add("Capture")
+        notes_tab = self.notebook.add("Saved Notes")
 
-        # Create the second tab for saved notes
-        notes_tab = notebook.add("Saved Notes")
-        notes_tab.grid_columnconfigure(0, weight=1)
-        notes_tab.grid_rowconfigure(0, weight=1)
+        # Setup Capture tab
+        self.setup_capture_tab(main_tab)
 
-        # Add the existing UI to the first tab
-        inner_frame = ctk.CTkFrame(main_tab, border_width=2, border_color="#9AD2CB", width=520, height=440)
-        inner_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        # Setup Saved Notes tab
+        self.setup_notes_tab(notes_tab)
 
-        # Create a canvas for camera feed
-        self.canvas = ctk.CTkCanvas(inner_frame, width=520, height=440)
-        self.canvas.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+    def setup_capture_tab(self, tab):
+        # Left frame for camera feed and buttons
+        left_frame = ctk.CTkFrame(tab)
+        left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
-        # Create a snap button with an icon
+        # Camera feed
+        self.camera_frame = ctk.CTkFrame(left_frame, corner_radius=10)
+        self.camera_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        self.canvas = ctk.CTkCanvas(self.camera_frame, width=520, height=440, highlightthickness=0)
+        self.canvas.pack(fill="both", expand=True)
+
+        # Buttons frame
+        buttons_frame = ctk.CTkFrame(left_frame)
+        buttons_frame.pack(fill="x", padx=10, pady=(0, 10))
+
+        # Load button icons
         assets_dir = os.path.join(os.path.dirname(__file__), "assets")
-        camera_light_path = os.path.join(assets_dir, "camera_light.png")
-        camera_dark_path = os.path.join(assets_dir, "camera_dark.png")
+        camera_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "camera_light.png")), size=(20, 20))
+        voice_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "voice_light.png")), size=(20, 20))
+        upload_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "upload_light.png")), size=(20, 20))
+        ocr_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "ocr_light.png")), size=(20, 20))
 
-        light_image = Image.open(camera_light_path)
-        dark_image = Image.open(camera_dark_path)
+        # Create buttons
+        self.snap_button = ctk.CTkButton(buttons_frame, text="Capture", image=camera_icon, compound="left",
+                                        command=self.capture_photo, fg_color="#4CAF50", hover_color="#45a049")
+        self.snap_button.pack(side="left", padx=(0, 5), expand=True, fill="x")
 
-        snap_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
-        self.snap_button = ctk.CTkButton(inner_frame, text="Snap", image=snap_icon, compound="left",
-                                        command=self.capture_photo, fg_color="#e76f51", hover_color="#f4a261")
-        self.snap_button.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+        self.voice_button = ctk.CTkButton(buttons_frame, text="Voice Note", image=voice_icon, compound="left",
+                                        command=self.toggle_voice_recording, fg_color="#2196F3", hover_color="#1976D2")
+        self.voice_button.pack(side="left", padx=5, expand=True, fill="x")
+
+        self.upload_button = ctk.CTkButton(buttons_frame, text="Upload", image=upload_icon, compound="left",
+                                        command=self.upload_image, fg_color="#FF9800", hover_color="#F57C00")
+        self.upload_button.pack(side="left", padx=5, expand=True, fill="x")
+
+        self.ocr_button = ctk.CTkButton(buttons_frame, text="OCR", image=ocr_icon, compound="left",
+                                        command=self.extract_text_from_image, fg_color="#9C27B0", hover_color="#7B1FA2")
+        self.ocr_button.pack(side="left", padx=(5, 0), expand=True, fill="x")
+
+        # Right frame for notes and image display
+        right_frame = ctk.CTkFrame(tab)
+        right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
+
+        # Notes text area with scrollbar
+        self.notes_frame = ctk.CTkFrame(right_frame)
+        self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=350, font=("Roboto", 12), wrap="word")
+        self.notes_text.pack(side="left", fill="both", expand=True)
+
+        self.scrollbar = ctk.CTkScrollbar(self.notes_frame, command=self.notes_text.yview)
+        self.scrollbar.pack(side="right", fill="y")
+        self.notes_text.configure(yscrollcommand=self.scrollbar.set)
+
+        # Image display
+        self.image_frame = ctk.CTkFrame(right_frame, height=150)
+        self.image_frame.pack(fill="x", padx=10, pady=(0, 10))
+        self.image_label = ctk.CTkLabel(self.image_frame, text="", image=None)
+        self.image_label.pack(fill="both", expand=True)
         
-        voice_light_path = os.path.join(assets_dir, "voice_light.png")
+        # Tags entry
+        self.tags_entry = ctk.CTkEntry(right_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12))
+        self.tags_entry.pack(fill="x", padx=10, pady=(0, 10))
+        
+        # Save button (moved up and made more prominent)
+        self.save_button = ctk.CTkButton(right_frame, text="Save Note", command=self.save_note,
+                                        fg_color="#4CAF50", hover_color="#45a049", 
+                                        height=40, font=("Roboto", 14, "bold"))
+        self.save_button.pack(fill="x", padx=10, pady=(0, 10))
 
-        light_image = Image.open(voice_light_path)
+    def setup_notes_tab(self, tab):
+        # Search frame
+        search_frame = ctk.CTkFrame(tab)
+        search_frame.pack(fill="x", padx=10, pady=10)
 
-        voice_icon = ctk.CTkImage(light_image=light_image, size=(20, 20))
-        self.voice_button = ctk.CTkButton(inner_frame, text="Voice Note", image=voice_icon, compound="left",
-                                        command=self.toggle_voice_recording, fg_color="#e76f51", hover_color="#f4a261")
-        self.voice_button.grid(row=1, column=1, padx=10, pady=10, sticky="e")
-
-        # Create a frame for notes and image display
-        notes_frame = ctk.CTkFrame(inner_frame)
-        notes_frame.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-        notes_frame.grid_rowconfigure(0, weight=1)
-        notes_frame.grid_columnconfigure(0, weight=1)
-        notes_frame.grid_columnconfigure(1, weight=0)
-
-        self.notes_text = ctk.CTkTextbox(notes_frame, height=130, font=("Helvetica", 12))
-        self.notes_text.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-
-        self.image_label = ctk.CTkLabel(notes_frame, text="", image=None)
-        self.image_label.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
-
-        self.tags_entry = ctk.CTkEntry(inner_frame, placeholder_text="Enter tags (comma-separated)", font=("Helvetica", 12))
-        self.tags_entry.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
-
-        separator = ctk.CTkLabel(inner_frame, text="-" * 50, font=("Helvetica", 10))
-        separator.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        # Move the search entry to the notes tab
-        search_frame = ctk.CTkFrame(notes_tab, width=520, height=440)
-        search_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-        search_frame.grid_columnconfigure(0, weight=1)
-
-        self.search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search notes...", font=("Helvetica", 12))
-        self.search_entry.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search notes...", font=("Roboto", 12))
+        self.search_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
         self.search_entry.bind('<Return>', self.search_notes)
 
-        upload_light_path = os.path.join(assets_dir, "upload_light.png")
-        upload_dark_path = os.path.join(assets_dir, "upload_dark.png")
+        search_button = ctk.CTkButton(search_frame, text="Search", command=self.search_notes,
+                                      fg_color="#2196F3", hover_color="#1976D2")
+        search_button.pack(side="right")
 
-        light_image = Image.open(upload_light_path)
-        dark_image = Image.open(upload_dark_path)
+        # Notes feed
+        self.notes_canvas = ctk.CTkCanvas(tab, highlightthickness=0)
+        self.notes_canvas.pack(side="left", fill="both", expand=True, padx=10, pady=(0, 10))
 
-        upload_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
-        self.upload_button = ctk.CTkButton(inner_frame, text="Upload Image", image=upload_icon, compound="left",
-                                        command=self.upload_image, fg_color="#e76f51", hover_color="#f4a261")
-        self.upload_button.grid(row=5, column=0, padx=10, pady=10, sticky="w")
+        scrollbar = ctk.CTkScrollbar(tab, orientation="vertical", command=self.notes_canvas.yview)
+        scrollbar.pack(side="right", fill="y")
 
-        ocr_light_path = os.path.join(assets_dir, "ocr_light.png")
-        ocr_dark_path = os.path.join(assets_dir, "ocr_dark.png")
-
-        light_image = Image.open(ocr_light_path)
-        dark_image = Image.open(ocr_dark_path)
-
-        ocr_icon = ctk.CTkImage(light_image=light_image, dark_image=dark_image, size=(20, 20))
-        self.ocr_button = ctk.CTkButton(inner_frame, text="Extract Text (OCR)", image=ocr_icon, compound="left",
-                                        command=self.extract_text_from_image, fg_color="#e76f51", hover_color="#f4a261")
-        self.ocr_button.grid(row=5, column=1, padx=10, pady=10, sticky="e")
-
-        self.save_button = ctk.CTkButton(inner_frame, text="Save", fg_color="#e76f51", hover_color="#f4a261",
-                                        command=self.save_note)
-        self.save_button.grid(row=6, column=0, columnspan=2, padx=10, pady=10)
-
-        # Create a frame for the saved notes feed
-        notes_feed_frame = ctk.CTkFrame(notes_tab, border_width=2, border_color="#9AD2CB", width=500, height=640)
-        notes_feed_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        notes_feed_frame.grid_rowconfigure(0, weight=1)                         
-        notes_feed_frame.grid_columnconfigure(0, weight=1)
-
-        # Create a canvas to display the saved notes feed
-        self.notes_canvas = ctk.CTkCanvas(notes_feed_frame,width=470, height=600)
-        self.notes_canvas.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
-
-        # Create a vertical scrollbar for the notes canvas
-        scrollbar = ctk.CTkScrollbar(notes_feed_frame, orientation="vertical", command=self.notes_canvas.yview)
-        scrollbar.grid(row=0, column=1, sticky="ns")
         self.notes_canvas.configure(yscrollcommand=scrollbar.set)
-
-        # Create a frame to hold the notes feed
-        self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas, width=500, height=640)
+        self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas, fg_color="transparent")
         self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw")
 
-        # Bind the canvas configure event to update the scrollregion
-        self.notes_canvas.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))        
-        
-        # Load and display the saved notes
+        self.notes_feed_frame.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))
+
+        # Load saved notes
         self.load_saved_notes()
     
     def toggle_voice_recording(self):
