@@ -235,13 +235,6 @@ class NoteTakingApp:
 
         # Load saved notes
         self.load_saved_notes()
-
-    def on_frame_configure(self, event):
-        self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all"))
-
-    def on_canvas_configure(self, event):
-        canvas_width = event.width
-        self.notes_canvas.itemconfig("notes_window", width=canvas_width)
     
     def toggle_voice_recording(self):
         if not hasattr(self, 'voice_recording_thread'):
