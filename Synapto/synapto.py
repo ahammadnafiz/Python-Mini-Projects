@@ -180,16 +180,16 @@ class NoteTakingApp:
         self.notes_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
         self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=350, font=("Roboto", 12), wrap="word",
+        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=300, font=("Roboto", 12), wrap="word",
                                          fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.notes_text.pack(side="left", fill="both", expand=True)
 
-        self.scrollbar = ctk.CTkScrollbar(self.notes_frame, command=self.notes_text.yview)
-        self.scrollbar.pack(side="right", fill="y")
-        self.notes_text.configure(yscrollcommand=self.scrollbar.set)
+        # self.scrollbar = ctk.CTkScrollbar(self.notes_frame, command=self.notes_text.yview)
+        # self.scrollbar.pack(side="right", fill="y")
+        # self.notes_text.configure(yscrollcommand=self.scrollbar.set)
 
         # Image display
-        self.image_frame = ctk.CTkFrame(right_frame, height=150, fg_color=self.colors["secondary"])
+        self.image_frame = ctk.CTkFrame(right_frame, height=200, fg_color=self.colors["secondary"])
         self.image_frame.pack(fill="x", padx=10, pady=(0, 10))
         self.image_label = ctk.CTkLabel(self.image_frame, text="", image=None)
         self.image_label.pack(fill="both", expand=True, padx=5, pady=5)
