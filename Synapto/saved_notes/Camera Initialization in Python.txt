@@ -1,5 +1,0 @@
-Camera Initialization in Python
-
-The code snippet demonstrates the initialization of a camera stream in Python using OpenCV. The `__init__` method attempts to open a camera at a specified index. If the camera fails to open, it tries the next available camera index. The code also sets the frame width, height, and frame rate for the camera stream. If no camera is found, it creates a default frame.
-
-Tags: Python, OpenCV, camera, initialization, stream, frame, width, height, fps, error handling

@@ -1,5 +1,0 @@
-Weather Calling API's
-
-The image shows a diagram of how to call a weather API. It starts with a 3rd party API connected to databases, then sends JSON data to a function calling process. That information is then passed to the OpenAI API's, which then utilizes different models to provide the answer. This example shows the question, "What is the temperature of Bangalore?" with the answer "Bangalore
-
-Tags: API, JSON, function, OpenAI, weather, models

@@ -35,8 +35,8 @@ class WebcamStream:
             logging.warning(f"Failed to open camera at index {index}, trying next index")
             self.stream = cv2.VideoCapture(1 - index, cv2.CAP_DSHOW)
         
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 520)
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 440)
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
         self.stream.set(cv2.CAP_PROP_FPS, 30)
         self.running = False
@@ -82,18 +82,6 @@ class WebcamStream:
         if self.thread.is_alive():
             self.thread.join()
         self.stream.release()
-
-class NoteTakingApp:
-    def __init__(self, root, model, webcam_stream):
-        self.root = root
-        self.model = model
-        self.webcam_stream = webcam_stream
-
-        self.setup_gui()
-        self.last_note_image = None
-        self.inference_chain = self._create_inference_chain()
-        self.notes_data = []
-        self.root.after(1, self.update_camera_feed)
         
 class NoteTakingApp:
     def __init__(self, root, model, webcam_stream):
@@ -110,17 +98,26 @@ class NoteTakingApp:
     def setup_gui(self):
         self.root.title("Synapto - Smart Note-Taking Assistant")
         ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+        ctk.set_default_color_theme("dark-blue")
         
-        self.root.geometry('1000x700')
+        self.root.geometry('1200x800')
         self.root.minsize(1000, 700)
 
+        # Define color scheme for dark theme
+        self.colors = {
+            "primary": "#1e1e1e",  # Dark background
+            "secondary": "#252526",  # Slightly lighter background
+            "accent": "#007acc",  # Bright blue for highlights
+            "text": "#d4d4d4",  # Light grey for text
+            "button": "#3a3a3a"  # Dark grey for buttons
+        }
+
         # Create a main frame to hold the UI elements
-        main_frame = ctk.CTkFrame(self.root)
+        main_frame = ctk.CTkFrame(self.root, fg_color=self.colors["primary"])
         main_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         # Create a notebook (tabs)
-        self.notebook = ctk.CTkTabview(main_frame)
+        self.notebook = ctk.CTkTabview(main_frame, fg_color=self.colors["primary"])
         self.notebook.pack(fill="both", expand=True)
 
         # Create the tabs
@@ -135,53 +132,56 @@ class NoteTakingApp:
 
     def setup_capture_tab(self, tab):
         # Left frame for camera feed and buttons
-        left_frame = ctk.CTkFrame(tab)
+        left_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         left_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
         # Camera feed
-        self.camera_frame = ctk.CTkFrame(left_frame, corner_radius=10)
+        self.camera_frame = ctk.CTkFrame(left_frame, corner_radius=10, fg_color=self.colors["secondary"])
         self.camera_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.canvas = ctk.CTkCanvas(self.camera_frame, width=520, height=440, highlightthickness=0)
-        self.canvas.pack(fill="both", expand=True)
+        # Adjust canvas size to match webcam stream size
+        self.canvas = ctk.CTkCanvas(self.camera_frame, width=640, height=480, highlightthickness=0, bg=self.colors["secondary"])
+        self.canvas.pack(fill="both", expand=True, padx=5, pady=5)
 
         # Buttons frame
-        buttons_frame = ctk.CTkFrame(left_frame)
+        buttons_frame = ctk.CTkFrame(left_frame, fg_color=self.colors["primary"])
         buttons_frame.pack(fill="x", padx=10, pady=(0, 10))
 
         # Load button icons
-        assets_dir = os.path.join(os.path.dirname(__file__), "assets")
-        camera_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "camera_light.png")), size=(20, 20))
-        voice_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "voice_light.png")), size=(20, 20))
-        upload_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "upload_light.png")), size=(20, 20))
-        ocr_icon = ctk.CTkImage(Image.open(os.path.join(assets_dir, "ocr_light.png")), size=(20, 20))
+        assets_dir = "assets"  # Adjust this path as necessary
+        camera_icon = ctk.CTkImage(Image.open(f"{assets_dir}/camera_light.png"), size=(20, 20))
+        voice_icon = ctk.CTkImage(Image.open(f"{assets_dir}/voice_light.png"), size=(20, 20))
+        upload_icon = ctk.CTkImage(Image.open(f"{assets_dir}/upload_light.png"), size=(20, 20))
+        ocr_icon = ctk.CTkImage(Image.open(f"{assets_dir}/ocr_light.png"), size=(20, 20))
 
         # Create buttons
+        button_style = {"fg_color": self.colors["button"], "text_color": self.colors["text"], "hover_color": self.colors["accent"]}
         self.snap_button = ctk.CTkButton(buttons_frame, text="Capture", image=camera_icon, compound="left",
-                                        command=self.capture_photo, fg_color="#4CAF50", hover_color="#45a049")
+                                         command=self.capture_photo, **button_style)
         self.snap_button.pack(side="left", padx=(0, 5), expand=True, fill="x")
 
         self.voice_button = ctk.CTkButton(buttons_frame, text="Voice Note", image=voice_icon, compound="left",
-                                        command=self.toggle_voice_recording, fg_color="#2196F3", hover_color="#1976D2")
+                                          command=self.toggle_voice_recording, **button_style)
         self.voice_button.pack(side="left", padx=5, expand=True, fill="x")
 
         self.upload_button = ctk.CTkButton(buttons_frame, text="Upload", image=upload_icon, compound="left",
-                                        command=self.upload_image, fg_color="#FF9800", hover_color="#F57C00")
+                                           command=self.upload_image, **button_style)
         self.upload_button.pack(side="left", padx=5, expand=True, fill="x")
 
         self.ocr_button = ctk.CTkButton(buttons_frame, text="OCR", image=ocr_icon, compound="left",
-                                        command=self.extract_text_from_image, fg_color="#9C27B0", hover_color="#7B1FA2")
+                                        command=self.extract_text_from_image, **button_style)
         self.ocr_button.pack(side="left", padx=(5, 0), expand=True, fill="x")
 
         # Right frame for notes and image display
-        right_frame = ctk.CTkFrame(tab)
+        right_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
         # Notes text area with scrollbar
-        self.notes_frame = ctk.CTkFrame(right_frame)
+        self.notes_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
         self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=350, font=("Roboto", 12), wrap="word")
+        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=350, font=("Roboto", 12), wrap="word",
+                                         fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.notes_text.pack(side="left", fill="both", expand=True)
 
         self.scrollbar = ctk.CTkScrollbar(self.notes_frame, command=self.notes_text.yview)
@@ -189,32 +189,35 @@ class NoteTakingApp:
         self.notes_text.configure(yscrollcommand=self.scrollbar.set)
 
         # Image display
-        self.image_frame = ctk.CTkFrame(right_frame, height=150)
+        self.image_frame = ctk.CTkFrame(right_frame, height=150, fg_color=self.colors["secondary"])
         self.image_frame.pack(fill="x", padx=10, pady=(0, 10))
         self.image_label = ctk.CTkLabel(self.image_frame, text="", image=None)
-        self.image_label.pack(fill="both", expand=True)
+        self.image_label.pack(fill="both", expand=True, padx=5, pady=5)
         
         # Tags entry
-        self.tags_entry = ctk.CTkEntry(right_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12))
+        self.tags_entry = ctk.CTkEntry(right_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12),
+                                       fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.tags_entry.pack(fill="x", padx=10, pady=(0, 10))
         
-        # Save button (moved up and made more prominent)
+        # Save button
         self.save_button = ctk.CTkButton(right_frame, text="Save Note", command=self.save_note,
-                                        fg_color="#4CAF50", hover_color="#45a049", 
-                                        height=40, font=("Roboto", 14, "bold"))
+                                         fg_color=self.colors["accent"], text_color=self.colors["text"],
+                                         hover_color=self.colors["button"], height=40, font=("Roboto", 14, "bold"))
         self.save_button.pack(fill="x", padx=10, pady=(0, 10))
 
     def setup_notes_tab(self, tab):
         # Search frame
-        search_frame = ctk.CTkFrame(tab)
+        search_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         search_frame.pack(fill="x", padx=10, pady=10)
 
-        self.search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search notes...", font=("Roboto", 12))
+        self.search_entry = ctk.CTkEntry(search_frame, placeholder_text="Search notes...", font=("Roboto", 12),
+                                         fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.search_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
         self.search_entry.bind('<Return>', self.search_notes)
 
         search_button = ctk.CTkButton(search_frame, text="Search", command=self.search_notes,
-                                      fg_color="#2196F3", hover_color="#1976D2")
+                                      fg_color=self.colors["button"], text_color=self.colors["text"],
+                                      hover_color=self.colors["accent"])
         search_button.pack(side="right")
 
         # Notes feed
@@ -226,12 +229,19 @@ class NoteTakingApp:
 
         self.notes_canvas.configure(yscrollcommand=scrollbar.set)
         self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas, fg_color="transparent")
-        self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw")
+        self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw", width=1120)
 
         self.notes_feed_frame.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))
 
         # Load saved notes
         self.load_saved_notes()
+
+    def on_frame_configure(self, event):
+        self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all"))
+
+    def on_canvas_configure(self, event):
+        canvas_width = event.width
+        self.notes_canvas.itemconfig("notes_window", width=canvas_width)
     
     def toggle_voice_recording(self):
         if not hasattr(self, 'voice_recording_thread'):
@@ -357,11 +367,11 @@ class NoteTakingApp:
             text_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
 
             # Display the note title
-            note_title = ctk.CTkLabel(text_frame, text=note["title"], font=("Helvetica", 14, "bold"), anchor="w")
+            note_title = ctk.CTkLabel(text_frame, text=note["title"], font=("Helvetica", 16, "bold"), anchor="w")
             note_title.pack(fill="x")
 
             # Display the note text
-            note_text = ctk.CTkLabel(text_frame, text=note["note"], wraplength=330, anchor="w", justify="left")
+            note_text = ctk.CTkLabel(text_frame, text=note["note"], wraplength=530, anchor="w", justify="left")
             note_text.pack(fill="x")
 
         # Update the canvas scrollregion
@@ -479,9 +489,9 @@ class NoteTakingApp:
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.flip(image, 1)  # Mirror the image horizontally for display
-        image = cv2.resize(image, (130, 130), interpolation=cv2.INTER_AREA)
+        image = cv2.resize(image, (150, 150), interpolation=cv2.INTER_AREA)
         pil_image = Image.fromarray(image)
-        photo_image = ctk.CTkImage(pil_image, size=(130, 130))
+        photo_image = ctk.CTkImage(pil_image, size=(150, 150))
         self.image_label.configure(image=photo_image)
         self.image_label.image = photo_image
 
@@ -491,7 +501,7 @@ class NoteTakingApp:
         frame_resized = cv2.resize(frame_rgb, (640, 480), interpolation=cv2.INTER_AREA)
         photo_image = ImageTk.PhotoImage(image=Image.fromarray(frame_resized))
         if not hasattr(self, 'camera_image_id'):
-            self.camera_image_id = self.canvas.create_image(320, 240, image=photo_image, anchor=tk.CENTER)
+            self.camera_image_id = self.canvas.create_image(370, 280, image=photo_image, anchor=tk.CENTER)
         else:
             self.canvas.itemconfig(self.camera_image_id, image=photo_image)
         self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection

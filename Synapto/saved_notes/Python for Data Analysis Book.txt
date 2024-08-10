@@ -1,5 +1,0 @@
-Python for Data Analysis Book
-
-The image shows a person holding a book titled "Python for Data Analysis" by O'Reilly. The book's cover features a small animal and the title is written in reverse.
-
-Tags: Python, Data Analysis, O'Reilly, Book, Programming

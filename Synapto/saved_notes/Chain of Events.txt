@@ -1,5 +1,0 @@
-Chain of Events
-
-This diagram shows a series of four chains, each with a specific input and output. Chain 1 receives user input, and its output is used as the input for chain 2. The output of chain 2 is then used as the input for chain 4. Finally, chain 3 also outputs to chain 4. This illustrates a flow of information through multiple stages, where the output of one stage becomes the input for another.
-
-Tags: chain, input, output, flow, diagram

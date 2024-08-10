@@ -1,5 +1,0 @@
-Router Chain for LLM
-
-The diagram illustrates a router chain for an LLM. The input is first processed by the LLM. The output of the LLM is then routed to a specific chain based on the input. If the input is related to a specific subject, such as Math, History, etc., the input is routed to the corresponding subject chain. Otherwise, the input is routed to the default chain. Each chain consists of a sequence of steps, represented by the red links.
-
-Tags: LLM, router chain, subject, input, output, default chain, processing, routing, chain of thought

@@ -1,5 +1,0 @@
-Camera Initialization
-
-This code snippet appears to be the `__init__` method of a class in Python. It initializes a video stream using OpenCV's `VideoCapture` class. The code attempts to open a camera at a given index and sets the frame width, height, and FPS to 520, 440, and 30 respectively. If the camera fails to open, it tries the next available index. If all cameras fail, it creates a default frame.
-
-Tags: Python, OpenCV, Camera, VideoCapture, Initialization
