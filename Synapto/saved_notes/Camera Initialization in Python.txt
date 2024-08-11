@@ -1,0 +1,5 @@
+Camera Initialization in Python
+
+The code snippet initializes a camera stream using OpenCV in Python. It attempts to open a camera at a given index. If unsuccessful, it tries the next camera index. The stream's properties, such as frame width (520), height (440), and FPS (30), are set. If the stream fails to open, a default frame is created.
+
+Tags: Python, OpenCV, camera, initialization, stream, frame, width, height, FPS, error handling, default frame, video capture

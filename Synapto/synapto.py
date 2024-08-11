@@ -14,6 +14,8 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
+import tktextext
+from tkinter import font as tkfont
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
@@ -90,6 +92,7 @@ class NoteTakingApp:
         self.webcam_stream = webcam_stream
 
         self.setup_gui()
+        self.setup_editor_tab()
         self.last_note_image = None
         self.inference_chain = self._create_inference_chain()
         self.notes_data = []
@@ -122,8 +125,9 @@ class NoteTakingApp:
 
         # Create the tabs
         main_tab = self.notebook.add("Capture")
+        editor_tab = self.notebook.add("Editor")
         notes_tab = self.notebook.add("Saved Notes")
-
+        
         # Setup Capture tab
         self.setup_capture_tab(main_tab)
 
@@ -235,6 +239,117 @@ class NoteTakingApp:
 
         # Load saved notes
         self.load_saved_notes()
+    
+    def setup_editor_tab(self):
+        editor_frame = ctk.CTkFrame(self.notebook.tab("Editor"), fg_color=self.colors["primary"])
+        editor_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Create a custom font
+        custom_font = tkfont.Font(family="Roboto", size=12)
+
+        # Create the rich text editor
+        self.editor = tk.Text(
+            editor_frame,
+            wrap="word",
+            font=custom_font,
+            undo=True,
+            bg=self.colors["secondary"],
+            fg=self.colors["text"],
+            insertbackground=self.colors["accent"],
+            selectbackground=self.colors["accent"],
+            selectforeground=self.colors["text"],
+            padx=10,
+            pady=10,
+            borderwidth=0,
+            relief="flat"
+        )
+        self.editor.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Create a toolbar for formatting options
+        toolbar = ctk.CTkFrame(editor_frame, fg_color=self.colors["primary"])
+        toolbar.pack(fill="x", pady=(0, 5))
+
+        # Style for buttons
+        button_style = {
+            "fg_color": self.colors["button"],
+            "text_color": self.colors["text"],
+            "hover_color": self.colors["accent"],
+            "corner_radius": 5,
+            "width": 40,
+            "height": 30
+        }
+
+        # Bold button
+        bold_button = ctk.CTkButton(toolbar, text="B", command=self.toggle_bold, **button_style)
+        bold_button.pack(side="left", padx=2)
+
+        # Italic button
+        italic_button = ctk.CTkButton(toolbar, text="I", command=self.toggle_italic, **button_style)
+        italic_button.pack(side="left", padx=2)
+
+        # Underline button
+        underline_button = ctk.CTkButton(toolbar, text="U", command=self.toggle_underline, **button_style)
+        underline_button.pack(side="left", padx=2)
+
+        # Font size dropdown
+        font_sizes = ["8", "10", "12", "14", "16", "18", "20"]
+        self.font_size_var = tk.StringVar(value="12")
+        font_size_dropdown = ctk.CTkOptionMenu(toolbar, variable=self.font_size_var, values=font_sizes, 
+                                               command=self.change_font_size, 
+                                               fg_color=self.colors["button"],
+                                               button_color=self.colors["accent"],
+                                               button_hover_color=self.colors["text"],
+                                               dropdown_fg_color=self.colors["secondary"],
+                                               text_color=self.colors["text"],
+                                               width=60)
+        font_size_dropdown.pack(side="left", padx=2)
+
+        # Load and Save buttons
+        # load_button = ctk.CTkButton(toolbar, text="Load Note", command=self.load_generated_note_to_editor, **button_style)
+        # load_button.pack(side="left", padx=2)
+
+        save_button = ctk.CTkButton(toolbar, text="Save Note", command=self.save_edited_note, **button_style)
+        save_button.pack(side="left", padx=2)
+
+    def toggle_bold(self):
+        current_tags = self.editor.tag_names("sel.first")
+        if "bold" in current_tags:
+            self.editor.tag_remove("bold", "sel.first", "sel.last")
+        else:
+            self.editor.tag_add("bold", "sel.first", "sel.last")
+        self.editor.tag_configure("bold", font=tkfont.Font(family="Helvetica", weight="bold"))
+
+    def toggle_italic(self):
+        current_tags = self.editor.tag_names("sel.first")
+        if "italic" in current_tags:
+            self.editor.tag_remove("italic", "sel.first", "sel.last")
+        else:
+            self.editor.tag_add("italic", "sel.first", "sel.last")
+        self.editor.tag_configure("italic", font=tkfont.Font(family="Helvetica", slant="italic"))
+
+    def toggle_underline(self):
+        current_tags = self.editor.tag_names("sel.first")
+        if "underline" in current_tags:
+            self.editor.tag_remove("underline", "sel.first", "sel.last")
+        else:
+            self.editor.tag_add("underline", "sel.first", "sel.last")
+        self.editor.tag_configure("underline", underline=True)
+
+    def change_font_size(self, size):
+        self.editor.tag_add(f"size{size}", "sel.first", "sel.last")
+        self.editor.tag_configure(f"size{size}", font=("Helvetica", int(size)))
+
+    def load_note_to_editor(self):
+        # Implement note selection and loading logic here
+        # For now, let's just load a sample note
+        sample_note = "This is a sample note.\nYou can edit it in the rich text editor."
+        self.editor.delete("1.0", tk.END)
+        self.editor.insert(tk.END, sample_note)
+
+    def save_edited_note(self):
+        # Implement saving logic here
+        edited_content = self.editor.get("1.0", tk.END)
+        print("Saving edited note:", edited_content)
     
     def toggle_voice_recording(self):
         if not hasattr(self, 'voice_recording_thread'):
@@ -469,13 +584,32 @@ class NoteTakingApp:
         ).strip() 
         title, note, tags = self.parse_ai_response(response)
         self.display_note(image_base64, title, note, tags)
+    #     self.load_generated_note_to_editor(title, note, tags)
+    
+    # def load_generated_note_to_editor(self, title, note, tags):
+    #     self.editor.delete("1.0", tk.END)
+    #     self.editor.insert(tk.END, f"{title}\n\n", "title")
+    #     self.editor.insert(tk.END, f"{note}\n\n")
+    #     self.editor.insert(tk.END, f"Tags: {', '.join(tags)}", "tags")
+        
+    #     # Apply styles
+    #     self.editor.tag_configure("title", font=("Roboto", 16, "bold"), foreground=self.colors["accent"])
+    #     self.editor.tag_configure("tags", font=("Roboto", 10, "italic"), foreground=self.colors["text"])
     
     def display_note(self, image_base64, title, note, tags):
         self.notes_text.delete("1.0", tk.END)
+        self.editor.delete("1.0", tk.END)
         self.notes_text.insert(tk.END, f"{title}\n\n{note}\n\nTags: {', '.join(tags)}")
+        self.editor.insert(tk.END, f"{title}\n\n", "title")
+        self.editor.insert(tk.END, f"{note}\n\n")
+        self.editor.insert(tk.END, f"Tags: {', '.join(tags)}", "tags")
         self.display_image(image_base64)
         self.tags_entry.delete(0, tk.END)
         self.tags_entry.insert(0, ', '.join(tags))
+        
+        # Apply styles
+        self.editor.tag_configure("title", font=("Roboto", 16, "bold"), foreground=self.colors["accent"])
+        self.editor.tag_configure("tags", font=("Roboto", 10, "italic"), foreground=self.colors["text"])
 
     def display_image(self, image_base64):
         image_array = np.frombuffer(base64.b64decode(image_base64), dtype=np.uint8)
