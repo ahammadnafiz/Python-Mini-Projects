@@ -14,7 +14,7 @@ import speech_recognition as sr
 from threading import Event
 import cv2
 import customtkinter as ctk
-import tktextext
+from tkinter import colorchooser, filedialog
 from tkinter import font as tkfont
 import pytesseract
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -152,9 +152,8 @@ class NoteTakingApp:
         buttons_frame.pack(fill="x", padx=10, pady=(0, 10))
 
         # Load button icons
-        assets_dir = "assets"  # Adjust this path as necessary
+        assets_dir = "assets"  
         camera_icon = ctk.CTkImage(Image.open(f"{assets_dir}/camera_light.png"), size=(20, 20))
-        voice_icon = ctk.CTkImage(Image.open(f"{assets_dir}/voice_light.png"), size=(20, 20))
         upload_icon = ctk.CTkImage(Image.open(f"{assets_dir}/upload_light.png"), size=(20, 20))
         ocr_icon = ctk.CTkImage(Image.open(f"{assets_dir}/ocr_light.png"), size=(20, 20))
 
@@ -163,10 +162,6 @@ class NoteTakingApp:
         self.snap_button = ctk.CTkButton(buttons_frame, text="Capture", image=camera_icon, compound="left",
                                          command=self.capture_photo, **button_style)
         self.snap_button.pack(side="left", padx=(0, 5), expand=True, fill="x")
-
-        self.voice_button = ctk.CTkButton(buttons_frame, text="Voice Note", image=voice_icon, compound="left",
-                                          command=self.toggle_voice_recording, **button_style)
-        self.voice_button.pack(side="left", padx=5, expand=True, fill="x")
 
         self.upload_button = ctk.CTkButton(buttons_frame, text="Upload", image=upload_icon, compound="left",
                                            command=self.upload_image, **button_style)
@@ -180,17 +175,13 @@ class NoteTakingApp:
         right_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
-        # Notes text area with scrollbar
+        # Notes text area 
         self.notes_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
         self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         self.notes_text = ctk.CTkTextbox(self.notes_frame, height=300, font=("Roboto", 12), wrap="word",
                                          fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.notes_text.pack(side="left", fill="both", expand=True)
-
-        # self.scrollbar = ctk.CTkScrollbar(self.notes_frame, command=self.notes_text.yview)
-        # self.scrollbar.pack(side="right", fill="y")
-        # self.notes_text.configure(yscrollcommand=self.scrollbar.set)
 
         # Image display
         self.image_frame = ctk.CTkFrame(right_frame, height=200, fg_color=self.colors["secondary"])
@@ -202,12 +193,6 @@ class NoteTakingApp:
         self.tags_entry = ctk.CTkEntry(right_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12),
                                        fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.tags_entry.pack(fill="x", padx=10, pady=(0, 10))
-        
-        # Save button
-        self.save_button = ctk.CTkButton(right_frame, text="Save Note", command=self.save_note,
-                                         fg_color=self.colors["accent"], text_color=self.colors["text"],
-                                         hover_color=self.colors["button"], height=40, font=("Roboto", 14, "bold"))
-        self.save_button.pack(fill="x", padx=10, pady=(0, 10))
 
     def setup_notes_tab(self, tab):
         # Search frame
@@ -233,7 +218,7 @@ class NoteTakingApp:
 
         self.notes_canvas.configure(yscrollcommand=scrollbar.set)
         self.notes_feed_frame = ctk.CTkFrame(self.notes_canvas, fg_color="transparent")
-        self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw", width=1120)
+        self.notes_canvas.create_window((0, 0), window=self.notes_feed_frame, anchor="nw", width=1110)
 
         self.notes_feed_frame.bind("<Configure>", lambda e: self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all")))
 
@@ -244,7 +229,6 @@ class NoteTakingApp:
         editor_frame = ctk.CTkFrame(self.notebook.tab("Editor"), fg_color=self.colors["primary"])
         editor_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Create a custom font
         custom_font = tkfont.Font(family="Roboto", size=12)
 
         # Create the rich text editor
@@ -279,6 +263,32 @@ class NoteTakingApp:
             "height": 30
         }
 
+        # Font family dropdown
+        font_families = ["Arial", "Helvetica", "Times New Roman", "Courier", "Verdana"]
+        self.font_family_var = tk.StringVar(value="Roboto")
+        font_family_dropdown = ctk.CTkOptionMenu(toolbar, variable=self.font_family_var, values=font_families, 
+                                                 command=self.change_font_family, 
+                                                 fg_color=self.colors["button"],
+                                                 button_color=self.colors["accent"],
+                                                 button_hover_color=self.colors["text"],
+                                                 dropdown_fg_color=self.colors["secondary"],
+                                                 text_color=self.colors["text"],
+                                                 width=120)
+        font_family_dropdown.pack(side="left", padx=2)
+
+        # Font size dropdown
+        font_sizes = ["8", "10", "12", "14", "16", "18", "20", "24", "28", "36"]
+        self.font_size_var = tk.StringVar(value="12")
+        font_size_dropdown = ctk.CTkOptionMenu(toolbar, variable=self.font_size_var, values=font_sizes, 
+                                               command=self.change_font_size, 
+                                               fg_color=self.colors["button"],
+                                               button_color=self.colors["accent"],
+                                               button_hover_color=self.colors["text"],
+                                               dropdown_fg_color=self.colors["secondary"],
+                                               text_color=self.colors["text"],
+                                               width=60)
+        font_size_dropdown.pack(side="left", padx=2)
+
         # Bold button
         bold_button = ctk.CTkButton(toolbar, text="B", command=self.toggle_bold, **button_style)
         bold_button.pack(side="left", padx=2)
@@ -291,25 +301,32 @@ class NoteTakingApp:
         underline_button = ctk.CTkButton(toolbar, text="U", command=self.toggle_underline, **button_style)
         underline_button.pack(side="left", padx=2)
 
-        # Font size dropdown
-        font_sizes = ["8", "10", "12", "14", "16", "18", "20"]
-        self.font_size_var = tk.StringVar(value="12")
-        font_size_dropdown = ctk.CTkOptionMenu(toolbar, variable=self.font_size_var, values=font_sizes, 
-                                               command=self.change_font_size, 
-                                               fg_color=self.colors["button"],
-                                               button_color=self.colors["accent"],
-                                               button_hover_color=self.colors["text"],
-                                               dropdown_fg_color=self.colors["secondary"],
-                                               text_color=self.colors["text"],
-                                               width=60)
-        font_size_dropdown.pack(side="left", padx=2)
+        # Text color button
+        color_button = ctk.CTkButton(toolbar, text="A", command=self.change_text_color, **button_style)
+        color_button.pack(side="left", padx=2)
 
-        # Load and Save buttons
-        # load_button = ctk.CTkButton(toolbar, text="Load Note", command=self.load_generated_note_to_editor, **button_style)
-        # load_button.pack(side="left", padx=2)
+        # Load voice icon
+        assets_dir = "assets"
+        voice_icon = ctk.CTkImage(Image.open(f"{assets_dir}/voice_light.png"), size=(20, 20))
 
-        save_button = ctk.CTkButton(toolbar, text="Save Note", command=self.save_edited_note, **button_style)
-        save_button.pack(side="left", padx=2)
+        # Add the voice note button to the toolbar
+        self.voice_button = ctk.CTkButton(toolbar, text="Voice Note", image=voice_icon, compound="left",
+                                          command=self.toggle_voice_recording, **button_style)
+        self.voice_button.pack(side="left", padx=2)
+        
+        # Add the save button to the toolbar
+        save_button = ctk.CTkButton(toolbar, text="Save Note", command=self.save_note,
+                                    fg_color=self.colors["accent"], text_color=self.colors["text"],
+                                    hover_color=self.colors["button"], height=30, font=("Roboto", 12, "bold"))
+        save_button.pack(side="right", padx=2)
+
+    def change_font_family(self, family):
+        self.editor.tag_add(f"family_{family}", "sel.first", "sel.last")
+        self.editor.tag_configure(f"family_{family}", font=(family, int(self.font_size_var.get())))
+
+    def change_font_size(self, size):
+        self.editor.tag_add(f"size_{size}", "sel.first", "sel.last")
+        self.editor.tag_configure(f"size_{size}", font=(self.font_family_var.get(), int(size)))
 
     def toggle_bold(self):
         current_tags = self.editor.tag_names("sel.first")
@@ -317,7 +334,7 @@ class NoteTakingApp:
             self.editor.tag_remove("bold", "sel.first", "sel.last")
         else:
             self.editor.tag_add("bold", "sel.first", "sel.last")
-        self.editor.tag_configure("bold", font=tkfont.Font(family="Helvetica", weight="bold"))
+        self.editor.tag_configure("bold", font=tkfont.Font(weight="bold"))
 
     def toggle_italic(self):
         current_tags = self.editor.tag_names("sel.first")
@@ -325,7 +342,7 @@ class NoteTakingApp:
             self.editor.tag_remove("italic", "sel.first", "sel.last")
         else:
             self.editor.tag_add("italic", "sel.first", "sel.last")
-        self.editor.tag_configure("italic", font=tkfont.Font(family="Helvetica", slant="italic"))
+        self.editor.tag_configure("italic", font=tkfont.Font(slant="italic"))
 
     def toggle_underline(self):
         current_tags = self.editor.tag_names("sel.first")
@@ -335,21 +352,11 @@ class NoteTakingApp:
             self.editor.tag_add("underline", "sel.first", "sel.last")
         self.editor.tag_configure("underline", underline=True)
 
-    def change_font_size(self, size):
-        self.editor.tag_add(f"size{size}", "sel.first", "sel.last")
-        self.editor.tag_configure(f"size{size}", font=("Helvetica", int(size)))
-
-    def load_note_to_editor(self):
-        # Implement note selection and loading logic here
-        # For now, let's just load a sample note
-        sample_note = "This is a sample note.\nYou can edit it in the rich text editor."
-        self.editor.delete("1.0", tk.END)
-        self.editor.insert(tk.END, sample_note)
-
-    def save_edited_note(self):
-        # Implement saving logic here
-        edited_content = self.editor.get("1.0", tk.END)
-        print("Saving edited note:", edited_content)
+    def change_text_color(self):
+        color = colorchooser.askcolor(title="Choose text color")[1]
+        if color:
+            self.editor.tag_add(f"color_{color}", "sel.first", "sel.last")
+            self.editor.tag_configure(f"color_{color}", foreground=color)
     
     def toggle_voice_recording(self):
         if not hasattr(self, 'voice_recording_thread'):
@@ -390,9 +397,9 @@ class NoteTakingApp:
 
             try:
                 text = recognizer.recognize_google(audio_data)
-                # Get the current cursor position in the notes_text widget
-                cursor_pos = self.notes_text.index(tk.INSERT)
-                self.notes_text.insert(cursor_pos, f"\n{text}")
+                # Get the current cursor position in the editor widget
+                cursor_pos = self.editor.index(tk.INSERT)
+                self.editor.insert(cursor_pos, f"\n{text}")
             except sr.UnknownValueError:
                 print("Speech recognition could not understand audio")
             except sr.RequestError as e:
@@ -479,7 +486,7 @@ class NoteTakingApp:
             note_title.pack(fill="x")
 
             # Display the note text
-            note_text = ctk.CTkLabel(text_frame, text=note["note"], wraplength=530, anchor="w", justify="left")
+            note_text = ctk.CTkLabel(text_frame, text=note["note"], wraplength=520, anchor="w", justify="left")
             note_text.pack(fill="x")
 
         # Update the canvas scrollregion
@@ -584,17 +591,6 @@ class NoteTakingApp:
         ).strip() 
         title, note, tags = self.parse_ai_response(response)
         self.display_note(image_base64, title, note, tags)
-    #     self.load_generated_note_to_editor(title, note, tags)
-    
-    # def load_generated_note_to_editor(self, title, note, tags):
-    #     self.editor.delete("1.0", tk.END)
-    #     self.editor.insert(tk.END, f"{title}\n\n", "title")
-    #     self.editor.insert(tk.END, f"{note}\n\n")
-    #     self.editor.insert(tk.END, f"Tags: {', '.join(tags)}", "tags")
-        
-    #     # Apply styles
-    #     self.editor.tag_configure("title", font=("Roboto", 16, "bold"), foreground=self.colors["accent"])
-    #     self.editor.tag_configure("tags", font=("Roboto", 10, "italic"), foreground=self.colors["text"])
     
     def display_note(self, image_base64, title, note, tags):
         self.notes_text.delete("1.0", tk.END)
@@ -717,7 +713,7 @@ class NoteTakingApp:
             logging.warning("No image to save.")
             return
 
-        note = self.notes_text.get("1.0", tk.END).strip()
+        note = self.editor.get("1.0", tk.END).strip()
         title = note.split('\n')[0]
         tags = [tag.strip() for tag in self.tags_entry.get().split(",") if tag.strip()]
         
@@ -760,8 +756,6 @@ class NoteTakingApp:
             logging.error(f"OCR error: {e}")
     
     def search_notes(self, event=None):
-        # Switch to the "Saved Notes" tab
-        # self.root.notebook.select(self.root.notebook.tabs()[1])
 
         query = self.search_entry.get().lower()
         save_dir = "saved_notes"

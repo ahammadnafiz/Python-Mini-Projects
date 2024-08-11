@@ -1,0 +1,5 @@
+Chain of Events
+
+The diagram shows a chain of events, with four different chains. Each chain is represented by a circle with a red chain inside. The output of each chain is the input of the next chain. The first chain starts with user input and the last chain outputs the final result. I am playing with the note taking app.
+
+Tags: Chain, Output, Input, User Input, Event

@@ -1,0 +1,5 @@
+File Upload Function
+
+This Python code snippet defines a function called `file_upload` which handles file uploads. The function first checks if a modified DataFrame already exists. If it does not, it uses the `st.file_uploader` to allow the user to upload a CSV file. If a file is uploaded, the function reads the CSV file and saves a modified DataFrame. If a modified DataFrame already exists, the function displays a warning message to the user.
+
+Tags: Python, Function, File Upload, CSV, DataFrame
