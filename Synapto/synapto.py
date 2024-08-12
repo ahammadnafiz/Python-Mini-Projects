@@ -125,7 +125,7 @@ class NoteTakingApp:
 
         # Create the tabs
         main_tab = self.notebook.add("Capture")
-        editor_tab = self.notebook.add("Editor")
+        self.notebook.add("Editor")
         notes_tab = self.notebook.add("Saved Notes")
         
         # Setup Capture tab
@@ -175,25 +175,32 @@ class NoteTakingApp:
         right_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
-        # Notes text area 
+        # Image display (now larger and more visible)
+        self.image_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["secondary"])
+        self.image_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.image_label = ctk.CTkLabel(self.image_frame, text='No image captured', image=None)
+        self.image_label.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Notes text area
         self.notes_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
         self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=300, font=("Roboto", 12), wrap="word",
+        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=200, font=("Roboto", 12), wrap="word",
                                          fg_color=self.colors["secondary"], text_color=self.colors["text"])
-        self.notes_text.pack(side="left", fill="both", expand=True)
+        self.notes_text.pack(fill="both", expand=True)
 
-        # Image display
-        self.image_frame = ctk.CTkFrame(right_frame, height=200, fg_color=self.colors["secondary"])
-        self.image_frame.pack(fill="x", padx=10, pady=(0, 10))
-        self.image_label = ctk.CTkLabel(self.image_frame, text="", image=None)
-        self.image_label.pack(fill="both", expand=True, padx=5, pady=5)
-        
         # Tags entry
-        self.tags_entry = ctk.CTkEntry(right_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12),
-                                       fg_color=self.colors["secondary"], text_color=self.colors["text"])
-        self.tags_entry.pack(fill="x", padx=10, pady=(0, 10))
+        tags_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
+        tags_frame.pack(fill="x", padx=10, pady=(0, 10))
 
+        tags_label = ctk.CTkLabel(tags_frame, text="Tags:", font=("Roboto", 12, "bold"),
+                                  text_color=self.colors["text"])
+        tags_label.pack(side="left", padx=(0, 5))
+
+        self.tags_entry = ctk.CTkEntry(tags_frame, placeholder_text="Enter tags (comma-separated)", font=("Roboto", 12),
+                                       fg_color=self.colors["secondary"], text_color=self.colors["text"])
+        self.tags_entry.pack(side="left", fill="x", expand=True)
+   
     def setup_notes_tab(self, tab):
         # Search frame
         search_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
@@ -612,19 +619,19 @@ class NoteTakingApp:
         image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = cv2.flip(image, 1)  # Mirror the image horizontally for display
-        image = cv2.resize(image, (150, 150), interpolation=cv2.INTER_AREA)
+        image = cv2.resize(image, (200, 200), interpolation=cv2.INTER_AREA)
         pil_image = Image.fromarray(image)
-        photo_image = ctk.CTkImage(pil_image, size=(150, 150))
-        self.image_label.configure(image=photo_image)
+        photo_image = ctk.CTkImage(pil_image, size=(200, 200))
+        self.image_label.configure(image=photo_image, text="")
         self.image_label.image = photo_image
-
+    
     def update_camera_feed(self):
         frame = self.webcam_stream.read()
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame_resized = cv2.resize(frame_rgb, (640, 480), interpolation=cv2.INTER_AREA)
         photo_image = ImageTk.PhotoImage(image=Image.fromarray(frame_resized))
         if not hasattr(self, 'camera_image_id'):
-            self.camera_image_id = self.canvas.create_image(370, 280, image=photo_image, anchor=tk.CENTER)
+            self.camera_image_id = self.canvas.create_image(375, 320, image=photo_image, anchor=tk.CENTER)
         else:
             self.canvas.itemconfig(self.camera_image_id, image=photo_image)
         self.canvas.photo_image = photo_image  # Keep a reference to prevent garbage collection
