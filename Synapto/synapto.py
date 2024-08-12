@@ -175,9 +175,10 @@ class NoteTakingApp:
         right_frame = ctk.CTkFrame(tab, fg_color=self.colors["primary"])
         right_frame.pack(side="right", fill="both", expand=True, padx=(10, 0))
 
-        # Image display (now larger and more visible)
+        # Image display
         self.image_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["secondary"])
-        self.image_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.image_frame.pack(padx=10, pady=10, fill="both", expand=True)
+        self.image_frame.pack_propagate(False)
         self.image_label = ctk.CTkLabel(self.image_frame, text='No image captured', image=None)
         self.image_label.pack(fill="both", expand=True, padx=5, pady=5)
 
@@ -185,7 +186,7 @@ class NoteTakingApp:
         self.notes_frame = ctk.CTkFrame(right_frame, fg_color=self.colors["primary"])
         self.notes_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        self.notes_text = ctk.CTkTextbox(self.notes_frame, height=200, font=("Roboto", 12), wrap="word",
+        self.notes_text = ctk.CTkTextbox(self.notes_frame, font=("Roboto", 12), wrap="word",
                                          fg_color=self.colors["secondary"], text_color=self.colors["text"])
         self.notes_text.pack(fill="both", expand=True)
 
