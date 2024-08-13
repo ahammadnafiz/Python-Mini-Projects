@@ -2,21 +2,23 @@ import os
 import requests
 import json
 import io
-from dotenv import load_dotenv
-import numpy as np
-import tkinter as tk
-from PIL import Image, ImageTk
 import base64
 import logging
-from threading import Thread
 import ctypes
-import speech_recognition as sr
-from threading import Event
-import cv2
+from threading import Thread, Event
+
+import numpy as np
+import tkinter as tk
 import customtkinter as ctk
-from tkinter import colorchooser, filedialog
+from PIL import Image, ImageTk
+from tkinter import colorchooser
 from tkinter import font as tkfont
+
+import cv2
 import pytesseract
+import speech_recognition as sr
+from dotenv import load_dotenv
+
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema.messages import SystemMessage
 from langchain_community.chat_message_histories import ChatMessageHistory
@@ -24,11 +26,19 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
+
+# Load environment variables from a .env file
 load_dotenv('.env')
+
+# Set environment variables
 os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
 NOTION_TOKEN = os.getenv('NOTION_TOKEN')
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'  
+
+# Set the path for the Tesseract executable
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
 
 class WebcamStream:
     def __init__(self, index=0):
@@ -478,7 +488,7 @@ class NoteTakingApp:
                 pil_image = Image.open(image_path)
                 pil_image = pil_image.resize((100, 100), Image.LANCZOS)
                 photo_image = ctk.CTkImage(pil_image, size=(100, 100))
-                image_label = ctk.CTkLabel(note_frame_inner, image=photo_image)
+                image_label = ctk.CTkLabel(note_frame_inner, image=photo_image, text='')
                 image_label.image = photo_image  # Keep a reference to prevent garbage collection
                 image_label.pack(side="left", padx=5, pady=5)
             except Exception as e:
@@ -784,28 +794,42 @@ class NoteTakingApp:
         for widget in self.notes_feed_frame.winfo_children():
             widget.destroy()
 
-        for i, result in enumerate(results):
-            note_frame = ctk.CTkFrame(self.notes_feed_frame, border_width=1, border_color="#9AD2CB")
-            note_frame.grid(row=i, column=0, padx=5, pady=5, sticky="ew")
-            note_frame.grid_columnconfigure(0, weight=1)
-            note_frame.grid_columnconfigure(1, weight=0)
+        for note in results:
+            note_frame = ctk.CTkFrame(self.notes_feed_frame, border_width=2, border_color="#9AD2CB", corner_radius=10)
+            note_frame.pack(padx=10, pady=10, fill="x", expand=True)
+
+            # Note frame internal packing
+            note_frame_inner = ctk.CTkFrame(note_frame, fg_color=None)
+            note_frame_inner.pack(padx=5, pady=5, fill="x", expand=True)
 
             # Load and display the note image
-            image_path = os.path.join(save_dir, result["image"])
-            pil_image = Image.open(image_path)
-            pil_image = pil_image.resize((100, 100), Image.LANCZOS)
-            photo_image = ctk.CTkImage(pil_image, size=(100, 100))
-            image_label = ctk.CTkLabel(note_frame, image=photo_image)
-            image_label.image = photo_image  # Keep a reference to prevent garbagecd collection
-            image_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+            image_path = os.path.join(save_dir, note["image"])
+            try:
+                pil_image = Image.open(image_path)
+                pil_image = pil_image.resize((100, 100), Image.LANCZOS)
+                photo_image = ctk.CTkImage(pil_image, size=(100, 100))
+                image_label = ctk.CTkLabel(note_frame_inner, image=photo_image, text='')
+                image_label.image = photo_image  # Keep a reference to prevent garbage collection
+                image_label.pack(side="left", padx=5, pady=5)
+            except Exception as e:
+                print(f"Error loading image {image_path}: {e}")
+                image_label = ctk.CTkLabel(note_frame_inner, text="No Image", width=100, height=100, fg_color="#E0E0E0")
+                image_label.pack(side="left", padx=5, pady=5)
+
+            text_frame = ctk.CTkFrame(note_frame_inner, fg_color=None)
+            text_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+
+            # Display the note title
+            note_title = ctk.CTkLabel(text_frame, text=note["text"], font=("Helvetica", 16, "bold"), anchor="w")
+            note_title.pack(fill="x")
 
             # Display the note text
-            note_text = ctk.CTkLabel(note_frame, text=result["content"], wraplength=330, anchor="w", justify="left")
-            note_text.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+            note_text = ctk.CTkLabel(text_frame, text=note["content"], wraplength=520, anchor="w", justify="left")
+            note_text.pack(fill="x")
 
         # Update the canvas scrollregion
         self.notes_canvas.configure(scrollregion=self.notes_canvas.bbox("all"))
-
+        
     def _create_inference_chain(self):
         SYSTEM_PROMPT = """
     You are an advanced note-taking assistant with image recognition capabilities. Your task is to create clear, structured, and informative notes based on the images provided. Adapt your note-taking style to the content of each image, whether it's a document, diagram, photograph, or any other visual input.
