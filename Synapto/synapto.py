@@ -38,7 +38,7 @@ os.environ["GOOGLE_API_KEY"] = os.getenv('API_KEY')
 NOTION_TOKEN = os.getenv('NOTION_TOKEN')
 
 # Set the path for the Tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe' 
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 class WebcamStream:
     def __init__(self, index=0):
@@ -94,7 +94,7 @@ class WebcamStream:
         if self.thread.is_alive():
             self.thread.join()
         self.stream.release()
-        
+
 class NoteTakingApp:
     def __init__(self, root, model, webcam_stream):
         self.root = root
