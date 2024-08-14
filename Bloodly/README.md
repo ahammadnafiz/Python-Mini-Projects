@@ -1,4 +1,3 @@
-
 # Bangladesh Blood Donation Bot
 
 A Telegram bot designed to connect blood donors with those in need across Bangladesh. The bot facilitates blood donation requests, emergency blood needs, and allows users to manage their donor profiles.
@@ -16,8 +15,8 @@ A Telegram bot designed to connect blood donors with those in need across Bangla
 
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/blood-donation-bot.git
-    cd blood-donation-bot
+    git clone https://github.com/ahammadnafiz/Python-Mini-Projects.git
+    cd Bloodly
     ```
 
 2. **Create a Virtual Environment**:
@@ -26,18 +25,13 @@ A Telegram bot designed to connect blood donors with those in need across Bangla
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     ```
 
-3. **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4. **Set Up Environment Variables**:
+3. **Set Up Environment Variables**:
     Create a `.env` file in the root directory and add your Telegram Bot API token:
     ```
     API=your-telegram-bot-api-token
     ```
 
-5. **Set Up the Database**:
+4. **Set Up the Database**:
     The bot will automatically set up the SQLite database upon first run.
 
 ## Usage
