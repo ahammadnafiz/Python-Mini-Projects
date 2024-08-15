@@ -1,0 +1,5 @@
+python-telegram-bot
+geopy
+pandas
+aiosqlite
+python-dotenv
