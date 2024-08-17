@@ -13,7 +13,6 @@ import pandas as pd
 import aiosqlite
 from dotenv import load_dotenv
 
-
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,18 +54,7 @@ DB_PATH = 'blood_donation.db'
 async def setup_database():
     try:
         async with aiosqlite.connect(DB_PATH) as db:
-            # Check if the 'available' column exists
-            async with db.execute("PRAGMA table_info(donors)") as cursor:
-                columns = await cursor.fetchall()
-                column_names = [column[1] for column in columns]
-            
-            if 'available' not in column_names:
-                # Add the 'available' column if it doesn't exist
-                await db.execute("ALTER TABLE donors ADD COLUMN available BOOLEAN NOT NULL DEFAULT TRUE")
-                await db.commit()
-                logger.info("Added 'available' column to donors table")
-            
-            # Ensure all other required columns exist
+            # Ensure all required tables are created first
             await db.execute("""
             CREATE TABLE IF NOT EXISTS donors (
                 id INTEGER PRIMARY KEY,
@@ -80,8 +68,7 @@ async def setup_database():
                 available BOOLEAN NOT NULL DEFAULT TRUE
             )
             """)
-            
-            # Create the donor_reminders table
+
             await db.execute("""
             CREATE TABLE IF NOT EXISTS donor_reminders (
                 id INTEGER PRIMARY KEY,
@@ -91,6 +78,18 @@ async def setup_database():
             )
             """)
             await db.commit()
+
+            # Check if the 'available' column exists
+            async with db.execute("PRAGMA table_info(donors)") as cursor:
+                columns = await cursor.fetchall()
+                column_names = [column[1] for column in columns]
+
+            if 'available' not in column_names:
+                # Add the 'available' column if it doesn't exist
+                await db.execute("ALTER TABLE donors ADD COLUMN available BOOLEAN NOT NULL DEFAULT TRUE")
+                await db.commit()
+                logger.info("Added 'available' column to donors table")
+
     except Exception as e:
         logger.error(f"Database setup error: {e}")
 
@@ -114,13 +113,13 @@ def parse_dms_coordinate(coord_str):
 def check_rate_limit(user_id: int) -> bool:
     current_time = datetime.now()
     user_requests = rate_limit_dict[user_id]
-    
+
     # Remove old requests
     user_requests = [time for time in user_requests if current_time - time < RATE_LIMIT_PERIOD]
-    
+
     if len(user_requests) >= MAX_REQUESTS:
         return False
-    
+
     user_requests.append(current_time)
     rate_limit_dict[user_id] = user_requests
     return True
@@ -144,10 +143,22 @@ async def send_reminders(bot: Bot, blood_type: str, latitude: float, longitude: 
             if is_within_radius(donor[3], donor[4], latitude, longitude, REMINDER_RADIUS):
                 if donor[5] is None or now - datetime.fromisoformat(donor[5]) > REMINDER_COOLDOWN:
                     try:
+                        # Create the reminder message with a Google Maps link
+                        reminder_message = (
+                            f"🚨 Blood Needed! 🚨\n\n"
+                            f"Someone in your area needs {blood_type} blood. If you're available to donate, "
+                            f"please check the app for more details.\n\n"
+                            f"📍 Location: [Click here](https://www.google.com/maps?q={latitude},{longitude})\n\n"
+                        )
+
+                        # Send the message with location link
                         await bot.send_message(
                             chat_id=donor[1],
-                            text=f"🚨 Blood Needed! 🚨\n\nSomeone in your area needs {blood_type} blood. If you're available to donate, please check the app for more details."
+                            text=reminder_message,
+                            parse_mode='Markdown'
                         )
+
+                        # Update the last reminded time
                         await db.execute(
                             "INSERT OR REPLACE INTO donor_reminders (donor_id, last_reminded) VALUES (?, ?)",
                             (donor[0], now.isoformat())
@@ -229,7 +240,7 @@ async def update_profile_prompt(update: Update, context: CallbackContext) -> int
                    "5. Location\n"
                    "6. Availability\n\n"
                    "Please send the number corresponding to your choice.")
-    
+
     await update.callback_query.message.reply_text(update_text)
     return UPDATE_PROFILE
 
@@ -459,10 +470,11 @@ async def blood_type_callback(update: Update, context: CallbackContext) -> int:
 async def contact(update: Update, context: CallbackContext) -> int:
     contact = update.message.text
 
+    # Validate Bangladeshi phone number format
     if re.match(r'^\+?880\d{10}$', contact):
         context.user_data['contact'] = contact
         await update.message.reply_text('When was your last blood donation? (YYYY-MM-DD or "Never")')
-        return PROFILE
+        return PROFILE  # Return PROFILE state instead of proceeding directly
     else:
         await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
         return CONTACT
@@ -474,13 +486,20 @@ async def profile(update: Update, context: CallbackContext) -> int:
         last_donation = None
     else:
         try:
-            last_donation = datetime.strptime(last_donation, '%Y-%m-%d').date().isoformat()
+            last_donation_date = datetime.strptime(last_donation, '%Y-%m-%d').date()
+            today = datetime.now().date()
+            if last_donation_date > today:
+                await update.message.reply_text('Invalid date. Last donation date cannot be in the future. Please enter a valid date or "Never".')
+                return PROFILE
+            last_donation = last_donation_date.isoformat()
         except ValueError:
             await update.message.reply_text('Invalid date format. Please use YYYY-MM-DD or "Never".')
             return PROFILE
 
     user_id = update.effective_user.id
     name = update.effective_user.full_name
+
+    is_eligible = is_eligible_to_donate(last_donation)
 
     try:
         async with aiosqlite.connect(DB_PATH) as db:
@@ -490,15 +509,29 @@ async def profile(update: Update, context: CallbackContext) -> int:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, (user_id, name, context.user_data['blood_type'],
                   context.user_data['latitude'], context.user_data['longitude'],
-                  context.user_data['contact'], last_donation, True))
+                  context.user_data['contact'], last_donation, is_eligible))
             await db.commit()
 
-        await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. By default, your availability status is set to "Available".')
+        if is_eligible:
+            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. You are currently marked as available to donate.')
+        else:
+            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. However, you are currently marked as unavailable to donate due to your recent donation. You will become eligible again 56 days after your last donation.')
+
     except Exception as e:
         logger.error(f"Database error: {e}")
         await update.message.reply_text('An error occurred while saving your information. Please try again later.')
 
     return ConversationHandler.END
+
+def is_eligible_to_donate(last_donation_str: str) -> bool:
+    if last_donation_str is None or last_donation_str.lower() == 'never':
+        return True
+
+    last_donation = datetime.fromisoformat(last_donation_str).date()
+    today = datetime.now().date()
+    min_days_between_donations = 56  # Typically 8 weeks between whole blood donations
+
+    return (today - last_donation).days >= min_days_between_donations
 
 async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int = 1, limit: int = RESULTS_PER_PAGE) -> Tuple[List[Tuple], int]:
     logger.info(f"Finding nearest donors to location: ({lat}, {lon}) for blood type: {blood_type}")
@@ -509,12 +542,21 @@ async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int
             async with db.execute("PRAGMA table_info(donors)") as cursor:
                 columns = await cursor.fetchall()
                 column_names = [column[1] for column in columns]
-            
+
             if 'available' in column_names:
-                query = "SELECT * FROM donors WHERE blood_type = ? AND available = TRUE"
+                query = """
+                SELECT * FROM donors
+                WHERE blood_type = ?
+                AND available = TRUE
+                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
+                """
             else:
-                query = "SELECT * FROM donors WHERE blood_type = ?"
-            
+                query = """
+                SELECT * FROM donors
+                WHERE blood_type = ?
+                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
+                """
+
             params = [blood_type]
 
             async with db.execute(query, params) as cursor:
@@ -523,12 +565,12 @@ async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int
             if not exact_donors:
                 compatible_types = COMPATIBLE_BLOOD_TYPES[blood_type]
                 placeholders = ','.join('?' for _ in compatible_types)
-                
+
                 if 'available' in column_names:
                     query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders}) AND available = TRUE"
                 else:
                     query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders})"
-                
+
                 params = compatible_types
 
                 async with db.execute(query, params) as cursor:
@@ -545,7 +587,7 @@ async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int
             columns = ['id', 'user_id', 'name', 'blood_type', 'latitude', 'longitude', 'contact', 'last_donation']
             if 'available' in column_names:
                 columns.append('available')
-            
+
             df = pd.DataFrame(donors, columns=columns)
 
             df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
@@ -706,7 +748,7 @@ async def show_profile(update: Update, context: CallbackContext) -> int:
             profile_text += f"🩸 Blood Type: {donor[3]}\n"
             profile_text += f"📞 Contact: {donor[6]}\n"
             profile_text += f"📅 Last Donation: {donor[7] if donor[7] else 'Never'}\n"
-            
+
             # Check if 'available' field exists in the donor tuple
             if len(donor) > 8:
                 profile_text += f"✅ Available: {'Yes' if donor[8] else 'No'}\n"
@@ -783,7 +825,6 @@ async def help_command(update: Update, context: CallbackContext) -> None:
 Ready to become a real-life superhero? Your adventure in saving lives starts here! 🚀
 
 🌟 Superhero Command Center:
-/start - Activate your hero powers! 💪
 /menu - View your superhero options 📋
 /help - Call for backup (show this message) 📞
 /cancel - Abort mission (cancel current operation) 🚫
@@ -822,6 +863,7 @@ def main() -> None:
         LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, location)],
         BLOOD_TYPE: [CallbackQueryHandler(blood_type_callback)],
         CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, contact)],
+        PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, profile)],  # Add this line
         UPDATE_PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_profile)],
         FIND: [CallbackQueryHandler(blood_type_find_callback)],
         LOCATION_FIND: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, handle_find_blood_location)],
