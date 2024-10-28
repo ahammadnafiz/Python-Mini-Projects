@@ -1,5 +1,5 @@
-Map-reduce and Refine
+Map-Reduce and Refine
 
-This diagram illustrates two methods for processing information using LLMs. The first method, Map-reduce, involves breaking down a large document into chunks, processing each chunk with an LLM, and then combining the results to generate a final answer. The second method, Refine, is similar but uses multiple LLMs to refine the answer.
+The image shows two different approaches to processing large amounts of data using LLMs. The Map-Reduce approach involves breaking down the data into chunks, processing each chunk with an LLM, and then combining the results to produce a final answer. The Refine approach involves processing the data with multiple LLMs, each of which produces a refined version of the answer, with the final answer being the most refined version.
 
-Tags: LLM, Map-reduce, Refine, Information Processing, Document Processing
+Tags: LLM, data processing, map-reduce, refine, natural language processing

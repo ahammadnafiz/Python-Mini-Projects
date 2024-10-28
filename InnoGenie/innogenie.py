@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import os
 import random
 import logging
+import requests
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +32,26 @@ with st.sidebar:
     
     st.subheader("Customize Your Experience")
     creativity_level = st.slider("Creativity Level", min_value=0.1, max_value=1.0, value=0.5, step=0.1)
+
+def validate_groq_api_key(api_key):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(
+        "https://api.groq.com/openai/v1/chat/completions",
+        headers=headers,
+        json={"model": "llama3-70b-8192", "messages": [{"role": "user", "content": "Test"}]}
+    )
+    return response.status_code == 200
+
+# In the sidebar:
+if groq_api_key:
+    if validate_groq_api_key(groq_api_key):
+        st.sidebar.success("API Key validated successfully!")
+    else:
+        st.sidebar.error("Invalid API Key. Please check and try again.")
+        st.stop()
 
 # Function to handle API key validation
 def handle_api():
