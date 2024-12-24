@@ -98,4 +98,3 @@ class NewsApp:
 
 if __name__ == '__main__':
     app = NewsApp()
-

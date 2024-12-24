@@ -1,0 +1,18 @@
+# Core Python Libraries
+streamlit==1.29.0
+python-dotenv==1.0.0
+
+# AI and LLM Libraries
+langchain==0.1.0
+langchain-core==0.1.0
+langchain-groq==0.1.0
+
+# Manim for Animations
+manim==0.18.0
+
+# Text to Speech
+pyttsx3==2.90
+
+# Other Dependencies
+openai==1.10.0
+ffmpeg-python==0.4.7
