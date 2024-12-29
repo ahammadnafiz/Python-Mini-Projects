@@ -2,55 +2,64 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 import altair as alt
-import json
 import os
 
+# Define CSV file paths
+TASKS_FILE = 'tasks.csv'
+NOTES_FILE = 'notes.csv'
+GOALS_FILE = 'goals.csv'
+
 def init_session_state():
-    if 'tasks' not in st.session_state:
-        st.session_state.tasks = []
-    if 'notes' not in st.session_state:
-        st.session_state.notes = []
-    if 'goals' not in st.session_state:
-        st.session_state.goals = []
     if 'show_completed' not in st.session_state:
         st.session_state.show_completed = False
     if 'filter_priority' not in st.session_state:
         st.session_state.filter_priority = "All"
 
-def save_data():
+def save_data(df, file_path):
     try:
-        data = {
-            'tasks': st.session_state.tasks,
-            'notes': st.session_state.notes,
-            'goals': st.session_state.goals
-        }
-        with open('basto_data.json', 'w') as f:
-            json.dump(data, f)
+        df.to_csv(file_path, index=False)
         return True
     except Exception as e:
         st.error(f"Error saving data: {str(e)}")
         return False
 
 def load_data():
+    # Initialize empty DataFrames with correct columns
+    tasks_columns = ['title', 'description', 'due_date', 'priority', 'status', 'created_at']
+    notes_columns = ['title', 'content', 'created_at']
+    goals_columns = ['title', 'description', 'target_date', 'status', 'created_at', 'completed_at']
+    
     try:
-        if os.path.exists('notion_mini_data.json'):
-            with open('notion_mini_data.json', 'r') as f:
-                data = json.load(f)
-                st.session_state.tasks = data.get('tasks', [])
-                st.session_state.notes = data.get('notes', [])
-                st.session_state.goals = data.get('goals', [])
+        if os.path.exists(TASKS_FILE):
+            tasks_df = pd.read_csv(TASKS_FILE)
+        else:
+            tasks_df = pd.DataFrame(columns=tasks_columns)
+        
+        if os.path.exists(NOTES_FILE):
+            notes_df = pd.read_csv(NOTES_FILE)
+        else:
+            notes_df = pd.DataFrame(columns=notes_columns)
+        
+        if os.path.exists(GOALS_FILE):
+            goals_df = pd.read_csv(GOALS_FILE)
+        else:
+            goals_df = pd.DataFrame(columns=goals_columns)
+            
+        return tasks_df, notes_df, goals_df
+    
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
+        return pd.DataFrame(columns=tasks_columns), pd.DataFrame(columns=notes_columns), pd.DataFrame(columns=goals_columns)
 
-def delete_item(item_list, index):
-    if 0 <= index < len(item_list):
-        item_list.pop(index)
-        save_data()
+def delete_row(df, index):
+    return df.drop(index)
 
-def tasks_page():
-    st.title("📝 Tasks")
+def tasks_page(tasks_df):
+    st.markdown(
+                "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📝 Tasks</div>",
+                unsafe_allow_html=True,
+            )
     
-    # Create a container for consistent button and filter layout
     control_container = st.container()
     with control_container:
         col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
@@ -60,7 +69,7 @@ def tasks_page():
                 ["All", "High", "Medium", "Low"]
             )
         with col2:
-            st.session_state.show_completed = st.checkbox("Show Completed Tasks")
+            st.session_state.show_completed = st.checkbox("Completed")
         with col3:
             if st.button("+ New Task", use_container_width=True):
                 st.session_state.show_task_form = True
@@ -76,21 +85,20 @@ def tasks_page():
                 priority = st.selectbox("Priority", ["High", "Medium", "Low"])
             task_description = st.text_area("Description")
             
-            # Align form buttons consistently
             col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
                 if st.form_submit_button("Add Task", use_container_width=True):
                     if task_title:
-                        new_task = {
+                        new_task = pd.DataFrame([{
                             'title': task_title,
                             'description': task_description,
                             'due_date': due_date.strftime("%Y-%m-%d"),
                             'priority': priority,
                             'status': "Pending",
                             'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        }
-                        st.session_state.tasks.append(new_task)
-                        save_data()
+                        }])
+                        tasks_df = pd.concat([tasks_df, new_task], ignore_index=True)
+                        save_data(tasks_df, TASKS_FILE)
                         st.session_state.show_task_form = False
                         st.success("Task added successfully!")
                         st.rerun()
@@ -100,14 +108,14 @@ def tasks_page():
                     st.rerun()
 
     # Filter tasks
-    filtered_tasks = st.session_state.tasks.copy()
+    filtered_tasks = tasks_df.copy()
     if not st.session_state.show_completed:
-        filtered_tasks = [t for t in filtered_tasks if t['status'] != "Completed"]
+        filtered_tasks = filtered_tasks[filtered_tasks['status'] != "Completed"]
     if st.session_state.filter_priority != "All":
-        filtered_tasks = [t for t in filtered_tasks if t['priority'] == st.session_state.filter_priority]
+        filtered_tasks = filtered_tasks[filtered_tasks['priority'] == st.session_state.filter_priority]
 
-    # Display tasks with consistent layout
-    for idx, task in enumerate(filtered_tasks):
+    # Display tasks
+    for idx, task in filtered_tasks.iterrows():
         with st.container():
             col1, col2, col3 = st.columns([6, 3, 1])
             
@@ -125,16 +133,22 @@ def tasks_page():
                 with button_col1:
                     if task['status'] != "Completed":
                         if st.button("✓", key=f"complete_{idx}", use_container_width=True):
-                            task['status'] = "Completed"
-                            save_data()
+                            tasks_df.at[idx, 'status'] = "Completed"
+                            save_data(tasks_df, TASKS_FILE)
                             st.rerun()
                 with button_col2:
                     if st.button("🗑", key=f"delete_{idx}", use_container_width=True):
-                        delete_item(st.session_state.tasks, idx)
+                        tasks_df = delete_row(tasks_df, idx)
+                        save_data(tasks_df, TASKS_FILE)
                         st.rerun()
+    
+    return tasks_df
 
-def notes_page():
-    st.title("📓 Notes")
+def notes_page(notes_df):
+    st.markdown(
+                "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📓 Notes</div>",
+                unsafe_allow_html=True,
+            )
     
     if st.button("+ New Note"):
         st.session_state.show_note_form = True
@@ -149,13 +163,13 @@ def notes_page():
             with col1:
                 if st.form_submit_button("Save Note"):
                     if note_title and note_content:
-                        new_note = {
+                        new_note = pd.DataFrame([{
                             'title': note_title,
                             'content': note_content,
                             'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        }
-                        st.session_state.notes.append(new_note)
-                        save_data()
+                        }])
+                        notes_df = pd.concat([notes_df, new_note], ignore_index=True)
+                        save_data(notes_df, NOTES_FILE)
                         st.session_state.show_note_form = False
                         st.success("Note saved successfully!")
                         st.rerun()
@@ -164,18 +178,23 @@ def notes_page():
                     st.session_state.show_note_form = False
                     st.rerun()
 
-    for idx, note in enumerate(st.session_state.notes):
+    for idx, note in notes_df.iterrows():
         with st.expander(note['title']):
             st.write(note['content'])
             st.caption(f"Created: {note['created_at']}")
             if st.button("Delete Note", key=f"delete_note_{idx}"):
-                delete_item(st.session_state.notes, idx)
+                notes_df = delete_row(notes_df, idx)
+                save_data(notes_df, NOTES_FILE)
                 st.rerun()
-
-def goals_page():
-    st.title("🎯 Goals")
     
-    # Create a container for consistent button alignment
+    return notes_df
+
+def goals_page(goals_df):
+    st.markdown(
+                "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>🎯 Goals</div>",
+                unsafe_allow_html=True,
+            )
+    
     button_container = st.container()
     with button_container:
         col1, col2, col3 = st.columns([1, 4, 1])
@@ -194,21 +213,20 @@ def goals_page():
                 goal_status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed", "Abandoned"])
             goal_description = st.text_area("Description")
             
-            # Align form buttons
             col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
                 if st.form_submit_button("Set Goal", use_container_width=True):
                     if goal_title:
-                        new_goal = {
+                        new_goal = pd.DataFrame([{
                             'title': goal_title,
                             'description': goal_description,
                             'target_date': target_date.strftime("%Y-%m-%d"),
                             'status': goal_status,
                             'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                             'completed_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S") if goal_status == "Completed" else None
-                        }
-                        st.session_state.goals.append(new_goal)
-                        save_data()
+                        }])
+                        goals_df = pd.concat([goals_df, new_goal], ignore_index=True)
+                        save_data(goals_df, GOALS_FILE)
                         st.session_state.show_goal_form = False
                         st.success("Goal set successfully!")
                         st.rerun()
@@ -217,8 +235,7 @@ def goals_page():
                     st.session_state.show_goal_form = False
                     st.rerun()
 
-    # Goals list with consistent layout
-    for idx, goal in enumerate(st.session_state.goals):
+    for idx, goal in goals_df.iterrows():
         with st.expander(goal['title']):
             st.write(goal['description'])
             st.write(f"Target Date: {goal['target_date']}")
@@ -232,17 +249,19 @@ def goals_page():
                     key=f"goal_status_{idx}"
                 )
                 if new_status != previous_status:
-                    goal['status'] = new_status
-                    # Update completed_at timestamp when status changes to or from Completed
+                    goals_df.at[idx, 'status'] = new_status
                     if new_status == "Completed":
-                        goal['completed_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        goals_df.at[idx, 'completed_at'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     elif previous_status == "Completed":
-                        goal['completed_at'] = None
-                    save_data()
+                        goals_df.at[idx, 'completed_at'] = None
+                    save_data(goals_df, GOALS_FILE)
             with col3:
                 if st.button("Delete", key=f"delete_goal_{idx}", use_container_width=True):
-                    delete_item(st.session_state.goals, idx)
+                    goals_df = delete_row(goals_df, idx)
+                    save_data(goals_df, GOALS_FILE)
                     st.rerun()
+    
+    return goals_df
 
 def create_goal_status_chart(df):
     status_counts = df['status'].value_counts().reset_index()
@@ -342,8 +361,11 @@ def create_productivity_chart(df):
         title='Task Completion by Day of Week'
     )
 
-def analytics_page():
-    st.title("📊 Analytics Dashboard")
+def analytics_page(tasks_df, goals_df):
+    st.markdown(
+                "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📊 Analytics Dashboard</div>",
+                unsafe_allow_html=True,
+            )
     
     # Date Range Selection
     col1, col2, col3 = st.columns([2, 2, 1])
@@ -368,16 +390,15 @@ def analytics_page():
             end_date = st.date_input("End Date", value=end_date)
 
     # Task Analysis Section
-    tasks_df = pd.DataFrame(st.session_state.tasks)
-    
     if not tasks_df.empty:
+        # Convert date columns to datetime
         tasks_df['due_date'] = pd.to_datetime(tasks_df['due_date'])
         tasks_df['created_at'] = pd.to_datetime(tasks_df['created_at'])
         
         mask = (tasks_df['created_at'].dt.date >= start_date) & (tasks_df['created_at'].dt.date <= end_date)
         filtered_tasks = tasks_df[mask]
         
-        st.header("📈 Task Metrics")
+        st.subheader("📈 Task Metrics")
         m1, m2, m3, m4 = st.columns(4)
         
         total_tasks = len(filtered_tasks)
@@ -385,7 +406,7 @@ def analytics_page():
         completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
         overdue_tasks = len(filtered_tasks[
             (filtered_tasks['status'] != 'Completed') & 
-            (filtered_tasks['due_date'] < datetime.now())
+            (filtered_tasks['due_date'].dt.date < datetime.now().date())
         ])
         
         m1.metric("Total Tasks", total_tasks)
@@ -395,7 +416,7 @@ def analytics_page():
                 delta=None if overdue_tasks == 0 else "needs attention",
                 delta_color="inverse")
 
-        st.header("📊 Task Analysis")
+        st.subheader("📊 Task Analysis")
         tab1, tab2, tab3 = st.tabs(["Status & Priority", "Timeline", "Productivity"])
         
         with tab1:
@@ -412,9 +433,8 @@ def analytics_page():
             st.altair_chart(create_productivity_chart(filtered_tasks), use_container_width=True)
 
     # Goals Analysis Section
-    goals_df = pd.DataFrame(st.session_state.goals)
-    
     if not goals_df.empty:
+        # Convert date columns to datetime
         goals_df['target_date'] = pd.to_datetime(goals_df['target_date'])
         goals_df['created_at'] = pd.to_datetime(goals_df['created_at'])
         if 'completed_at' in goals_df.columns:
@@ -424,7 +444,7 @@ def analytics_page():
         goals_mask = (goals_df['created_at'].dt.date >= start_date) & (goals_df['created_at'].dt.date <= end_date)
         filtered_goals = goals_df[goals_mask]
         
-        st.header("🎯 Goal Metrics")
+        st.subheader("🎯 Goal Metrics")
         g1, g2, g3, g4 = st.columns(4)
         
         total_goals = len(filtered_goals)
@@ -437,7 +457,7 @@ def analytics_page():
         g3.metric("In Progress", in_progress_goals)
         g4.metric("Completed", completed_goals)
 
-        st.header("📈 Goal Analysis")
+        st.subheader("📈 Goal Analysis")
         goal_tab1, goal_tab2, goal_tab3 = st.tabs(["Status Overview", "Timeline", "Completion Trend"])
         
         with goal_tab1:
@@ -478,24 +498,26 @@ def analytics_page():
         st.info("No data available for analysis. Start by adding some tasks or goals!")
 
 def main():
-    st.set_page_config(page_title="Notion Mini", page_icon="📝")
+    st.set_page_config(page_title="Basto", page_icon="📝")
     init_session_state()
-    # load_css()
-    load_data()
+    st.image('basto.png')
+    
+    # Load data from CSV files
+    tasks_df, notes_df, goals_df = load_data()
     
     # Navigation sidebar
     st.sidebar.title("Navigation")
     page = st.sidebar.radio("Go to", ["Tasks", "Notes", "Goals", "Analytics"])
     
-    # Page routing
+    # Page routing with DataFrame updates
     if page == "Tasks":
-        tasks_page()
+        tasks_df = tasks_page(tasks_df)
     elif page == "Notes":
-        notes_page()
+        notes_df = notes_page(notes_df)
     elif page == "Goals":
-        goals_page()
+        goals_df = goals_page(goals_df)
     else:
-        analytics_page()
+        analytics_page(tasks_df, goals_df)  # Pass the DataFrames to analytics page
 
 if __name__ == "__main__":
     main()
