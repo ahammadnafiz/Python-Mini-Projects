@@ -18,18 +18,18 @@ def rref(matrix):
 
     for col in range(cols):
         # Find the pivot (non-zero) element in the current column
-        max_row = pivot_row + np.argmax(np.abs(matrix[pivot_row:, col]))
+        max_row = pivot_row + np.argmax(np.abs(matrix[pivot_row:, col])) # Find the row with the maximum element
         if matrix[max_row, col] != 0:
             # Swap the current row with the row containing the maximum element
             matrix[[pivot_row, max_row]] = matrix[[max_row, pivot_row]]
             
             # Scale the pivot row to make the pivot element equal to 1
-            matrix[pivot_row] = matrix[pivot_row] / matrix[pivot_row, col]
+            matrix[pivot_row] = matrix[pivot_row] / matrix[pivot_row, col] # Divide the row by the pivot element
 
             # Eliminate all other entries in the current column
             for r in range(rows):
                 if r != pivot_row:
-                    matrix[r] -= matrix[r, col] * matrix[pivot_row]
+                    matrix[r] -= matrix[r, col] * matrix[pivot_row] # Subtract the pivot row multiplied by the pivot element from the current row
             
             # Move to the next row
             pivot_row += 1
