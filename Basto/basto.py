@@ -14,6 +14,8 @@ def init_session_state():
         st.session_state.show_completed = False
     if 'filter_priority' not in st.session_state:
         st.session_state.filter_priority = "All"
+    if 'edit_task_index' not in st.session_state:
+        st.session_state.edit_task_index = None
 
 def save_data(df, file_path):
     try:
@@ -25,28 +27,32 @@ def save_data(df, file_path):
 
 def load_data():
     # Initialize empty DataFrames with correct columns
-    tasks_columns = ['title', 'description', 'due_date', 'priority', 'status', 'created_at']
+    tasks_columns = ['title', 'description', 'due_date', 'priority', 'status', 'created_at', 'recurring', 'subtasks', 'time_estimate', 'category', 'auto_adjust']
     notes_columns = ['title', 'content', 'created_at']
     goals_columns = ['title', 'description', 'target_date', 'status', 'created_at', 'completed_at']
-    
+
     try:
-        if os.path.exists(TASKS_FILE):
+        if os.path.exists(TASKS_FILE) and os.path.getsize(TASKS_FILE) > 0:
             tasks_df = pd.read_csv(TASKS_FILE)
+            tasks_df['subtasks'] = tasks_df['subtasks'].apply(eval)  # Convert subtasks from string to list
         else:
             tasks_df = pd.DataFrame(columns=tasks_columns)
-        
-        if os.path.exists(NOTES_FILE):
+            save_data(tasks_df, TASKS_FILE)  # Create the file with headers if it doesn't exist
+
+        if os.path.exists(NOTES_FILE) and os.path.getsize(NOTES_FILE) > 0:
             notes_df = pd.read_csv(NOTES_FILE)
         else:
             notes_df = pd.DataFrame(columns=notes_columns)
-        
-        if os.path.exists(GOALS_FILE):
+            save_data(notes_df, NOTES_FILE)  # Create the file with headers if it doesn't exist
+
+        if os.path.exists(GOALS_FILE) and os.path.getsize(GOALS_FILE) > 0:
             goals_df = pd.read_csv(GOALS_FILE)
         else:
             goals_df = pd.DataFrame(columns=goals_columns)
-            
+            save_data(goals_df, GOALS_FILE)  # Create the file with headers if it doesn't exist
+
         return tasks_df, notes_df, goals_df
-    
+
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
         return pd.DataFrame(columns=tasks_columns), pd.DataFrame(columns=notes_columns), pd.DataFrame(columns=goals_columns)
@@ -59,7 +65,7 @@ def tasks_page(tasks_df):
                 "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📝 Tasks</div>",
                 unsafe_allow_html=True,
             )
-    
+
     control_container = st.container()
     with control_container:
         col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
@@ -73,38 +79,71 @@ def tasks_page(tasks_df):
         with col3:
             if st.button("+ New Task", use_container_width=True):
                 st.session_state.show_task_form = True
+                st.session_state.edit_task_index = None
 
     if st.session_state.get('show_task_form', False):
-        with st.form("new_task_form", clear_on_submit=True):
-            st.subheader("New Task")
-            task_title = st.text_input("Title")
+        with st.form("task_form", clear_on_submit=True):
+            st.subheader("New Task" if st.session_state.edit_task_index is None else "Edit Task")
+            task_title = st.text_input("Title", value=tasks_df.at[st.session_state.edit_task_index, 'title'] if st.session_state.edit_task_index is not None else "")
             col1, col2 = st.columns(2)
             with col1:
-                due_date = st.date_input("Due Date")
+                due_date = st.date_input("Due Date", value=pd.to_datetime(tasks_df.at[st.session_state.edit_task_index, 'due_date']) if st.session_state.edit_task_index is not None else datetime.now())
             with col2:
-                priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-            task_description = st.text_area("Description")
-            
+                priority = st.selectbox("Priority", ["High", "Medium", "Low"], index=["High", "Medium", "Low"].index(tasks_df.at[st.session_state.edit_task_index, 'priority']) if st.session_state.edit_task_index is not None else 0)
+            task_description = st.text_area("Description", value=tasks_df.at[st.session_state.edit_task_index, 'description'] if st.session_state.edit_task_index is not None else "")
+
             col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
-                if st.form_submit_button("Add Task", use_container_width=True):
+                recurring = st.checkbox("Recurring", value=tasks_df.at[st.session_state.edit_task_index, 'recurring'] if st.session_state.edit_task_index is not None else False)
+                if recurring:
+                    recurring_interval = st.number_input("Recurring Interval (days)", min_value=1, value=tasks_df.at[st.session_state.edit_task_index, 'recurring'] if st.session_state.edit_task_index is not None else 1)
+                else:
+                    recurring_interval = None
+            with col2:
+                subtasks = st.text_area("Subtasks (comma-separated)", value=", ".join(tasks_df.at[st.session_state.edit_task_index, 'subtasks']) if st.session_state.edit_task_index is not None else "")
+            with col3:
+                time_estimate = st.number_input("Time Estimate (hours)", min_value=0, value=tasks_df.at[st.session_state.edit_task_index, 'time_estimate'] if st.session_state.edit_task_index is not None else 0)
+                category = st.text_input("Category/Tags", value=tasks_df.at[st.session_state.edit_task_index, 'category'] if st.session_state.edit_task_index is not None else "")
+                auto_adjust = st.checkbox("Auto-Adjust Priority", value=tasks_df.at[st.session_state.edit_task_index, 'auto_adjust'] if st.session_state.edit_task_index is not None else False)
+
+            col1, col2, col3 = st.columns([1, 1, 2])
+            with col1:
+                if st.form_submit_button("Save Task", use_container_width=True):
                     if task_title:
-                        new_task = pd.DataFrame([{
-                            'title': task_title,
-                            'description': task_description,
-                            'due_date': due_date.strftime("%Y-%m-%d"),
-                            'priority': priority,
-                            'status': "Pending",
-                            'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        }])
-                        tasks_df = pd.concat([tasks_df, new_task], ignore_index=True)
+                        if st.session_state.edit_task_index is not None:
+                            tasks_df.at[st.session_state.edit_task_index, 'title'] = task_title
+                            tasks_df.at[st.session_state.edit_task_index, 'description'] = task_description
+                            tasks_df.at[st.session_state.edit_task_index, 'due_date'] = due_date.strftime("%Y-%m-%d")
+                            tasks_df.at[st.session_state.edit_task_index, 'priority'] = priority
+                            tasks_df.at[st.session_state.edit_task_index, 'recurring'] = recurring_interval
+                            tasks_df.at[st.session_state.edit_task_index, 'subtasks'] = [subtask.strip() for subtask in subtasks.split(',')] if subtasks else []
+                            tasks_df.at[st.session_state.edit_task_index, 'time_estimate'] = time_estimate
+                            tasks_df.at[st.session_state.edit_task_index, 'category'] = category
+                            tasks_df.at[st.session_state.edit_task_index, 'auto_adjust'] = auto_adjust
+                        else:
+                            new_task = pd.DataFrame([{
+                                'title': task_title,
+                                'description': task_description,
+                                'due_date': due_date.strftime("%Y-%m-%d"),
+                                'priority': priority,
+                                'status': "Pending",
+                                'created_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                'recurring': recurring_interval,
+                                'subtasks': [subtask.strip() for subtask in subtasks.split(',')] if subtasks else [],
+                                'time_estimate': time_estimate,
+                                'category': category,
+                                'auto_adjust': auto_adjust
+                            }])
+                            tasks_df = pd.concat([tasks_df, new_task], ignore_index=True)
                         save_data(tasks_df, TASKS_FILE)
                         st.session_state.show_task_form = False
-                        st.success("Task added successfully!")
+                        st.session_state.edit_task_index = None
+                        st.success("Task saved successfully!")
                         st.rerun()
             with col2:
                 if st.form_submit_button("Cancel", use_container_width=True):
                     st.session_state.show_task_form = False
+                    st.session_state.edit_task_index = None
                     st.rerun()
 
     # Filter tasks
@@ -118,18 +157,24 @@ def tasks_page(tasks_df):
     for idx, task in filtered_tasks.iterrows():
         with st.container():
             col1, col2, col3 = st.columns([6, 3, 1])
-            
+
             with col1:
                 task_status = "✅ " if task['status'] == "Completed" else "🔲 "
                 st.write(f"{task_status} **{task['title']}**")
                 st.write(task['description'])
-            
+                if 'subtasks' in task and task['subtasks']:
+                    st.write("Subtasks:")
+                    for subtask in task['subtasks']:
+                        st.write(f"- {subtask}")
+
             with col2:
                 st.write(f"📅 {task['due_date']}")
                 st.write(f"🎯 {task['priority']}")
-            
+                st.write(f"⏰ {task['time_estimate']} hours")
+                st.write(f"🏷️ {task['category']}")
+
             with col3:
-                button_col1, button_col2 = st.columns(2)
+                button_col1, button_col2, button_col3 = st.columns(3)
                 with button_col1:
                     if task['status'] != "Completed":
                         if st.button("✓", key=f"complete_{idx}", use_container_width=True):
@@ -141,7 +186,12 @@ def tasks_page(tasks_df):
                         tasks_df = delete_row(tasks_df, idx)
                         save_data(tasks_df, TASKS_FILE)
                         st.rerun()
-    
+                with button_col3:
+                    if st.button("✏️", key=f"edit_{idx}", use_container_width=True):
+                        st.session_state.show_task_form = True
+                        st.session_state.edit_task_index = idx
+                        st.rerun()
+
     return tasks_df
 
 def notes_page(notes_df):
@@ -149,7 +199,7 @@ def notes_page(notes_df):
                 "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📓 Notes</div>",
                 unsafe_allow_html=True,
             )
-    
+
     if st.button("+ New Note"):
         st.session_state.show_note_form = True
 
@@ -158,7 +208,7 @@ def notes_page(notes_df):
             st.subheader("New Note")
             note_title = st.text_input("Title")
             note_content = st.text_area("Content")
-            
+
             col1, col2 = st.columns(2)
             with col1:
                 if st.form_submit_button("Save Note"):
@@ -186,7 +236,7 @@ def notes_page(notes_df):
                 notes_df = delete_row(notes_df, idx)
                 save_data(notes_df, NOTES_FILE)
                 st.rerun()
-    
+
     return notes_df
 
 def goals_page(goals_df):
@@ -194,7 +244,7 @@ def goals_page(goals_df):
                 "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>🎯 Goals</div>",
                 unsafe_allow_html=True,
             )
-    
+
     button_container = st.container()
     with button_container:
         col1, col2, col3 = st.columns([1, 4, 1])
@@ -212,7 +262,7 @@ def goals_page(goals_df):
             with col2:
                 goal_status = st.selectbox("Initial Status", ["Not Started", "In Progress", "Completed", "Abandoned"])
             goal_description = st.text_area("Description")
-            
+
             col1, col2, col3 = st.columns([1, 1, 2])
             with col1:
                 if st.form_submit_button("Set Goal", use_container_width=True):
@@ -260,13 +310,13 @@ def goals_page(goals_df):
                     goals_df = delete_row(goals_df, idx)
                     save_data(goals_df, GOALS_FILE)
                     st.rerun()
-    
+
     return goals_df
 
 def create_goal_status_chart(df):
     status_counts = df['status'].value_counts().reset_index()
     status_counts.columns = ['status', 'count']
-    
+
     return alt.Chart(status_counts).mark_arc().encode(
         theta=alt.Theta(field='count', type='quantitative'),
         color=alt.Color(field='status', type='nominal'),
@@ -278,7 +328,7 @@ def create_goal_status_chart(df):
 def create_goal_timeline_chart(df):
     timeline_data = df[['target_date', 'status', 'title']].copy()
     timeline_data['target_date'] = pd.to_datetime(timeline_data['target_date'])
-    
+
     return alt.Chart(timeline_data).mark_circle(size=100).encode(
         x=alt.X('target_date:T', title='Target Date'),
         y=alt.Y('status:N', title='Status'),
@@ -292,13 +342,13 @@ def create_goal_completion_trend(df):
     # First check if completed_at column exists and has any non-null values
     if 'completed_at' not in df.columns:
         return None
-    
+
     completed_goals = df[df['completed_at'].notna()].copy()
     if not completed_goals.empty:
         completed_goals['completed_at'] = pd.to_datetime(completed_goals['completed_at'])
         daily_completions = completed_goals.groupby(completed_goals['completed_at'].dt.date).size().reset_index()
         daily_completions.columns = ['date', 'count']
-        
+
         return alt.Chart(daily_completions).mark_line(point=True).encode(
             x=alt.X('date:T', title='Date'),
             y=alt.Y('count:Q', title='Completed Goals'),
@@ -311,7 +361,7 @@ def create_goal_completion_trend(df):
 def create_status_chart(df):
     status_counts = df['status'].value_counts().reset_index()
     status_counts.columns = ['status', 'count']
-    
+
     return alt.Chart(status_counts).mark_arc().encode(
         theta=alt.Theta(field='count', type='quantitative'),
         color=alt.Color(field='status', type='nominal'),
@@ -323,7 +373,7 @@ def create_status_chart(df):
 def create_priority_chart(df):
     priority_counts = df['priority'].value_counts().reset_index()
     priority_counts.columns = ['priority', 'count']
-    
+
     return alt.Chart(priority_counts).mark_bar().encode(
         x=alt.X('priority:N', sort=['High', 'Medium', 'Low']),
         y='count:Q',
@@ -336,7 +386,7 @@ def create_priority_chart(df):
 def create_timeline_chart(df):
     daily_tasks = df.groupby(df['created_at'].dt.date).size().reset_index()
     daily_tasks.columns = ['date', 'count']
-    
+
     return alt.Chart(daily_tasks).mark_line(point=True).encode(
         x=alt.X('date:T', title='Date'),
         y=alt.Y('count:Q', title='Number of Tasks'),
@@ -348,11 +398,11 @@ def create_timeline_chart(df):
 def create_productivity_chart(df):
     completed_tasks = df[df['status'] == 'Completed'].copy()
     completed_tasks['day_of_week'] = completed_tasks['created_at'].dt.day_name()
-    
+
     day_order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     daily_completion = completed_tasks['day_of_week'].value_counts().reindex(day_order).reset_index()
     daily_completion.columns = ['day', 'count']
-    
+
     return alt.Chart(daily_completion).mark_bar().encode(
         x=alt.X('day:N', sort=day_order),
         y=alt.Y('count:Q', title='Completed Tasks'),
@@ -361,12 +411,85 @@ def create_productivity_chart(df):
         title='Task Completion by Day of Week'
     )
 
+def create_burndown_chart(df):
+    df['created_at'] = pd.to_datetime(df['created_at'])
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df = df.sort_values(by='due_date')
+
+    # Ensure we are applying cumsum on a numeric column
+    df['cumulative_count'] = df.groupby('due_date').cumcount() + 1
+
+    return alt.Chart(df).mark_line().encode(
+        x=alt.X('due_date:T', title='Due Date'),
+        y=alt.Y('cumulative_count:Q', title='Cumulative Tasks'),
+        tooltip=['due_date', 'cumulative_count']
+    ).properties(
+        title='Burndown Chart'
+    )
+
+def create_velocity_chart(df):
+    df['created_at'] = pd.to_datetime(df['created_at'])
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df = df.sort_values(by='due_date')
+
+    velocity_data = df.groupby('due_date').size().reset_index()
+    velocity_data.columns = ['due_date', 'count']
+
+    return alt.Chart(velocity_data).mark_line().encode(
+        x=alt.X('due_date:T', title='Due Date'),
+        y=alt.Y('count:Q', title='Tasks Completed'),
+        tooltip=['due_date', 'count']
+    ).properties(
+        title='Velocity Chart'
+    )
+
+def create_progress_forecast_chart(df):
+    df['created_at'] = pd.to_datetime(df['created_at'])
+    df['due_date'] = pd.to_datetime(df['due_date'])
+    df = df.sort_values(by='due_date')
+
+    forecast_data = df.groupby('due_date').size().reset_index()
+    forecast_data.columns = ['due_date', 'count']
+
+    return alt.Chart(forecast_data).mark_line().encode(
+        x=alt.X('due_date:T', title='Due Date'),
+        y=alt.Y('count:Q', title='Tasks Completed'),
+        tooltip=['due_date', 'count']
+    ).properties(
+        title='Progress Forecast Chart'
+    )
+
+def create_category_chart(df):
+    category_counts = df['category'].value_counts().reset_index()
+    category_counts.columns = ['category', 'count']
+
+    return alt.Chart(category_counts).mark_bar().encode(
+        x=alt.X('category:N', sort='-y'),
+        y='count:Q',
+        color=alt.Color('category:N'),
+        tooltip=['category', 'count']
+    ).properties(
+        title='Tasks by Category'
+    )
+
+def create_time_estimate_chart(df):
+    time_estimate_counts = df['time_estimate'].value_counts().reset_index()
+    time_estimate_counts.columns = ['time_estimate', 'count']
+
+    return alt.Chart(time_estimate_counts).mark_bar().encode(
+        x=alt.X('time_estimate:Q', bin=True),
+        y='count:Q',
+        tooltip=['time_estimate', 'count']
+    ).properties(
+        title='Tasks by Time Estimate'
+    )
+
 def analytics_page(tasks_df, goals_df):
     st.markdown(
                 "<div style='text-align: center; margin-top: 25px; margin-bottom: 25px; font-size: 30px; '>📊 Analytics Dashboard</div>",
                 unsafe_allow_html=True,
             )
-    
+
     # Date Range Selection
     col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
@@ -375,7 +498,7 @@ def analytics_page(tasks_df, goals_df):
             ["Last 7 Days", "Last 30 Days", "Last 90 Days", "Custom"],
             index=1
         )
-    
+
     end_date = datetime.now().date()
     if preset == "Last 7 Days":
         start_date = end_date - timedelta(days=7)
@@ -394,43 +517,56 @@ def analytics_page(tasks_df, goals_df):
         # Convert date columns to datetime
         tasks_df['due_date'] = pd.to_datetime(tasks_df['due_date'])
         tasks_df['created_at'] = pd.to_datetime(tasks_df['created_at'])
-        
+
         mask = (tasks_df['created_at'].dt.date >= start_date) & (tasks_df['created_at'].dt.date <= end_date)
         filtered_tasks = tasks_df[mask]
-        
+
         st.subheader("📈 Task Metrics")
         m1, m2, m3, m4 = st.columns(4)
-        
+
         total_tasks = len(filtered_tasks)
         completed_tasks = len(filtered_tasks[filtered_tasks['status'] == 'Completed'])
         completion_rate = (completed_tasks / total_tasks * 100) if total_tasks > 0 else 0
         overdue_tasks = len(filtered_tasks[
-            (filtered_tasks['status'] != 'Completed') & 
+            (filtered_tasks['status'] != 'Completed') &
             (filtered_tasks['due_date'].dt.date < datetime.now().date())
         ])
-        
+
         m1.metric("Total Tasks", total_tasks)
         m2.metric("Completion Rate", f"{completion_rate:.1f}%")
         m3.metric("High Priority", len(filtered_tasks[filtered_tasks['priority'] == 'High']))
-        m4.metric("Overdue", overdue_tasks, 
+        m4.metric("Overdue", overdue_tasks,
                 delta=None if overdue_tasks == 0 else "needs attention",
                 delta_color="inverse")
 
         st.subheader("📊 Task Analysis")
-        tab1, tab2, tab3 = st.tabs(["Status & Priority", "Timeline", "Productivity"])
-        
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Status & Priority", "Timeline", "Productivity", "Burndown", "Velocity", "Category & Time"])
+
         with tab1:
             col1, col2 = st.columns(2)
             with col1:
                 st.altair_chart(create_status_chart(filtered_tasks), use_container_width=True)
             with col2:
                 st.altair_chart(create_priority_chart(filtered_tasks), use_container_width=True)
-        
+
         with tab2:
             st.altair_chart(create_timeline_chart(filtered_tasks), use_container_width=True)
-        
+
         with tab3:
             st.altair_chart(create_productivity_chart(filtered_tasks), use_container_width=True)
+
+        with tab4:
+            st.altair_chart(create_burndown_chart(filtered_tasks), use_container_width=True)
+
+        with tab5:
+            st.altair_chart(create_velocity_chart(filtered_tasks), use_container_width=True)
+
+        with tab6:
+            col1, col2 = st.columns(2)
+            with col1:
+                st.altair_chart(create_category_chart(filtered_tasks), use_container_width=True)
+            with col2:
+                st.altair_chart(create_time_estimate_chart(filtered_tasks), use_container_width=True)
 
     # Goals Analysis Section
     if not goals_df.empty:
@@ -439,19 +575,19 @@ def analytics_page(tasks_df, goals_df):
         goals_df['created_at'] = pd.to_datetime(goals_df['created_at'])
         if 'completed_at' in goals_df.columns:
             goals_df['completed_at'] = pd.to_datetime(goals_df['completed_at'])
-        
+
         # Filter goals based on date range
         goals_mask = (goals_df['created_at'].dt.date >= start_date) & (goals_df['created_at'].dt.date <= end_date)
         filtered_goals = goals_df[goals_mask]
-        
+
         st.subheader("🎯 Goal Metrics")
         g1, g2, g3, g4 = st.columns(4)
-        
+
         total_goals = len(filtered_goals)
         completed_goals = len(filtered_goals[filtered_goals['status'] == 'Completed'])
         in_progress_goals = len(filtered_goals[filtered_goals['status'] == 'In Progress'])
         goal_completion_rate = (completed_goals / total_goals * 100) if total_goals > 0 else 0
-        
+
         g1.metric("Total Goals", total_goals)
         g2.metric("Completion Rate", f"{goal_completion_rate:.1f}%")
         g3.metric("In Progress", in_progress_goals)
@@ -459,7 +595,7 @@ def analytics_page(tasks_df, goals_df):
 
         st.subheader("📈 Goal Analysis")
         goal_tab1, goal_tab2, goal_tab3 = st.tabs(["Status Overview", "Timeline", "Completion Trend"])
-        
+
         with goal_tab1:
             col1, col2 = st.columns(2)
             with col1:
@@ -472,20 +608,20 @@ def analytics_page(tasks_df, goals_df):
                         completed_over_time['completion_month'] = completed_over_time['completed_at'].dt.to_period('M')
                         monthly_completion = completed_over_time.groupby('completion_month').size().reset_index()
                         monthly_completion.columns = ['month', 'completed']
-                        
+
                         monthly_chart = alt.Chart(monthly_completion).mark_bar().encode(
                             x='month:T',
                             y='completed:Q',
                             tooltip=['month', 'completed']
                         ).properties(title='Monthly Goal Completion')
-                        
+
                         st.altair_chart(monthly_chart, use_container_width=True)
                     else:
                         st.info("No completed goals data available yet.")
-        
+
         with goal_tab2:
             st.altair_chart(create_goal_timeline_chart(filtered_goals), use_container_width=True)
-        
+
         with goal_tab3:
             trend_chart = create_goal_completion_trend(filtered_goals)
             if trend_chart:
@@ -501,14 +637,14 @@ def main():
     st.set_page_config(page_title="Basto", page_icon="📝")
     init_session_state()
     st.image('basto.png')
-    
+
     # Load data from CSV files
     tasks_df, notes_df, goals_df = load_data()
-    
+
     # Navigation sidebar
     st.sidebar.title("Navigation")
     page = st.sidebar.radio("Go to", ["Tasks", "Notes", "Goals", "Analytics"])
-    
+
     # Page routing with DataFrame updates
     if page == "Tasks":
         tasks_df = tasks_page(tasks_df)
