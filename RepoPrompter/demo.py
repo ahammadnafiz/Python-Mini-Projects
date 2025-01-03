@@ -1,8 +1,13 @@
 from repoprompter.repoprompter.main import main
+from dotenv import load_dotenv
+import os
 
-# Replace with your repository URL and access_token
+# Load environment variables from .env file
+load_dotenv()
+
+# Replace with your repository URL
 repo_url = "ahammadnafiz/FizTorch"  # Correct repository URL format
-access_token = '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'
+access_token = os.getenv('GITHUB_ACCESS_TOKEN')
 output_file = "output_prompt.txt"
 
 try:
