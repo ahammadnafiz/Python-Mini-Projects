@@ -11,14 +11,6 @@ RepoPrompter is a Python package designed to convert the contents of a GitHub re
 - **Error Handling**: Robust error handling for non-UTF-8 content and other encoding issues.
 - **Environment Variables**: Securely manage GitHub access tokens using environment variables.
 
-## Installation
-
-To install RepoPrompter, you can use pip:
-
-```bash
-pip install repoprompter
-```
-
 ## Usage
 
 ### Basic Usage
