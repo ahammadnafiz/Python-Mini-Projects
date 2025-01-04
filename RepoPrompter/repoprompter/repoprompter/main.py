@@ -15,8 +15,8 @@ def main(repo_url: str, access_token: str, groq_api_key: str = None,
         structured_text = structure_text_for_llm(text_content)
 
         # Debug: Print the structured text
-        print("Structured Text:")
-        print(structured_text)
+        # print("Structured Text:")
+        # print(structured_text)
 
         # Always generate and save the prompt first
         prompt = create_prompt(structured_text)

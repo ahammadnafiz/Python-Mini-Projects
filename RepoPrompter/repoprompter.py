@@ -1,4 +1,3 @@
-# demo.py
 from repoprompter.repoprompter.main import main
 from dotenv import load_dotenv
 import os
@@ -20,27 +19,27 @@ def get_env_or_input(env_var: str, prompt: str) -> str:
 def get_user_input() -> Dict[str, Any]:
     """Get and validate user input for repository processing."""
     print("\n=== Repoprompter Interactive Mode ===\n")
-    
+
     # Get and validate repository URL
     while True:
         repo_url = input("Enter the GitHub repository URL (format: owner/repo): ").strip()
         if validate_repo_url(repo_url):
             break
         print("Invalid repository format. Please use 'owner/repo' format.")
-    
+
     # Get tokens
     github_token = get_env_or_input(
         'GITHUB_ACCESS_TOKEN',
         "GitHub access token not found in .env. Please enter your token: "
     )
-    
+
     # Get output file name (now required for all modes)
     while True:
         output_file = input("\nEnter the output file name for the prompt (e.g., output_prompt.txt): ").strip()
         if output_file:
             break
         print("Output file name cannot be empty.")
-    
+
     # Choose mode with input validation
     while True:
         print("\nAvailable modes:")
@@ -50,20 +49,20 @@ def get_user_input() -> Dict[str, Any]:
         if mode in ['1', '2']:
             break
         print("Invalid choice. Please enter 1 or 2.")
-    
+
     result = {
         'repo_url': repo_url,
         'github_token': github_token,
         'output_file': output_file,
         'mode': 'prompt' if mode == '1' else 'rag'
     }
-    
+
     if mode == '2':
         result['groq_token'] = get_env_or_input(
             'GROQ_API_KEY',
             "Groq API key not found in .env. Please enter your key: "
         )
-    
+
     return result
 
 def interactive_rag_session(rag_instance: Any) -> None:
@@ -87,6 +86,7 @@ def interactive_rag_session(rag_instance: Any) -> None:
             if command == 'exit':
                 print("Exiting RAG session...")
                 rag_instance.clear_vector_store()  # Clear the vector store
+                rag_instance.clear_cache()  # Clear the cache
                 break
             elif command == 'help':
                 print("\nAvailable commands:")
@@ -107,23 +107,23 @@ def interactive_rag_session(rag_instance: Any) -> None:
         except KeyboardInterrupt:
             print("\nExiting RAG session...")
             rag_instance.clear_vector_store()  # Clear the vector store
+            rag_instance.clear_cache()  # Clear the cache
             break
         except Exception as e:
             print(f"\nError processing question: {str(e)}")
             print("Please try another question or type 'exit' to quit.")
-
 
 def main_interactive() -> None:
     """Main interactive function with improved error handling."""
     try:
         # Load environment variables
         load_dotenv(override=True)
-        
+
         # Get user inputs
         inputs = get_user_input()
-        
+
         print("\nInitializing...")
-        
+
         if inputs['mode'] == 'prompt':
             # Generate prompt file only
             result = main(
@@ -131,12 +131,12 @@ def main_interactive() -> None:
                 access_token=inputs['github_token'],
                 output_file=inputs['output_file']
             )
-            
+
             if isinstance(result, str) and result.startswith("Error"):
                 raise Exception(result)
-                
+
             print(f"\nPrompt successfully generated and saved to {inputs['output_file']}")
-            
+
         else:
             # Generate prompt file and initialize RAG
             result = main(
@@ -146,16 +146,16 @@ def main_interactive() -> None:
                 output_file=inputs['output_file'],
                 rag_mode=True
             )
-            
+
             if isinstance(result, str) and result.startswith("Error"):
                 raise Exception(result)
-            
+
             print(f"\nPrompt file generated and saved to {inputs['output_file']}")
             print("RAG system initialized successfully.")
-            
+
             # Start interactive RAG session
             interactive_rag_session(result)
-            
+
     except KeyboardInterrupt:
         print("\nOperation cancelled by user.")
         sys.exit(0)
