@@ -441,15 +441,15 @@ class RepoRAG:
             })
 
             # Process and structure response
-            # processed_response = self._process_response(response, query_type)
+            processed_response = self._process_response(response, query_type)
 
             # Update chat history
-            self._update_chat_history(question,response["answer"])
+            self._update_chat_history(question, processed_response["answer"])
 
             # Cache response
-            self._cache_response(cache_key, response)
+            self._cache_response(cache_key, processed_response)
 
-            return response["answer"]
+            return processed_response
 
         except Exception as e:
             self.logger.error(f"Error in query: {str(e)}")
