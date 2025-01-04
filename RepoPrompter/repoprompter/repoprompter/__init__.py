@@ -4,6 +4,7 @@ from .fetcher import fetch_repo_content
 from .converter import convert_to_text
 from .structurer import structure_text_for_llm
 from .prompter import create_prompt
+from .rag import RepoRAG
 
 __all__ = [
     'main',
@@ -11,4 +12,5 @@ __all__ = [
     'convert_to_text',
     'structure_text_for_llm',
     'create_prompt',
+    'RepoRAG'
 ]
