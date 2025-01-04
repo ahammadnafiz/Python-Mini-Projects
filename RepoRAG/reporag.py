@@ -1,4 +1,4 @@
-from repoprompter.repoprompter.main import main
+from reporag.reporag.main import main
 from dotenv import load_dotenv
 import os
 import sys
