@@ -1,0 +1,1480 @@
+
+    The following is the content of a GitHub repository converted into text format. The repository contains various files and directories, each serving a specific purpose. Please analyze and understand the content of this repository.
+
+    Repository Content:
+    File: .gitignore
+Size: 3143 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Content:
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+.env
+
+File: LICENSE
+Size: 11357 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Content:
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+   1. Definitions.
+
+      "License" shall mean the terms and conditions for use, reproduction,
+      and distribution as defined by Sections 1 through 9 of this document.
+
+      "Licensor" shall mean the copyright owner or entity authorized by
+      the copyright owner that is granting the License.
+
+      "Legal Entity" shall mean the union of the acting entity and all
+      other entities that control, are controlled by, or are under common
+      control with that entity. For the purposes of this definition,
+      "control" means (i) the power, direct or indirect, to cause the
+      direction or management of such entity, whether by contract or
+      otherwise, or (ii) ownership of fifty percent (50%) or more of the
+      outstanding shares, or (iii) beneficial ownership of such entity.
+
+      "You" (or "Your") shall mean an individual or Legal Entity
+      exercising permissions granted by this License.
+
+      "Source" form shall mean the preferred form for making modifications,
+      including but not limited to software source code, documentation
+      source, and configuration files.
+
+      "Object" form shall mean any form resulting from mechanical
+      transformation or translation of a Source form, including but
+      not limited to compiled object code, generated documentation,
+      and conversions to other media types.
+
+      "Work" shall mean the work of authorship, whether in Source or
+      Object form, made available under the License, as indicated by a
+      copyright notice that is included in or attached to the work
+      (an example is provided in the Appendix below).
+
+      "Derivative Works" shall mean any work, whether in Source or Object
+      form, that is based on (or derived from) the Work and for which the
+      editorial revisions, annotations, elaborations, or other modifications
+      represent, as a whole, an original work of authorship. For the purposes
+      of this License, Derivative Works shall not include works that remain
+      separable from, or merely link (or bind by name) to the interfaces of,
+      the Work and Derivative Works thereof.
+
+      "Contribution" shall mean any work of authorship, including
+      the original version of the Work and any modifications or additions
+      to that Work or Derivative Works thereof, that is intentionally
+      submitted to Licensor for inclusion in the Work by the copyright owner
+      or by an individual or Legal Entity authorized to submit on behalf of
+      the copyright owner. For the purposes of this definition, "submitted"
+      means any form of electronic, verbal, or written communication sent
+      to the Licensor or its representatives, including but not limited to
+      communication on electronic mailing lists, source code control systems,
+      and issue tracking systems that are managed by, or on behalf of, the
+      Licensor for the purpose of discussing and improving the Work, but
+      excluding communication that is conspicuously marked or otherwise
+      designated in writing by the copyright owner as "Not a Contribution."
+
+      "Contributor" shall mean Licensor and any individual or Legal Entity
+      on behalf of whom a Contribution has been received by Licensor and
+      subsequently incorporated within the Work.
+
+   2. Grant of Copyright License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      copyright license to reproduce, prepare Derivative Works of,
+      publicly display, publicly perform, sublicense, and distribute the
+      Work and such Derivative Works in Source or Object form.
+
+   3. Grant of Patent License. Subject to the terms and conditions of
+      this License, each Contributor hereby grants to You a perpetual,
+      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+      (except as stated in this section) patent license to make, have made,
+      use, offer to sell, sell, import, and otherwise transfer the Work,
+      where such license applies only to those patent claims licensable
+      by such Contributor that are necessarily infringed by their
+      Contribution(s) alone or by combination of their Contribution(s)
+      with the Work to which such Contribution(s) was submitted. If You
+      institute patent litigation against any entity (including a
+      cross-claim or counterclaim in a lawsuit) alleging that the Work
+      or a Contribution incorporated within the Work constitutes direct
+      or contributory patent infringement, then any patent licenses
+      granted to You under this License for that Work shall terminate
+      as of the date such litigation is filed.
+
+   4. Redistribution. You may reproduce and distribute copies of the
+      Work or Derivative Works thereof in any medium, with or without
+      modifications, and in Source or Object form, provided that You
+      meet the following conditions:
+
+      (a) You must give any other recipients of the Work or
+          Derivative Works a copy of this License; and
+
+      (b) You must cause any modified files to carry prominent notices
+          stating that You changed the files; and
+
+      (c) You must retain, in the Source form of any Derivative Works
+          that You distribute, all copyright, patent, trademark, and
+          attribution notices from the Source form of the Work,
+          excluding those notices that do not pertain to any part of
+          the Derivative Works; and
+
+      (d) If the Work includes a "NOTICE" text file as part of its
+          distribution, then any Derivative Works that You distribute must
+          include a readable copy of the attribution notices contained
+          within such NOTICE file, excluding those notices that do not
+          pertain to any part of the Derivative Works, in at least one
+          of the following places: within a NOTICE text file distributed
+          as part of the Derivative Works; within the Source form or
+          documentation, if provided along with the Derivative Works; or,
+          within a display generated by the Derivative Works, if and
+          wherever such third-party notices normally appear. The contents
+          of the NOTICE file are for informational purposes only and
+          do not modify the License. You may add Your own attribution
+          notices within Derivative Works that You distribute, alongside
+          or as an addendum to the NOTICE text from the Work, provided
+          that such additional attribution notices cannot be construed
+          as modifying the License.
+
+      You may add Your own copyright statement to Your modifications and
+      may provide additional or different license terms and conditions
+      for use, reproduction, or distribution of Your modifications, or
+      for any such Derivative Works as a whole, provided Your use,
+      reproduction, and distribution of the Work otherwise complies with
+      the conditions stated in this License.
+
+   5. Submission of Contributions. Unless You explicitly state otherwise,
+      any Contribution intentionally submitted for inclusion in the Work
+      by You to the Licensor shall be under the terms and conditions of
+      this License, without any additional terms or conditions.
+      Notwithstanding the above, nothing herein shall supersede or modify
+      the terms of any separate license agreement you may have executed
+      with Licensor regarding such Contributions.
+
+   6. Trademarks. This License does not grant permission to use the trade
+      names, trademarks, service marks, or product names of the Licensor,
+      except as required for reasonable and customary use in describing the
+      origin of the Work and reproducing the content of the NOTICE file.
+
+   7. Disclaimer of Warranty. Unless required by applicable law or
+      agreed to in writing, Licensor provides the Work (and each
+      Contributor provides its Contributions) on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+      implied, including, without limitation, any warranties or conditions
+      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+      PARTICULAR PURPOSE. You are solely responsible for determining the
+      appropriateness of using or redistributing the Work and assume any
+      risks associated with Your exercise of permissions under this License.
+
+   8. Limitation of Liability. In no event and under no legal theory,
+      whether in tort (including negligence), contract, or otherwise,
+      unless required by applicable law (such as deliberate and grossly
+      negligent acts) or agreed to in writing, shall any Contributor be
+      liable to You for damages, including any direct, indirect, special,
+      incidental, or consequential damages of any character arising as a
+      result of this License or out of the use or inability to use the
+      Work (including but not limited to damages for loss of goodwill,
+      work stoppage, computer failure or malfunction, or any and all
+      other commercial damages or losses), even if such Contributor
+      has been advised of the possibility of such damages.
+
+   9. Accepting Warranty or Additional Liability. While redistributing
+      the Work or Derivative Works thereof, You may choose to offer,
+      and charge a fee for, acceptance of support, warranty, indemnity,
+      or other liability obligations and/or rights consistent with this
+      License. However, in accepting such obligations, You may act only
+      on Your own behalf and on Your sole responsibility, not on behalf
+      of any other Contributor, and only if You agree to indemnify,
+      defend, and hold each Contributor harmless for any liability
+      incurred by, or claims asserted against, such Contributor by reason
+      of your accepting any such warranty or additional liability.
+
+   END OF TERMS AND CONDITIONS
+
+   APPENDIX: How to apply the Apache License to your work.
+
+      To apply the Apache License to your work, attach the following
+      boilerplate notice, with the fields enclosed by brackets "[]"
+      replaced with your own identifying information. (Don't include
+      the brackets!)  The text should be enclosed in the appropriate
+      comment syntax for the file format. We also recommend that a
+      file or class name and description of purpose be included on the
+      same "printed page" as the copyright notice for easier
+      identification within third-party archives.
+
+   Copyright [yyyy] [name of copyright owner]
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+
+File: README.md
+Size: 2529 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Content:
+# Bloodly
+A Telegram bot designed to connect blood donors with those in need across Bangladesh
+
+# Bangladesh Blood Donation Bot
+
+A Telegram bot designed to connect blood donors with those in need across Bangladesh. The bot facilitates blood donation requests, emergency blood needs, and allows users to manage their donor profiles.
+
+## Features
+
+- **Start Interaction**: Provides a welcoming message and options to donate blood, find blood, or make an emergency request.
+- **Location Sharing**: Accepts and processes user location data through coordinates, Google Maps links, or addresses.
+- **Blood Type Management**: Collects and stores donor blood type, location, and contact information.
+- **Emergency Requests**: Finds and displays nearest donors based on the requested blood type.
+- **Profile Management**: Allows users to view and update their donor profile information.
+- **Error Handling**: Provides user-friendly error messages and logs for debugging.
+
+## Installation
+
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/ahammadnafiz/Bloodly.git
+    cd blood-donation-bot
+    ```
+
+2. **Create a Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
+
+3. **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. **Set Up Environment Variables**:
+    Create a `.env` file in the root directory and add your Telegram Bot API token:
+    ```
+    API=your-telegram-bot-api-token
+    ```
+
+5. **Set Up the Database**:
+    The bot will automatically set up the SQLite database upon first run.
+
+## Usage
+
+1. **Run the Bot**:
+    ```bash
+    python blood_donation_bot.py
+    ```
+
+2. **Interact with the Bot**:
+    - Start the bot by sending `/start`.
+    - Use the provided options to donate blood, find blood, make an emergency request, or view/update your profile.
+    - Follow the prompts to provide your location, blood type, and contact information.
+
+## Commands
+
+- `/start` - Start the bot and view the main menu.
+- `/help` - Display the help message.
+- `/cancel` - Cancel the current operation.
+
+## Development
+
+- **Logging**: Logs are configured to capture bot activities and errors.
+- **Geocoding**: Uses `geopy` for location services.
+- **Database**: Utilizes `aiosqlite` for asynchronous database interactions.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+
+
+File: blood_donation.db (binary or non-UTF-8 content)
+Size: 16384 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+
+File: blood_donation_bot.py
+Size: 46562 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Content:
+import os
+import logging
+from datetime import datetime, timedelta
+import re
+from typing import List, Tuple
+from collections import defaultdict
+
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
+from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler, CallbackContext
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
+import pandas as pd
+import aiosqlite
+from dotenv import load_dotenv
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+load_dotenv('.env')
+BOT_TOKEN = os.getenv('API')
+
+# Define constants
+MENU, LOCATION, BLOOD_TYPE, CONTACT, PROFILE, FIND, LOCATION_FIND, PROFILE_VIEW, UPDATE_PROFILE, UPDATE_NAME, UPDATE_BLOOD_TYPE, UPDATE_CONTACT, UPDATE_LAST_DONATION, UPDATE_LOCATION, UPDATE_AVAILABILITY, EMERGENCY, EMERGENCY_CONTACT, EMERGENCY_LOCATION = range(18)
+RESULTS_PER_PAGE = 5
+RATE_LIMIT_PERIOD = timedelta(minutes=1)
+MAX_REQUESTS = 6
+
+REMINDER_RADIUS = 10  # km
+REMINDER_COOLDOWN = timedelta(hours=1)  # How often a donor can receive reminders
+
+BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+# Blood type compatibility chart
+COMPATIBLE_BLOOD_TYPES = {
+    'A+': ['A+', 'A-', 'O+', 'O-'],
+    'A-': ['A-', 'O-'],
+    'B+': ['B+', 'B-', 'O+', 'O-'],
+    'B-': ['B-', 'O-'],
+    'AB+': ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    'AB-': ['A-', 'B-', 'AB-', 'O-'],
+    'O+': ['O+', 'O-'],
+    'O-': ['O-']
+}
+
+# Rate limiting
+rate_limit_dict = defaultdict(list)
+# Initialize the geolocator
+geolocator = Nominatim(user_agent="blood_donation_bot")
+
+# Database setup
+DB_PATH = 'blood_donation.db'
+
+async def setup_database():
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            # Ensure all required tables are created first
+            await db.execute("""
+            CREATE TABLE IF NOT EXISTS donors (
+                id INTEGER PRIMARY KEY,
+                user_id INTEGER UNIQUE,
+                name TEXT NOT NULL,
+                blood_type TEXT NOT NULL,
+                latitude REAL NOT NULL,
+                longitude REAL NOT NULL,
+                contact TEXT NOT NULL,
+                last_donation TEXT,
+                available BOOLEAN NOT NULL DEFAULT TRUE
+            )
+            """)
+
+            await db.execute("""
+            CREATE TABLE IF NOT EXISTS donor_reminders (
+                id INTEGER PRIMARY KEY,
+                donor_id INTEGER,
+                last_reminded TIMESTAMP,
+                FOREIGN KEY (donor_id) REFERENCES donors (id)
+            )
+            """)
+            await db.commit()
+
+            # Check if the 'available' column exists
+            async with db.execute("PRAGMA table_info(donors)") as cursor:
+                columns = await cursor.fetchall()
+                column_names = [column[1] for column in columns]
+
+            if 'available' not in column_names:
+                # Add the 'available' column if it doesn't exist
+                await db.execute("ALTER TABLE donors ADD COLUMN available BOOLEAN NOT NULL DEFAULT TRUE")
+                await db.commit()
+                logger.info("Added 'available' column to donors table")
+
+    except Exception as e:
+        logger.error(f"Database setup error: {e}")
+
+def parse_dms_coordinate(coord_str):
+    decimal_pattern = r"(-?\d+\.?\d*),\s*(-?\d+\.?\d*)"
+    decimal_match = re.match(decimal_pattern, coord_str)
+    if decimal_match:
+        return float(decimal_match.group(1)), float(decimal_match.group(2))
+
+    # If not decimal, try parsing as DMS
+    dms_pattern = r"(\d+)°(\d+)'([\d.]+)\"([NS])\s*(\d+)°(\d+)'([\d.]+)\"([EW])"
+    dms_match = re.match(dms_pattern, coord_str)
+    if dms_match:
+        lat_d, lat_m, lat_s, lat_dir, lon_d, lon_m, lon_s, lon_dir = dms_match.groups()
+        lat = (float(lat_d) + float(lat_m)/60 + float(lat_s)/3600) * (1 if lat_dir == 'N' else -1)
+        lon = (float(lon_d) + float(lon_m)/60 + float(lon_s)/3600) * (1 if lon_dir == 'E' else -1)
+        return lat, lon
+
+    return None
+
+def check_rate_limit(user_id: int) -> bool:
+    current_time = datetime.now()
+    user_requests = rate_limit_dict[user_id]
+
+    # Remove old requests
+    user_requests = [time for time in user_requests if current_time - time < RATE_LIMIT_PERIOD]
+
+    if len(user_requests) >= MAX_REQUESTS:
+        return False
+
+    user_requests.append(current_time)
+    rate_limit_dict[user_id] = user_requests
+    return True
+
+def is_within_radius(donor_lat, donor_lon, request_lat, request_lon, radius_km):
+    return geodesic((donor_lat, donor_lon), (request_lat, request_lon)).km <= radius_km
+
+async def send_reminders(bot: Bot, blood_type: str, latitude: float, longitude: float, requester_contact: str = None, is_emergency: bool = False):
+    async with aiosqlite.connect(DB_PATH) as db:
+        query = """
+        SELECT d.id, d.user_id, d.blood_type, d.latitude, d.longitude
+        FROM donors d
+        WHERE d.blood_type = ? AND d.available = TRUE
+        """
+        async with db.execute(query, (blood_type,)) as cursor:
+            donors = await cursor.fetchall()
+
+        for donor in donors:
+            if is_within_radius(donor[3], donor[4], latitude, longitude, REMINDER_RADIUS):
+                try:
+                    # Create the reminder message with a Google Maps link
+                    if is_emergency:
+                        reminder_message = (
+                            f"🚨 EMERGENCY: Blood Needed Urgently! 🚨\n\n"
+                            f"Someone in your area needs {blood_type} blood IMMEDIATELY. This is an emergency situation.\n\n"
+                            f"📍 Location: [Click here](https://www.google.com/maps?q={latitude},{longitude})\n"
+                            f"📞 Requester Contact: {requester_contact}\n\n"
+                            f"Please respond as soon as possible if you can help save a life today!"
+                        )
+                    else:
+                        reminder_message = (
+                            f"🩸 Blood Needed! 🩸\n\n"
+                            f"Someone in your area needs {blood_type} blood. If you're available to donate, "
+                            f"please check the app for more details.\n\n"
+                            f"📍 Location: [Click here](https://www.google.com/maps?q={latitude},{longitude})\n"
+                        )
+
+                    # Send the message with location link
+                    await bot.send_message(
+                        chat_id=donor[1],
+                        text=reminder_message,
+                        parse_mode='Markdown'
+                    )
+
+                except Exception as e:
+                    logger.error(f"Failed to send reminder to donor {donor[1]}: {e}")
+        
+async def start(update: Update, context: CallbackContext) -> int:
+    user_id = update.effective_user.id
+    async with aiosqlite.connect(DB_PATH) as db:
+        cursor = await db.execute("SELECT * FROM donors WHERE user_id = ?", (user_id,))
+        user_is_registered = await cursor.fetchone() is not None
+
+    # Send the intro text
+    await update.message.reply_text('''
+                                    🩸🇧🇩 Welcome to BloodLY! 🇧🇩🩸
+
+Assalamualaikum, future lifesaver! 🦸‍♀️🦸‍♂️
+
+You've just taken the first heroic step towards becoming a real-life superhero. Your mission, should you choose to accept it, is to save lives with the power of your blood! 💪
+
+🚀 Quick Start Guide:
+• Type /menu to view all options
+• Type /help for assistance anytime
+
+Remember: Your blood type might be rare, but your kindness is legendary! One donation can save up to three lives. 😇
+
+Ready to be someone's lifeline? Let's get started! Type /help to begin your heroic journey. 🎉
+
+Made with ❤️ by 💻 Ahammad Nafiz. Check out more cool projects at github.com/ahammadnafiz!
+
+#EveryDropCounts #BloodHeroesBangladesh
+                                    ''')
+
+    # Then send the menu options with the new emergency button
+    keyboard = [
+        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
+         InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
+        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')]
+    ]
+    if user_is_registered:
+        keyboard.append([InlineKeyboardButton("My Profile 👤", callback_data='profile')])
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_text(
+        'What would you like to do?',
+        reply_markup=reply_markup
+    )
+    return MENU
+
+async def menu_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    if query.data == 'donate':
+        await query.message.reply_text('Please share your location. You can send your current location, a Google Maps link, or type an address.')
+        return LOCATION
+    elif query.data == 'find':
+        return await find_blood(update, context)
+    elif query.data == 'emergency':
+        return await emergency_request(update, context)
+    elif query.data == 'profile':
+        return await show_profile(update, context)
+    elif query.data == 'update_profile':
+        return await update_profile_prompt(update, context)
+    elif query.data == 'back_to_menu':
+        return await back_to_menu(update, context)
+    else:
+        await query.message.reply_text('Invalid choice. Please select from the options provided.')
+        return MENU
+
+async def emergency_request(update: Update, context: CallbackContext) -> int:
+    keyboard = [[InlineKeyboardButton(bt, callback_data=f'emergency_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.callback_query.message.reply_text('EMERGENCY: What blood type do you need urgently?', reply_markup=reply_markup)
+    return EMERGENCY
+
+async def emergency_blood_type_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    blood_type = query.data.split('_')[1]
+    context.user_data['emergency_blood_type'] = blood_type
+    await query.message.reply_text('Please provide your contact number for this emergency request.')
+    return EMERGENCY_CONTACT
+
+async def emergency_contact(update: Update, context: CallbackContext) -> int:
+    contact = update.message.text
+
+    # Validate Bangladeshi phone number format
+    if re.match(r'^\+?880\d{10}$', contact):
+        context.user_data['emergency_contact'] = contact
+        await update.message.reply_text('Please enter the location where you need blood urgently (district, address, or Google Maps link).')
+        return EMERGENCY_LOCATION
+    else:
+        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
+        return EMERGENCY_CONTACT
+
+async def handle_emergency_location(update: Update, context: CallbackContext) -> int:
+    if update.callback_query:
+        await update.callback_query.answer()
+        message = update.callback_query.message
+    else:
+        message = update.message
+
+    user_id = update.effective_user.id
+    if not check_rate_limit(user_id):
+        await message.reply_text("You've reached the maximum number of requests. Please try again later.")
+        return ConversationHandler.END
+
+    if update.message.location:
+        latitude = update.message.location.latitude
+        longitude = update.message.location.longitude
+    elif update.message.text:
+        coords = parse_dms_coordinate(update.message.text)
+        if coords:
+            latitude, longitude = coords
+        else:
+            coords = extract_coords_from_google_maps_link(update.message.text)
+            if coords:
+                latitude, longitude = coords
+            else:
+                try:
+                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
+                    if location:
+                        latitude = location.latitude
+                        longitude = location.longitude
+                    else:
+                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+                        return LOCATION_FIND
+                except Exception as e:
+                    logger.error(f"Geocoding error: {e}")
+                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
+                    return LOCATION_FIND
+    else:
+        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+        return LOCATION_FIND
+
+    needed_blood_type = context.user_data.get('emergency_blood_type')
+    emergency_contact = context.user_data.get('emergency_contact')
+    nearest_donors, total_results = await find_nearest_donors(latitude, longitude, blood_type=needed_blood_type, page=1)
+
+    if not nearest_donors:
+        await update.message.reply_text(f"EMERGENCY: No donors with blood type {needed_blood_type} or compatible types found in the area. Please try a wider search area or contact emergency services.")
+    else:
+        if nearest_donors[0][0] == needed_blood_type:
+            response = f"EMERGENCY: Found {total_results} donors with exact blood type match {needed_blood_type}:\n\n"
+        else:
+            response = f"EMERGENCY: No exact matches found. Showing {total_results} donors with compatible blood types for {needed_blood_type}:\n\n"
+
+        for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
+            response += f"{i}. Blood Type: {blood_type}\n"
+            response += f"   Distance: {distance:.2f} km\n"
+            response += f"   Contact: {contact}\n"
+            response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
+
+        if total_results > RESULTS_PER_PAGE:
+            keyboard = [
+                [InlineKeyboardButton("Next Page", callback_data=f"next_page_{2}_{latitude}_{longitude}_{needed_blood_type}_emergency")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(response, reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(response)
+
+        # Send reminders to eligible donors for emergency requests
+        await send_reminders(context.bot, needed_blood_type, latitude, longitude, emergency_contact, is_emergency=True)
+
+    return ConversationHandler.END
+
+async def update_profile_prompt(update: Update, context: CallbackContext) -> int:
+    update_text = ("What would you like to update?\n\n"
+                   "1. Name\n"
+                   "2. Blood Type\n"
+                   "3. Contact Number\n"
+                   "4. Last Donation Date\n"
+                   "5. Location\n"
+                   "6. Availability\n\n"
+                   "Please send the number corresponding to your choice.")
+
+    await update.callback_query.message.reply_text(update_text)
+    return UPDATE_PROFILE
+
+async def update_profile(update: Update, context: CallbackContext) -> int:
+    choice = update.message.text.strip()
+
+    if choice == '1':
+        await update.message.reply_text('Please enter your new name:')
+        return UPDATE_NAME
+    elif choice == '2':
+        keyboard = [[InlineKeyboardButton(bt, callback_data=f'update_blood_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text('Please select your new blood type:', reply_markup=reply_markup)
+        return UPDATE_BLOOD_TYPE
+    elif choice == '3':
+        await update.message.reply_text('Please enter your new contact number:')
+        return UPDATE_CONTACT
+    elif choice == '4':
+        await update.message.reply_text('Please enter your last donation date (YYYY-MM-DD or "Never"):')
+        return UPDATE_LAST_DONATION
+    elif choice == '5':
+        await update.message.reply_text('Please share your new location. You can send your current location, a Google Maps link, or type an address.')
+        return UPDATE_LOCATION
+    elif choice == '6':
+        await update.message.reply_text('Are you available to donate? Please type "Yes" or "No".')
+        return UPDATE_AVAILABILITY
+    else:
+        await update.message.reply_text('Invalid choice. Please enter 1, 2, 3, 4, 5, or 6.')
+        return UPDATE_PROFILE
+
+async def update_location(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+    user_id = user.id
+
+    if update.message.location:
+        latitude = update.message.location.latitude
+        longitude = update.message.location.longitude
+    elif update.message.text:
+        coords = parse_dms_coordinate(update.message.text)
+        if coords:
+            latitude, longitude = coords
+        else:
+            coords = extract_coords_from_google_maps_link(update.message.text)
+            if coords:
+                latitude, longitude = coords
+            else:
+                try:
+                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
+                    if location:
+                        latitude = location.latitude
+                        longitude = location.longitude
+                    else:
+                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+                        return UPDATE_LOCATION
+                except Exception as e:
+                    logger.error(f"Geocoding error: {e}")
+                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
+                    return UPDATE_LOCATION
+    else:
+        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+        return UPDATE_LOCATION
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute("UPDATE donors SET latitude = ?, longitude = ? WHERE user_id = ?", (latitude, longitude, user_id))
+            await db.commit()
+        await update.message.reply_text('Your location has been updated successfully.')
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        await update.message.reply_text('An error occurred while updating your location. Please try again later.')
+
+    return ConversationHandler.END
+
+async def update_name(update: Update, context: CallbackContext) -> int:
+    new_name = update.message.text.strip()
+    user_id = update.effective_user.id
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute("UPDATE donors SET name = ? WHERE user_id = ?", (new_name, user_id))
+            await db.commit()
+        await update.message.reply_text('Your name has been updated successfully.')
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        await update.message.reply_text('An error occurred while updating your name. Please try again later.')
+
+    return ConversationHandler.END  # Return this to end the conversation or another valid state
+
+async def update_blood_type_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    new_blood_type = query.data.split('_')[2]
+    user_id = update.effective_user.id
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute("UPDATE donors SET blood_type = ? WHERE user_id = ?", (new_blood_type, user_id))
+            await db.commit()
+        await query.message.reply_text(f'Your blood type has been updated to {new_blood_type}.')
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        await query.message.reply_text('An error occurred while updating your blood type. Please try again later.')
+
+    return ConversationHandler.END
+
+async def update_contact(update: Update, context: CallbackContext) -> int:
+    new_contact = update.message.text.strip()
+    user_id = update.effective_user.id
+
+    if re.match(r'^\+?880\d{10}$', new_contact):
+        try:
+            async with aiosqlite.connect(DB_PATH) as db:
+                await db.execute("UPDATE donors SET contact = ? WHERE user_id = ?", (new_contact, user_id))
+                await db.commit()
+            await update.message.reply_text('Your contact number has been updated successfully.')
+        except Exception as e:
+            logger.error(f"Database error: {e}")
+            await update.message.reply_text('An error occurred while updating your contact number. Please try again later.')
+    else:
+        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
+        return UPDATE_CONTACT
+
+    return ConversationHandler.END
+
+async def update_last_donation(update: Update, context: CallbackContext) -> int:
+    new_last_donation = update.message.text.strip()
+    user_id = update.effective_user.id
+
+    if new_last_donation.lower() == 'never':
+        new_last_donation = None
+    else:
+        try:
+            new_last_donation = datetime.strptime(new_last_donation, '%Y-%m-%d').date().isoformat()
+        except ValueError:
+            await update.message.reply_text('Invalid date format. Please use YYYY-MM-DD or "Never".')
+            return UPDATE_LAST_DONATION
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute("UPDATE donors SET last_donation = ? WHERE user_id = ?", (new_last_donation, user_id))
+            await db.commit()
+        await update.message.reply_text('Your last donation date has been updated successfully.')
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        await update.message.reply_text('An error occurred while updating your last donation date. Please try again later.')
+
+    return ConversationHandler.END
+
+async def update_availability(update: Update, context: CallbackContext) -> int:
+    response = update.message.text.strip().lower()
+    user_id = update.effective_user.id
+
+    if response in ['yes', 'no']:
+        new_availability = response == 'yes'
+        try:
+            async with aiosqlite.connect(DB_PATH) as db:
+                await db.execute("UPDATE donors SET available = ? WHERE user_id = ?", (new_availability, user_id))
+                await db.commit()
+            await update.message.reply_text(f'Your availability has been updated to {"Available" if new_availability else "Not Available"}.')
+        except Exception as e:
+            logger.error(f"Database error: {e}")
+            await update.message.reply_text('An error occurred while updating your availability. Please try again later.')
+    else:
+        await update.message.reply_text('Invalid input. Please type "Yes" or "No".')
+        return UPDATE_AVAILABILITY
+
+    return ConversationHandler.END
+
+async def location(update: Update, context: CallbackContext) -> int:
+    user = update.message.from_user
+
+    if update.message.location:
+        context.user_data['latitude'] = update.message.location.latitude
+        context.user_data['longitude'] = update.message.location.longitude
+    elif update.message.text:
+        coords = parse_dms_coordinate(update.message.text)
+        if coords:
+            context.user_data['latitude'], context.user_data['longitude'] = coords
+        else:
+            coords = extract_coords_from_google_maps_link(update.message.text)
+            if coords:
+                context.user_data['latitude'], context.user_data['longitude'] = coords
+            else:
+                try:
+                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
+                    if location:
+                        context.user_data['latitude'] = location.latitude
+                        context.user_data['longitude'] = location.longitude
+                    else:
+                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+                        return LOCATION
+                except Exception as e:
+                    logger.error(f"Geocoding error: {e}")
+                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
+                    return LOCATION
+    else:
+        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+        return LOCATION
+
+    keyboard = [[InlineKeyboardButton(bt, callback_data=f'blood_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text('What is your blood type?', reply_markup=reply_markup)
+    return BLOOD_TYPE
+
+def extract_coords_from_google_maps_link(link):
+    patterns = [
+        r"@(-?\d+\.\d+),(-?\d+\.\d+)",
+        r"ll=(-?\d+\.\d+),(-?\d+\.\d+)"
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, link)
+        if match:
+            return float(match.group(1)), float(match.group(2))
+    return None
+
+async def blood_type_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    blood_type = query.data.split('_')[1]
+    context.user_data['blood_type'] = blood_type
+    await query.message.reply_text('Please provide your contact number.')
+    return CONTACT
+
+async def contact(update: Update, context: CallbackContext) -> int:
+    contact = update.message.text
+
+    # Validate Bangladeshi phone number format
+    if re.match(r'^\+?880\d{10}$', contact):
+        context.user_data['contact'] = contact
+        await update.message.reply_text('When was your last blood donation? (YYYY-MM-DD or "Never")')
+        return PROFILE  # Return PROFILE state instead of proceeding directly
+    else:
+        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
+        return CONTACT
+
+async def profile(update: Update, context: CallbackContext) -> int:
+    last_donation = update.message.text
+
+    if last_donation.lower() == 'never':
+        last_donation = None
+    else:
+        try:
+            last_donation_date = datetime.strptime(last_donation, '%Y-%m-%d').date()
+            today = datetime.now().date()
+            if last_donation_date > today:
+                await update.message.reply_text('Invalid date. Last donation date cannot be in the future. Please enter a valid date or "Never".')
+                return PROFILE
+            last_donation = last_donation_date.isoformat()
+        except ValueError:
+            await update.message.reply_text('Invalid date format. Please use YYYY-MM-DD or "Never".')
+            return PROFILE
+
+    user_id = update.effective_user.id
+    name = update.effective_user.full_name
+
+    is_eligible = is_eligible_to_donate(last_donation)
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            await db.execute("""
+            INSERT OR REPLACE INTO donors
+            (user_id, name, blood_type, latitude, longitude, contact, last_donation, available)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, name, context.user_data['blood_type'],
+                  context.user_data['latitude'], context.user_data['longitude'],
+                  context.user_data['contact'], last_donation, is_eligible))
+            await db.commit()
+
+        if is_eligible:
+            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. You are currently marked as available to donate.')
+        else:
+            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. However, you are currently marked as unavailable to donate due to your recent donation. You will become eligible again 56 days after your last donation.')
+
+    except Exception as e:
+        logger.error(f"Database error: {e}")
+        await update.message.reply_text('An error occurred while saving your information. Please try again later.')
+
+    return ConversationHandler.END
+
+def is_eligible_to_donate(last_donation_str: str) -> bool:
+    if last_donation_str is None or last_donation_str.lower() == 'never':
+        return True
+
+    last_donation = datetime.fromisoformat(last_donation_str).date()
+    today = datetime.now().date()
+    min_days_between_donations = 56  # Typically 8 weeks between whole blood donations
+
+    return (today - last_donation).days >= min_days_between_donations
+
+async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int = 1, limit: int = RESULTS_PER_PAGE) -> Tuple[List[Tuple], int]:
+    logger.info(f"Finding nearest donors to location: ({lat}, {lon}) for blood type: {blood_type}")
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            # Check if 'available' column exists
+            async with db.execute("PRAGMA table_info(donors)") as cursor:
+                columns = await cursor.fetchall()
+                column_names = [column[1] for column in columns]
+
+            if 'available' in column_names:
+                query = """
+                SELECT * FROM donors
+                WHERE blood_type = ?
+                AND available = TRUE
+                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
+                """
+            else:
+                query = """
+                SELECT * FROM donors
+                WHERE blood_type = ?
+                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
+                """
+
+            params = [blood_type]
+
+            async with db.execute(query, params) as cursor:
+                exact_donors = await cursor.fetchall()
+
+            if not exact_donors:
+                compatible_types = COMPATIBLE_BLOOD_TYPES[blood_type]
+                placeholders = ','.join('?' for _ in compatible_types)
+
+                if 'available' in column_names:
+                    query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders}) AND available = TRUE"
+                else:
+                    query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders})"
+
+                params = compatible_types
+
+                async with db.execute(query, params) as cursor:
+                    compatible_donors = await cursor.fetchall()
+
+                donors = compatible_donors
+            else:
+                donors = exact_donors
+
+            if not donors:
+                logger.info(f"No available donors found with blood type: {blood_type} or compatible types")
+                return [], 0
+
+            columns = ['id', 'user_id', 'name', 'blood_type', 'latitude', 'longitude', 'contact', 'last_donation']
+            if 'available' in column_names:
+                columns.append('available')
+
+            df = pd.DataFrame(donors, columns=columns)
+
+            df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
+            df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
+            df = df.dropna(subset=['latitude', 'longitude'])
+
+            df['distance'] = df.apply(lambda row: geodesic((lat, lon), (row['latitude'], row['longitude'])).km, axis=1)
+            df_sorted = df.sort_values(by='distance')
+
+            total_results = len(df_sorted)
+            start_index = (page - 1) * limit
+            end_index = start_index + limit
+
+            nearest_donors = df_sorted.iloc[start_index:end_index]
+
+            return [(row['blood_type'], row['distance'], row['contact'], row['latitude'], row['longitude']) for _, row in nearest_donors.iterrows()], total_results
+
+    except Exception as e:
+        logger.error(f"Error while finding nearest donors: {e}")
+        return [], 0
+
+async def find_blood(update: Update, context: CallbackContext) -> int:
+    keyboard = [[InlineKeyboardButton(bt, callback_data=f'find_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.callback_query.message.reply_text('What blood type do you need?', reply_markup=reply_markup)
+    return FIND
+
+async def blood_type_find_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    blood_type = query.data.split('_')[1]
+    context.user_data['needed_blood_type'] = blood_type
+    await query.message.reply_text('Please enter the location where you need blood (district, address, or Google Maps link).')
+    return LOCATION_FIND
+
+async def handle_find_blood_location(update: Update, context: CallbackContext) -> int:
+    user_id = update.effective_user.id
+    if not check_rate_limit(user_id):
+        await update.message.reply_text("You've reached the maximum number of requests. Please try again later.")
+        return ConversationHandler.END
+
+    if update.message.location:
+        latitude = update.message.location.latitude
+        longitude = update.message.location.longitude
+    elif update.message.text:
+        coords = parse_dms_coordinate(update.message.text)
+        if coords:
+            latitude, longitude = coords
+        else:
+            coords = extract_coords_from_google_maps_link(update.message.text)
+            if coords:
+                latitude, longitude = coords
+            else:
+                try:
+                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
+                    if location:
+                        latitude = location.latitude
+                        longitude = location.longitude
+                    else:
+                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+                        return LOCATION_FIND
+                except Exception as e:
+                    logger.error(f"Geocoding error: {e}")
+                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
+                    return LOCATION_FIND
+    else:
+        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
+        return LOCATION_FIND
+
+    needed_blood_type = context.user_data.get('needed_blood_type')
+    nearest_donors, total_results = await find_nearest_donors(latitude, longitude, blood_type=needed_blood_type, page=1)
+
+    if not nearest_donors:
+        await update.message.reply_text(f"No donors with blood type {needed_blood_type} or compatible types found in the area. Please try a wider search area.")
+    else:
+        if nearest_donors[0][0] == needed_blood_type:
+            response = f"Found {total_results} donors with exact blood type match {needed_blood_type}:\n\n"
+        else:
+            response = f"No exact matches found. Showing {total_results} donors with compatible blood types for {needed_blood_type}:\n\n"
+
+        for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
+            response += f"{i}. Blood Type: {blood_type}\n"
+            response += f"   Distance: {distance:.2f} km\n"
+            response += f"   Contact: {contact}\n"
+            response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
+
+        if total_results > RESULTS_PER_PAGE:
+            keyboard = [
+                [InlineKeyboardButton("Next Page", callback_data=f"next_page_{2}_{latitude}_{longitude}_{needed_blood_type}")]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await update.message.reply_text(response, reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(response)
+
+    return ConversationHandler.END
+
+async def paginate_results(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    await query.answer()
+
+    user_id = update.effective_user.id
+    if not check_rate_limit(user_id):
+        await query.message.reply_text("You've reached the maximum number of requests. Please try again later.")
+        return
+
+    _, page, lat, lon, blood_type = query.data.split('_')
+    page = int(page)
+    lat = float(lat)
+    lon = float(lon)
+
+    nearest_donors, total_results = await find_nearest_donors(lat, lon, blood_type=blood_type, page=page)
+
+    if not nearest_donors:
+        await query.message.reply_text("No more results found.")
+        return
+
+    response = f"Page {page} of donors for blood type {blood_type}:\n\n"
+    for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
+        response += f"{i}. Blood Type: {blood_type}\n"
+        response += f"   Distance: {distance:.2f} km\n"
+        response += f"   Contact: {contact}\n"
+        response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
+
+    keyboard = []
+    if page > 1:
+        keyboard.append(InlineKeyboardButton("Previous Page", callback_data=f"next_page_{page-1}_{lat}_{lon}_{blood_type}"))
+    if page * RESULTS_PER_PAGE < total_results:
+        keyboard.append(InlineKeyboardButton("Next Page", callback_data=f"next_page_{page+1}_{lat}_{lon}_{blood_type}"))
+
+    reply_markup = InlineKeyboardMarkup([keyboard])
+    await query.message.edit_text(response, reply_markup=reply_markup)
+
+async def emergency_callback(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+
+    blood_type = query.data.split('_')[1]
+    context.user_data['emergency_blood_type'] = blood_type
+    await query.message.reply_text('Please enter the location where you need blood (district, address, or Google Maps link).')
+    return LOCATION_FIND
+
+async def show_profile(update: Update, context: CallbackContext) -> int:
+    user_id = update.effective_user.id
+
+    try:
+        async with aiosqlite.connect(DB_PATH) as db:
+            async with db.execute("SELECT * FROM donors WHERE user_id = ?", (user_id,)) as cursor:
+                donor = await cursor.fetchone()
+
+        if donor:
+            profile_text = "📋 Your Donor Profile:\n\n"
+            profile_text += f"👤 Name: {donor[2]}\n"
+            profile_text += f"🩸 Blood Type: {donor[3]}\n"
+            profile_text += f"📞 Contact: {donor[6]}\n"
+            profile_text += f"📅 Last Donation: {donor[7] if donor[7] else 'Never'}\n"
+
+            # Check if 'available' field exists in the donor tuple
+            if len(donor) > 8:
+                profile_text += f"✅ Available: {'Yes' if donor[8] else 'No'}\n"
+            else:
+                profile_text += "✅ Available: Yes (Default)\n"
+
+            keyboard = [
+                [InlineKeyboardButton("Update Profile", callback_data='update_profile')],
+                [InlineKeyboardButton("Back to Main Menu", callback_data='back_to_menu')]
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            if update.callback_query:
+                await update.callback_query.message.reply_text(profile_text, reply_markup=reply_markup)
+            else:
+                await update.message.reply_text(profile_text, reply_markup=reply_markup)
+        else:
+            await update.callback_query.message.reply_text("You haven't registered as a donor yet.")
+
+    except Exception as e:
+        logger.error(f"Database error in show_profile: {e}")
+        await update.callback_query.message.reply_text("An error occurred while retrieving your profile. Please try again later.")
+
+    return PROFILE_VIEW
+
+async def back_to_menu(update: Update, context: CallbackContext) -> int:
+    query = update.callback_query
+    await query.answer()
+    
+    keyboard = [
+        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
+        InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
+        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')],
+        [InlineKeyboardButton("My Profile 👤", callback_data='profile')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.message.edit_text(
+        'Welcome back to the main menu! What would you like to do?',
+        reply_markup=reply_markup
+    )
+    return MENU
+
+async def menu_command(update: Update, context: CallbackContext) -> int:
+    # Create the menu keyboard
+    keyboard = [
+        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
+        InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
+        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')],
+        [InlineKeyboardButton("My Profile 👤", callback_data='profile')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send a new message with the menu options
+    await update.message.reply_text(
+        'Welcome back to the main menu! What would you like to do?',
+        reply_markup=reply_markup
+    )
+
+    return MENU
+
+async def cancel(update: Update, context: CallbackContext) -> int:
+    await update.message.reply_text('Operation cancelled.')
+    return ConversationHandler.END
+
+async def error_handler(update: Update, context: CallbackContext) -> None:
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+    if update.effective_message:
+        await update.effective_message.reply_text("An error occurred. Our team has been notified.")
+
+async def help_command(update: Update, context: CallbackContext) -> None:
+    help_text = (
+        '''
+        🩸🇧🇩 Welcome to BloodLY Bangladesh! 🦸‍♀️🦸‍♂️
+
+Ready to become a real-life superhero? Your adventure in saving lives starts here! 🚀
+
+🌟 Superhero Command Center:
+/menu - View your superhero options 📋
+/help - Call for backup (show this message) 📞
+/cancel - Abort mission (cancel current operation) 🚫
+
+🦸 Choose Your Heroic Path:
+• Donate Blood 🩸 - Be the hero someone is waiting for!
+• Find Blood 🔍 - Lead the search for lifesaving matches!
+• Hero Profile 👤 - Power up your alter ego! (for registered heroes)
+
+Remember: Every drop counts, every hero matters! 💖
+
+Stuck on your mission? Don't worry! Your trusty sidekick (that's me!) is here to help. Just ask! 😊
+
+Type /menu to see all your superhero options! Let's save lives together! 🌈✨
+
+Made with ❤️ by 💻 Ahammad Nafiz. Check out more cool projects at github.com/ahammadnafiz!
+
+#BloodHeroesBangladesh #EveryDropCounts #BeAHero
+        '''
+    )
+    await update.message.reply_text(help_text)
+
+def main() -> None:
+    # Set up the database before running the bot
+    import asyncio
+    asyncio.get_event_loop().run_until_complete(setup_database())
+
+    # Create the Application and pass it your bot's token.
+    application = Application.builder().token(BOT_TOKEN).build()
+
+    # Add conversation handler with the updated states
+    conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('start', start), CommandHandler('menu', menu_command)],
+    states={
+        MENU: [CallbackQueryHandler(menu_callback)],
+        LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, location)],
+        BLOOD_TYPE: [CallbackQueryHandler(blood_type_callback)],
+        CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, contact)],
+        PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, profile)],  # Add this line
+        UPDATE_PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_profile)],
+        FIND: [CallbackQueryHandler(blood_type_find_callback)],
+        LOCATION_FIND: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, handle_find_blood_location)],
+        PROFILE_VIEW: [CallbackQueryHandler(menu_callback)],
+        UPDATE_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_name)],
+        UPDATE_BLOOD_TYPE: [CallbackQueryHandler(update_blood_type_callback)],
+        UPDATE_CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_contact)],
+        UPDATE_LAST_DONATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_last_donation)],
+        UPDATE_LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, update_location)],
+        UPDATE_AVAILABILITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_availability)],
+        EMERGENCY: [CallbackQueryHandler(emergency_blood_type_callback)],
+        EMERGENCY_CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, emergency_contact)],
+        EMERGENCY_LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, handle_emergency_location)],
+    },
+    fallbacks=[CommandHandler('cancel', cancel), CommandHandler('menu', menu_command)],
+)
+
+    application.add_handler(conv_handler)
+    application.add_handler(CallbackQueryHandler(paginate_results, pattern=r'^next_page_'))
+
+    # Add standalone command handlers
+    application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("menu", menu_command))
+
+    # Add error handler
+    application.add_error_handler(error_handler)
+
+    # Run the bot until the user presses Ctrl-C
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+if __name__ == '__main__':
+    main()
+
+File: requirements.txt
+Size: 60 bytes
+Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Content:
+python-telegram-bot
+geopy
+pandas
+aiosqlite
+python-dotenv
+
+
+    Instructions:
+    1. Identify the main purpose of the repository.
+    2. Summarize the key functionalities provided by the repository.
+    3. Highlight any important files or directories and their roles.
+    4. Note any dependencies or requirements specified in the repository.
+    5. Provide any additional insights or observations about the repository's structure and content.
+
+    Please provide a detailed analysis based on the above instructions.
+    
