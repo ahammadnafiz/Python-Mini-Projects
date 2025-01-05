@@ -1,110 +1,158 @@
-# RepoPrompter
+![Banner](assets/banner.png)
 
-RepoPrompter is a Python package designed to convert the contents of a GitHub repository into a structured text format suitable for prompting large language models (LLMs). This tool is particularly useful for developers and researchers who need to analyze or understand the contents of a repository programmatically.
 
-## Features
+<h1 align="center">RepoRAG</h1>
 
-- **Fetch Repository Content**: Easily fetch the contents of any public or private GitHub repository.
-- **Convert to Text**: Convert the repository contents into a structured text format.
-- **Generate Prompts**: Create prompts that can be understood by LLMs.
-- **Handle Large Repositories**: Efficiently process large repositories with nested directories and files.
-- **Error Handling**: Robust error handling for non-UTF-8 content and other encoding issues.
-- **Environment Variables**: Securely manage GitHub access tokens using environment variables.
+A fully interactive tool designed to streamline your GitHub repository prompt generation process and facilitate RAG (Retrieval-Augmented Generation) workflows
 
-## Usage
 
-### Basic Usage
+## 🏗️ System Design & Architecture
+- Below is the high-level architecture of the system:
 
-Here is a basic example of how to use RepoPrompter to convert a GitHub repository into a prompted text format:
+![Flow](assets/reporagai_2.jpeg)
+![Architecture](assets/reporagai_1.jpeg)
 
-```python
-from repoprompter.repoprompter.main import main
-import os
 
-# Replace with your repository URL
-repo_url = "stanford-oval/storm"  # Correct repository URL format
+## 📌 Table of Contents
+- [🌟 Features](#-features)
+- [🛠️ Installation](#️-installation)
+- [🚀 Usage](#-usage)
+- [⚙️ Configuration](#%EF%B8%8F-configuration)
+- [📖 Interactive Commands](#-interactive-commands)
+- [🎨 Icons and Badges](#-icons-and-badges)
+- [🧪 Example](#-example)
+- [🤖 Technologies Used](#-technologies-used)
+- [📃 License](#-license)
+- [🤝 Contributing](#-contributing)
 
-# Set your GitHub access token as an environment variable
-os.environ['GITHUB_ACCESS_TOKEN'] = "your_access_token"
+---
 
-output_file = "output_prompt.txt"
+## 🌟 Features
+- **Interactive Mode**: Easily input repository details and start generating prompts through a user-friendly interface.
+- **RAG Support**: Engage in interactive Retrieval-Augmented Generation sessions with real-time question answering about your repositories.
+- **Environment Variable Management**: Supports environment-based configurations for quick and seamless setup.
+- **Error Handling**: Robust error handling to ensure smooth operations during interactive sessions.
+- **Clear Command Interface**: Offers a set of easy-to-use commands for RAG sessions, including options to clear history or exit the session.
 
-try:
-    # Generate the prompt and save it to a file
-    prompt = main(repo_url, os.getenv('GITHUB_ACCESS_TOKEN'), output_file)
-    print(prompt)
-except Exception as e:
-    print(f"Error: {str(e)}")
+---
+
+## 🛠️ Installation
+
+Follow these steps to get started with RepoRAG:
+
+1. **Clone the repository**:
+```bash
+$ git clone https://github.com/ahammadnafiz/RepoRAG.git
 ```
 
-### Detailed Steps
-
-1. **Set Up Environment Variable**:
-   Ensure your GitHub access token is set as an environment variable to avoid hardcoding sensitive information.
-
-   ```bash
-   export GITHUB_ACCESS_TOKEN="your_access_token"
-   ```
-
-2. **Run the Script**:
-   Execute your Python script to fetch the repository content, convert it to text, and generate the prompt.
-
-   ```bash
-   python demo.py
-   ```
-
-### Handling Non-UTF-8 Content
-
-RepoPrompter includes robust error handling to manage files that cannot be decoded as UTF-8. These files are marked as binary or non-UTF-8 content in the output.
-
-### Saving the Prompt to a File
-
-The generated prompt can be saved to a text file for further analysis or processing.
-
-```python
-output_file = "output_prompt.txt"
-prompt = main(repo_url, os.getenv('GITHUB_ACCESS_TOKEN'), output_file)
+2. **Navigate to the project directory**:
+```bash
+$ cd RepoRAG
 ```
 
-## Example
-
-Here is a complete example script (`demo.py`) that demonstrates how to use RepoPrompter:
-
-```python
-# demo.py
-import os
-from repoprompter.repoprompter.main import main
-
-# Replace with your repository URL
-repo_url = "stanford-oval/storm"  # Correct repository URL format
-
-# Set your GitHub access token as an environment variable
-os.environ['GITHUB_ACCESS_TOKEN'] = "your_access_token"
-
-output_file = "output_prompt.txt"
-
-try:
-    # Generate the prompt and save it to a file
-    prompt = main(repo_url, os.getenv('GITHUB_ACCESS_TOKEN'), output_file)
-    print(prompt)
-except Exception as e:
-    print(f"Error: {str(e)}")
+3. **Install the required dependencies**:
+```bash
+$ pip install -r requirements.txt
 ```
 
-## Contributing
+4. **Create a `.env` file** to store your environment variables (see [Configuration](#%EF%B8%8F-configuration)).
 
-Contributions are welcome! Please feel free to submit issues and enhancement requests.
+5. **Download NLTK Data** 
+```python
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
+```
 
-### Forking the Repo
+---
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 🚀 Usage
 
+Run the interactive mode directly from your terminal:
+```bash
+$ python reporag.py
+```
 
-## Acknowledgements
+### 🧑‍💻 Interactive Session Walkthrough:
+- **Step 1**: Enter the repository URL in the format `owner/repo`.
+- **Step 2**: Provide your GitHub access token.
+- **Step 3**: Specify the output file name for the generated prompt.
+- **Step 4**: Choose the desired mode:
+  - `1`: Generate a prompt file only.
+  - `2`: Generate a prompt file and start a RAG session.
 
-- Thanks to the developers of PyGithub for providing a great library to interact with the GitHub API.
-- Inspiration and code snippets from various open-source projects.
+---
+
+## ⚙️ Configuration
+
+Create a `.env` file in the root directory to store your environment variables:
+```env
+GITHUB_ACCESS_TOKEN=your_github_token
+GROQ_API_KEY=your_groq_api_key
+```
+
+**Environment Variables Explained**:
+- `GITHUB_ACCESS_TOKEN`: Your personal GitHub token for accessing private repositories.
+- `GROQ_API_KEY`: API key required for advanced RAG functionalities.
+
+---
+
+## 📖 Interactive Commands
+When running in RAG mode, you can use the following commands:
+
+| Command | Description                    |
+| ------- | ------------------------------ |
+| `exit`  | Exit the RAG session           |
+| `help`  | Display available commands     |
+| `clear` | Clear the conversation history |
+
+---
+
+## 🎨 Icons and Badges
+
+![Python](https://img.shields.io/badge/python-v3.8%2B-blue) ![GitHub](https://img.shields.io/badge/github-RepoRAG-lightgrey)
+
+**Supported Technologies**:
+- Python 3.8+
+- GitHub API
+- dotenv for environment variable management
+
+---
+
+## 🧪 Example
+
+```bash
+=== RepoRAG Interactive Mode ===
+
+Enter the GitHub repository URL (format: owner/repo): ahammadnafiz/RepoRAG
+GitHub access token not found in .env. Please enter your token: ********
+Enter the output file name for the prompt (e.g., output_prompt.txt): my_prompt.txt
+Available modes:
+1. Generate prompt file only
+2. Generate prompt file and start RAG mode
+Enter your choice (1/2): 2
+```
+
+---
+
+## 🤖 Technologies Used
+- **Python**: Core language for the tool.
+- **dotenv**: For environment variable management.
+- **Typing**: Used for type hints and validation.
+- **GitHub API**: To interact with GitHub repositories.
+
+---
+
+## 📃 License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/ahammadnafiz/RepoRAG/blob/main/LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions to RepoRAG! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature`).
+3. Commit your changes (`git commit -m 'Add your feature'`).
+4. Push to the branch (`git push origin feature/your-feature`).
+5. Create a pull request.
