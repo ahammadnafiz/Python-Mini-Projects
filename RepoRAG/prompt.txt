@@ -3,1095 +3,1274 @@
 
     Repository Content:
     File: README.md
-Size: 2529 bytes
-Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Size: 4486 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
 Content:
-# Bloodly
-A Telegram bot designed to connect blood donors with those in need across Bangladesh
-
-# Bangladesh Blood Donation Bot
-
-A Telegram bot designed to connect blood donors with those in need across Bangladesh. The bot facilitates blood donation requests, emergency blood needs, and allows users to manage their donor profiles.
-
-## Features
-
-- **Start Interaction**: Provides a welcoming message and options to donate blood, find blood, or make an emergency request.
-- **Location Sharing**: Accepts and processes user location data through coordinates, Google Maps links, or addresses.
-- **Blood Type Management**: Collects and stores donor blood type, location, and contact information.
-- **Emergency Requests**: Finds and displays nearest donors based on the requested blood type.
-- **Profile Management**: Allows users to view and update their donor profile information.
-- **Error Handling**: Provides user-friendly error messages and logs for debugging.
-
-## Installation
-
-1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/ahammadnafiz/Bloodly.git
-    cd blood-donation-bot
-    ```
-
-2. **Create a Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
-
-3. **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4. **Set Up Environment Variables**:
-    Create a `.env` file in the root directory and add your Telegram Bot API token:
-    ```
-    API=your-telegram-bot-api-token
-    ```
-
-5. **Set Up the Database**:
-    The bot will automatically set up the SQLite database upon first run.
-
-## Usage
-
-1. **Run the Bot**:
-    ```bash
-    python blood_donation_bot.py
-    ```
-
-2. **Interact with the Bot**:
-    - Start the bot by sending `/start`.
-    - Use the provided options to donate blood, find blood, make an emergency request, or view/update your profile.
-    - Follow the prompts to provide your location, blood type, and contact information.
-
-## Commands
-
-- `/start` - Start the bot and view the main menu.
-- `/help` - Display the help message.
-- `/cancel` - Cancel the current operation.
-
-## Development
-
-- **Logging**: Logs are configured to capture bot activities and errors.
-- **Geocoding**: Uses `geopy` for location services.
-- **Database**: Utilizes `aiosqlite` for asynchronous database interactions.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request on GitHub.
+![Banner](assets/banner.png)
 
 
-File: blood_donation.db (binary or non-UTF-8 content)
-Size: 16384 bytes
-Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+<h1 align="center">RepoRAG</h1>
 
-File: blood_donation_bot.py
-Size: 46562 bytes
-Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+A fully interactive tool designed to streamline your GitHub repository prompt generation process and facilitate RAG (Retrieval-Augmented Generation) workflows
+
+
+## 🏗️ System Design & Architecture
+- Below is the high-level architecture of the system:
+
+![Flow](assets/reporagai_2.jpeg)
+![Architecture](assets/reporagai_1.jpeg)
+
+
+## 📌 Table of Contents
+- [🌟 Features](#-features)
+- [🛠️ Installation](#️-installation)
+- [🚀 Usage](#-usage)
+- [⚙️ Configuration](#%EF%B8%8F-configuration)
+- [📖 Interactive Commands](#-interactive-commands)
+- [🎨 Icons and Badges](#-icons-and-badges)
+- [🧪 Example](#-example)
+- [🤖 Technologies Used](#-technologies-used)
+- [📃 License](#-license)
+- [🤝 Contributing](#-contributing)
+
+---
+
+## 🌟 Features
+- **Interactive Mode**: Easily input repository details and start generating prompts through a user-friendly interface.
+- **RAG Support**: Engage in interactive Retrieval-Augmented Generation sessions with real-time question answering about your repositories.
+- **Environment Variable Management**: Supports environment-based configurations for quick and seamless setup.
+- **Error Handling**: Robust error handling to ensure smooth operations during interactive sessions.
+- **Clear Command Interface**: Offers a set of easy-to-use commands for RAG sessions, including options to clear history or exit the session.
+
+---
+
+## 🛠️ Installation
+
+Follow these steps to get started with RepoRAG:
+
+1. **Clone the repository**:
+```bash
+$ git clone https://github.com/ahammadnafiz/RepoRAG.git
+```
+
+2. **Navigate to the project directory**:
+```bash
+$ cd RepoRAG
+```
+
+3. **Install the required dependencies**:
+```bash
+$ pip install -r requirements.txt
+```
+
+4. **Create a `.env` file** to store your environment variables (see [Configuration](#%EF%B8%8F-configuration)).
+
+---
+
+## 🚀 Usage
+
+Run the interactive mode directly from your terminal:
+```bash
+$ python reporag.py
+```
+
+### 🧑‍💻 Interactive Session Walkthrough:
+- **Step 1**: Enter the repository URL in the format `owner/repo`.
+- **Step 2**: Provide your GitHub access token.
+- **Step 3**: Specify the output file name for the generated prompt.
+- **Step 4**: Choose the desired mode:
+  - `1`: Generate a prompt file only.
+  - `2`: Generate a prompt file and start a RAG session.
+
+---
+
+## ⚙️ Configuration
+
+Create a `.env` file in the root directory to store your environment variables:
+```env
+GITHUB_ACCESS_TOKEN=your_github_token
+GROQ_API_KEY=your_groq_api_key
+```
+
+**Environment Variables Explained**:
+- `GITHUB_ACCESS_TOKEN`: Your personal GitHub token for accessing private repositories.
+- `GROQ_API_KEY`: API key required for advanced RAG functionalities.
+
+---
+
+## 📖 Interactive Commands
+When running in RAG mode, you can use the following commands:
+
+| Command | Description                    |
+| ------- | ------------------------------ |
+| `exit`  | Exit the RAG session           |
+| `help`  | Display available commands     |
+| `clear` | Clear the conversation history |
+
+---
+
+## 🎨 Icons and Badges
+
+![Python](https://img.shields.io/badge/python-v3.8%2B-blue) ![GitHub](https://img.shields.io/badge/github-RepoRAG-lightgrey)
+
+**Supported Technologies**:
+- Python 3.8+
+- GitHub API
+- dotenv for environment variable management
+
+---
+
+## 🧪 Example
+
+```bash
+=== RepoRAG Interactive Mode ===
+
+Enter the GitHub repository URL (format: owner/repo): ahammadnafiz/RepoRAG
+GitHub access token not found in .env. Please enter your token: ********
+Enter the output file name for the prompt (e.g., output_prompt.txt): my_prompt.txt
+Available modes:
+1. Generate prompt file only
+2. Generate prompt file and start RAG mode
+Enter your choice (1/2): 2
+```
+
+---
+
+## 🤖 Technologies Used
+- **Python**: Core language for the tool.
+- **dotenv**: For environment variable management.
+- **Typing**: Used for type hints and validation.
+- **GitHub API**: To interact with GitHub repositories.
+
+---
+
+## 📃 License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/ahammadnafiz/RepoRAG/blob/main/LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions to RepoRAG! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/your-feature`).
+3. Commit your changes (`git commit -m 'Add your feature'`).
+4. Push to the branch (`git push origin feature/your-feature`).
+5. Create a pull request.
+
+
+File: app.py
+Size: 9 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
 Content:
-import os
-import logging
-from datetime import datetime, timedelta
-import re
-from typing import List, Tuple
-from collections import defaultdict
+# app.py
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
-from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler, CallbackContext
-from geopy.geocoders import Nominatim
-from geopy.distance import geodesic
-import pandas as pd
-import aiosqlite
+
+Directory: assets
+
+File: assets/banner.png (binary or non-UTF-8 content)
+Size: 12931 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+
+File: assets/reporagai_1.jpeg (binary or non-UTF-8 content)
+Size: 135427 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+
+File: assets/reporagai_2.jpeg (binary or non-UTF-8 content)
+Size: 75306 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+
+File: reporag.py
+Size: 5855 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+from reporag.reporag.main import main
 from dotenv import load_dotenv
+import os
+import sys
+from typing import Dict, Any, Optional
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
+def validate_repo_url(url: str) -> bool:
+    """Validate the repository URL format."""
+    parts = url.split('/')
+    return len(parts) == 2 and all(part.strip() for part in parts)
 
-load_dotenv('.env')
-BOT_TOKEN = os.getenv('API')
+def get_env_or_input(env_var: str, prompt: str) -> str:
+    """Get value from environment variable or user input."""
+    value = os.getenv(env_var)
+    if not value:
+        value = input(prompt).strip()
+    return value
 
-# Define constants
-MENU, LOCATION, BLOOD_TYPE, CONTACT, PROFILE, FIND, LOCATION_FIND, PROFILE_VIEW, UPDATE_PROFILE, UPDATE_NAME, UPDATE_BLOOD_TYPE, UPDATE_CONTACT, UPDATE_LAST_DONATION, UPDATE_LOCATION, UPDATE_AVAILABILITY, EMERGENCY, EMERGENCY_CONTACT, EMERGENCY_LOCATION = range(18)
-RESULTS_PER_PAGE = 5
-RATE_LIMIT_PERIOD = timedelta(minutes=1)
-MAX_REQUESTS = 6
+def get_user_input() -> Dict[str, Any]:
+    """Get and validate user input for repository processing."""
+    print("\n=== Repoprompter Interactive Mode ===\n")
 
-REMINDER_RADIUS = 10  # km
-REMINDER_COOLDOWN = timedelta(hours=1)  # How often a donor can receive reminders
+    # Get and validate repository URL
+    while True:
+        repo_url = input("Enter the GitHub repository URL (format: owner/repo): ").strip()
+        if validate_repo_url(repo_url):
+            break
+        print("Invalid repository format. Please use 'owner/repo' format.")
 
-BLOOD_TYPES = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-# Blood type compatibility chart
-COMPATIBLE_BLOOD_TYPES = {
-    'A+': ['A+', 'A-', 'O+', 'O-'],
-    'A-': ['A-', 'O-'],
-    'B+': ['B+', 'B-', 'O+', 'O-'],
-    'B-': ['B-', 'O-'],
-    'AB+': ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-    'AB-': ['A-', 'B-', 'AB-', 'O-'],
-    'O+': ['O+', 'O-'],
-    'O-': ['O-']
-}
-
-# Rate limiting
-rate_limit_dict = defaultdict(list)
-# Initialize the geolocator
-geolocator = Nominatim(user_agent="blood_donation_bot")
-
-# Database setup
-DB_PATH = 'blood_donation.db'
-
-async def setup_database():
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            # Ensure all required tables are created first
-            await db.execute("""
-            CREATE TABLE IF NOT EXISTS donors (
-                id INTEGER PRIMARY KEY,
-                user_id INTEGER UNIQUE,
-                name TEXT NOT NULL,
-                blood_type TEXT NOT NULL,
-                latitude REAL NOT NULL,
-                longitude REAL NOT NULL,
-                contact TEXT NOT NULL,
-                last_donation TEXT,
-                available BOOLEAN NOT NULL DEFAULT TRUE
-            )
-            """)
-
-            await db.execute("""
-            CREATE TABLE IF NOT EXISTS donor_reminders (
-                id INTEGER PRIMARY KEY,
-                donor_id INTEGER,
-                last_reminded TIMESTAMP,
-                FOREIGN KEY (donor_id) REFERENCES donors (id)
-            )
-            """)
-            await db.commit()
-
-            # Check if the 'available' column exists
-            async with db.execute("PRAGMA table_info(donors)") as cursor:
-                columns = await cursor.fetchall()
-                column_names = [column[1] for column in columns]
-
-            if 'available' not in column_names:
-                # Add the 'available' column if it doesn't exist
-                await db.execute("ALTER TABLE donors ADD COLUMN available BOOLEAN NOT NULL DEFAULT TRUE")
-                await db.commit()
-                logger.info("Added 'available' column to donors table")
-
-    except Exception as e:
-        logger.error(f"Database setup error: {e}")
-
-def parse_dms_coordinate(coord_str):
-    decimal_pattern = r"(-?\d+\.?\d*),\s*(-?\d+\.?\d*)"
-    decimal_match = re.match(decimal_pattern, coord_str)
-    if decimal_match:
-        return float(decimal_match.group(1)), float(decimal_match.group(2))
-
-    # If not decimal, try parsing as DMS
-    dms_pattern = r"(\d+)°(\d+)'([\d.]+)\"([NS])\s*(\d+)°(\d+)'([\d.]+)\"([EW])"
-    dms_match = re.match(dms_pattern, coord_str)
-    if dms_match:
-        lat_d, lat_m, lat_s, lat_dir, lon_d, lon_m, lon_s, lon_dir = dms_match.groups()
-        lat = (float(lat_d) + float(lat_m)/60 + float(lat_s)/3600) * (1 if lat_dir == 'N' else -1)
-        lon = (float(lon_d) + float(lon_m)/60 + float(lon_s)/3600) * (1 if lon_dir == 'E' else -1)
-        return lat, lon
-
-    return None
-
-def check_rate_limit(user_id: int) -> bool:
-    current_time = datetime.now()
-    user_requests = rate_limit_dict[user_id]
-
-    # Remove old requests
-    user_requests = [time for time in user_requests if current_time - time < RATE_LIMIT_PERIOD]
-
-    if len(user_requests) >= MAX_REQUESTS:
-        return False
-
-    user_requests.append(current_time)
-    rate_limit_dict[user_id] = user_requests
-    return True
-
-def is_within_radius(donor_lat, donor_lon, request_lat, request_lon, radius_km):
-    return geodesic((donor_lat, donor_lon), (request_lat, request_lon)).km <= radius_km
-
-async def send_reminders(bot: Bot, blood_type: str, latitude: float, longitude: float, requester_contact: str = None, is_emergency: bool = False):
-    async with aiosqlite.connect(DB_PATH) as db:
-        query = """
-        SELECT d.id, d.user_id, d.blood_type, d.latitude, d.longitude
-        FROM donors d
-        WHERE d.blood_type = ? AND d.available = TRUE
-        """
-        async with db.execute(query, (blood_type,)) as cursor:
-            donors = await cursor.fetchall()
-
-        for donor in donors:
-            if is_within_radius(donor[3], donor[4], latitude, longitude, REMINDER_RADIUS):
-                try:
-                    # Create the reminder message with a Google Maps link
-                    if is_emergency:
-                        reminder_message = (
-                            f"🚨 EMERGENCY: Blood Needed Urgently! 🚨\n\n"
-                            f"Someone in your area needs {blood_type} blood IMMEDIATELY. This is an emergency situation.\n\n"
-                            f"📍 Location: [Click here](https://www.google.com/maps?q={latitude},{longitude})\n"
-                            f"📞 Requester Contact: {requester_contact}\n\n"
-                            f"Please respond as soon as possible if you can help save a life today!"
-                        )
-                    else:
-                        reminder_message = (
-                            f"🩸 Blood Needed! 🩸\n\n"
-                            f"Someone in your area needs {blood_type} blood. If you're available to donate, "
-                            f"please check the app for more details.\n\n"
-                            f"📍 Location: [Click here](https://www.google.com/maps?q={latitude},{longitude})\n"
-                        )
-
-                    # Send the message with location link
-                    await bot.send_message(
-                        chat_id=donor[1],
-                        text=reminder_message,
-                        parse_mode='Markdown'
-                    )
-
-                except Exception as e:
-                    logger.error(f"Failed to send reminder to donor {donor[1]}: {e}")
-        
-async def start(update: Update, context: CallbackContext) -> int:
-    user_id = update.effective_user.id
-    async with aiosqlite.connect(DB_PATH) as db:
-        cursor = await db.execute("SELECT * FROM donors WHERE user_id = ?", (user_id,))
-        user_is_registered = await cursor.fetchone() is not None
-
-    # Send the intro text
-    await update.message.reply_text('''
-                                    🩸🇧🇩 Welcome to BloodLY! 🇧🇩🩸
-
-Assalamualaikum, future lifesaver! 🦸‍♀️🦸‍♂️
-
-You've just taken the first heroic step towards becoming a real-life superhero. Your mission, should you choose to accept it, is to save lives with the power of your blood! 💪
-
-🚀 Quick Start Guide:
-• Type /menu to view all options
-• Type /help for assistance anytime
-
-Remember: Your blood type might be rare, but your kindness is legendary! One donation can save up to three lives. 😇
-
-Ready to be someone's lifeline? Let's get started! Type /help to begin your heroic journey. 🎉
-
-Made with ❤️ by 💻 Ahammad Nafiz. Check out more cool projects at github.com/ahammadnafiz!
-
-#EveryDropCounts #BloodHeroesBangladesh
-                                    ''')
-
-    # Then send the menu options with the new emergency button
-    keyboard = [
-        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
-         InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
-        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')]
-    ]
-    if user_is_registered:
-        keyboard.append([InlineKeyboardButton("My Profile 👤", callback_data='profile')])
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await update.message.reply_text(
-        'What would you like to do?',
-        reply_markup=reply_markup
+    # Get tokens
+    github_token = get_env_or_input(
+        'GITHUB_ACCESS_TOKEN',
+        "GitHub access token not found in .env. Please enter your token: "
     )
-    return MENU
 
-async def menu_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
+    # Get output file name (now required for all modes)
+    while True:
+        output_file = input("\nEnter the output file name for the prompt (e.g., output_prompt.txt): ").strip()
+        if output_file:
+            break
+        print("Output file name cannot be empty.")
 
-    if query.data == 'donate':
-        await query.message.reply_text('Please share your location. You can send your current location, a Google Maps link, or type an address.')
-        return LOCATION
-    elif query.data == 'find':
-        return await find_blood(update, context)
-    elif query.data == 'emergency':
-        return await emergency_request(update, context)
-    elif query.data == 'profile':
-        return await show_profile(update, context)
-    elif query.data == 'update_profile':
-        return await update_profile_prompt(update, context)
-    elif query.data == 'back_to_menu':
-        return await back_to_menu(update, context)
-    else:
-        await query.message.reply_text('Invalid choice. Please select from the options provided.')
-        return MENU
+    # Choose mode with input validation
+    while True:
+        print("\nAvailable modes:")
+        print("1. Generate prompt file only")
+        print("2. Generate prompt file and start RAG mode")
+        mode = input("Enter your choice (1/2): ").strip()
+        if mode in ['1', '2']:
+            break
+        print("Invalid choice. Please enter 1 or 2.")
 
-async def emergency_request(update: Update, context: CallbackContext) -> int:
-    keyboard = [[InlineKeyboardButton(bt, callback_data=f'emergency_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.callback_query.message.reply_text('EMERGENCY: What blood type do you need urgently?', reply_markup=reply_markup)
-    return EMERGENCY
+    result = {
+        'repo_url': repo_url,
+        'github_token': github_token,
+        'output_file': output_file,
+        'mode': 'prompt' if mode == '1' else 'rag'
+    }
 
-async def emergency_blood_type_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
+    if mode == '2':
+        result['groq_token'] = get_env_or_input(
+            'GROQ_API_KEY',
+            "Groq API key not found in .env. Please enter your key: "
+        )
 
-    blood_type = query.data.split('_')[1]
-    context.user_data['emergency_blood_type'] = blood_type
-    await query.message.reply_text('Please provide your contact number for this emergency request.')
-    return EMERGENCY_CONTACT
+    return result
 
-async def emergency_contact(update: Update, context: CallbackContext) -> int:
-    contact = update.message.text
+def interactive_rag_session(rag_instance: Any) -> None:
+    """Run an interactive RAG session with improved error handling."""
+    print("\n=== RAG Interactive Mode ===")
+    print("Available commands:")
+    print("- exit: Exit the RAG session")
+    print("- help: Show this help message")
+    print("- clear: Clear the conversation history")
+    print("- Any other input will be treated as a question about the repository\n")
 
-    # Validate Bangladeshi phone number format
-    if re.match(r'^\+?880\d{10}$', contact):
-        context.user_data['emergency_contact'] = contact
-        await update.message.reply_text('Please enter the location where you need blood urgently (district, address, or Google Maps link).')
-        return EMERGENCY_LOCATION
-    else:
-        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
-        return EMERGENCY_CONTACT
-
-async def handle_emergency_location(update: Update, context: CallbackContext) -> int:
-    if update.callback_query:
-        await update.callback_query.answer()
-        message = update.callback_query.message
-    else:
-        message = update.message
-
-    user_id = update.effective_user.id
-    if not check_rate_limit(user_id):
-        await message.reply_text("You've reached the maximum number of requests. Please try again later.")
-        return ConversationHandler.END
-
-    if update.message.location:
-        latitude = update.message.location.latitude
-        longitude = update.message.location.longitude
-    elif update.message.text:
-        coords = parse_dms_coordinate(update.message.text)
-        if coords:
-            latitude, longitude = coords
-        else:
-            coords = extract_coords_from_google_maps_link(update.message.text)
-            if coords:
-                latitude, longitude = coords
-            else:
-                try:
-                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
-                    if location:
-                        latitude = location.latitude
-                        longitude = location.longitude
-                    else:
-                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-                        return LOCATION_FIND
-                except Exception as e:
-                    logger.error(f"Geocoding error: {e}")
-                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
-                    return LOCATION_FIND
-    else:
-        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-        return LOCATION_FIND
-
-    needed_blood_type = context.user_data.get('emergency_blood_type')
-    emergency_contact = context.user_data.get('emergency_contact')
-    nearest_donors, total_results = await find_nearest_donors(latitude, longitude, blood_type=needed_blood_type, page=1)
-
-    if not nearest_donors:
-        await update.message.reply_text(f"EMERGENCY: No donors with blood type {needed_blood_type} or compatible types found in the area. Please try a wider search area or contact emergency services.")
-    else:
-        if nearest_donors[0][0] == needed_blood_type:
-            response = f"EMERGENCY: Found {total_results} donors with exact blood type match {needed_blood_type}:\n\n"
-        else:
-            response = f"EMERGENCY: No exact matches found. Showing {total_results} donors with compatible blood types for {needed_blood_type}:\n\n"
-
-        for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
-            response += f"{i}. Blood Type: {blood_type}\n"
-            response += f"   Distance: {distance:.2f} km\n"
-            response += f"   Contact: {contact}\n"
-            response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
-
-        if total_results > RESULTS_PER_PAGE:
-            keyboard = [
-                [InlineKeyboardButton("Next Page", callback_data=f"next_page_{2}_{latitude}_{longitude}_{needed_blood_type}_emergency")]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(response, reply_markup=reply_markup)
-        else:
-            await update.message.reply_text(response)
-
-        # Send reminders to eligible donors for emergency requests
-        await send_reminders(context.bot, needed_blood_type, latitude, longitude, emergency_contact, is_emergency=True)
-
-    return ConversationHandler.END
-
-async def update_profile_prompt(update: Update, context: CallbackContext) -> int:
-    update_text = ("What would you like to update?\n\n"
-                   "1. Name\n"
-                   "2. Blood Type\n"
-                   "3. Contact Number\n"
-                   "4. Last Donation Date\n"
-                   "5. Location\n"
-                   "6. Availability\n\n"
-                   "Please send the number corresponding to your choice.")
-
-    await update.callback_query.message.reply_text(update_text)
-    return UPDATE_PROFILE
-
-async def update_profile(update: Update, context: CallbackContext) -> int:
-    choice = update.message.text.strip()
-
-    if choice == '1':
-        await update.message.reply_text('Please enter your new name:')
-        return UPDATE_NAME
-    elif choice == '2':
-        keyboard = [[InlineKeyboardButton(bt, callback_data=f'update_blood_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text('Please select your new blood type:', reply_markup=reply_markup)
-        return UPDATE_BLOOD_TYPE
-    elif choice == '3':
-        await update.message.reply_text('Please enter your new contact number:')
-        return UPDATE_CONTACT
-    elif choice == '4':
-        await update.message.reply_text('Please enter your last donation date (YYYY-MM-DD or "Never"):')
-        return UPDATE_LAST_DONATION
-    elif choice == '5':
-        await update.message.reply_text('Please share your new location. You can send your current location, a Google Maps link, or type an address.')
-        return UPDATE_LOCATION
-    elif choice == '6':
-        await update.message.reply_text('Are you available to donate? Please type "Yes" or "No".')
-        return UPDATE_AVAILABILITY
-    else:
-        await update.message.reply_text('Invalid choice. Please enter 1, 2, 3, 4, 5, or 6.')
-        return UPDATE_PROFILE
-
-async def update_location(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    user_id = user.id
-
-    if update.message.location:
-        latitude = update.message.location.latitude
-        longitude = update.message.location.longitude
-    elif update.message.text:
-        coords = parse_dms_coordinate(update.message.text)
-        if coords:
-            latitude, longitude = coords
-        else:
-            coords = extract_coords_from_google_maps_link(update.message.text)
-            if coords:
-                latitude, longitude = coords
-            else:
-                try:
-                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
-                    if location:
-                        latitude = location.latitude
-                        longitude = location.longitude
-                    else:
-                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-                        return UPDATE_LOCATION
-                except Exception as e:
-                    logger.error(f"Geocoding error: {e}")
-                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
-                    return UPDATE_LOCATION
-    else:
-        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-        return UPDATE_LOCATION
-
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute("UPDATE donors SET latitude = ?, longitude = ? WHERE user_id = ?", (latitude, longitude, user_id))
-            await db.commit()
-        await update.message.reply_text('Your location has been updated successfully.')
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        await update.message.reply_text('An error occurred while updating your location. Please try again later.')
-
-    return ConversationHandler.END
-
-async def update_name(update: Update, context: CallbackContext) -> int:
-    new_name = update.message.text.strip()
-    user_id = update.effective_user.id
-
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute("UPDATE donors SET name = ? WHERE user_id = ?", (new_name, user_id))
-            await db.commit()
-        await update.message.reply_text('Your name has been updated successfully.')
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        await update.message.reply_text('An error occurred while updating your name. Please try again later.')
-
-    return ConversationHandler.END  # Return this to end the conversation or another valid state
-
-async def update_blood_type_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
-
-    new_blood_type = query.data.split('_')[2]
-    user_id = update.effective_user.id
-
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute("UPDATE donors SET blood_type = ? WHERE user_id = ?", (new_blood_type, user_id))
-            await db.commit()
-        await query.message.reply_text(f'Your blood type has been updated to {new_blood_type}.')
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        await query.message.reply_text('An error occurred while updating your blood type. Please try again later.')
-
-    return ConversationHandler.END
-
-async def update_contact(update: Update, context: CallbackContext) -> int:
-    new_contact = update.message.text.strip()
-    user_id = update.effective_user.id
-
-    if re.match(r'^\+?880\d{10}$', new_contact):
+    while True:
         try:
-            async with aiosqlite.connect(DB_PATH) as db:
-                await db.execute("UPDATE donors SET contact = ? WHERE user_id = ?", (new_contact, user_id))
-                await db.commit()
-            await update.message.reply_text('Your contact number has been updated successfully.')
+            question = input("\nQuestion: ").strip()
+
+            if not question:
+                print("Please enter a question or command.")
+                continue
+
+            command = question.lower()
+            if command == 'exit':
+                print("Exiting RAG session...")
+                rag_instance.clear_vector_store()  # Clear the vector store
+                rag_instance.clear_cache()  # Clear the cache
+                break
+            elif command == 'help':
+                print("\nAvailable commands:")
+                print("- exit: Exit the RAG session")
+                print("- help: Show this help message")
+                print("- clear: Clear the conversation history")
+                print("- Any other input will be treated as a question about the repository")
+                continue
+            elif command == 'clear':
+                rag_instance.clear_memory()
+                print("Conversation history cleared.")
+                continue
+
+            print("\nProcessing your question...")
+            answer = rag_instance.query(question)
+            print("\nAnswer:", answer)
+
+        except KeyboardInterrupt:
+            print("\nExiting RAG session...")
+            rag_instance.clear_vector_store()  # Clear the vector store
+            rag_instance.clear_cache()  # Clear the cache
+            break
         except Exception as e:
-            logger.error(f"Database error: {e}")
-            await update.message.reply_text('An error occurred while updating your contact number. Please try again later.')
-    else:
-        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
-        return UPDATE_CONTACT
+            print(f"\nError processing question: {str(e)}")
+            print("Please try another question or type 'exit' to quit.")
 
-    return ConversationHandler.END
-
-async def update_last_donation(update: Update, context: CallbackContext) -> int:
-    new_last_donation = update.message.text.strip()
-    user_id = update.effective_user.id
-
-    if new_last_donation.lower() == 'never':
-        new_last_donation = None
-    else:
-        try:
-            new_last_donation = datetime.strptime(new_last_donation, '%Y-%m-%d').date().isoformat()
-        except ValueError:
-            await update.message.reply_text('Invalid date format. Please use YYYY-MM-DD or "Never".')
-            return UPDATE_LAST_DONATION
-
+def main_interactive() -> None:
+    """Main interactive function with improved error handling."""
     try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute("UPDATE donors SET last_donation = ? WHERE user_id = ?", (new_last_donation, user_id))
-            await db.commit()
-        await update.message.reply_text('Your last donation date has been updated successfully.')
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        await update.message.reply_text('An error occurred while updating your last donation date. Please try again later.')
+        # Load environment variables
+        load_dotenv(override=True)
 
-    return ConversationHandler.END
+        # Get user inputs
+        inputs = get_user_input()
 
-async def update_availability(update: Update, context: CallbackContext) -> int:
-    response = update.message.text.strip().lower()
-    user_id = update.effective_user.id
+        print("\nInitializing...")
 
-    if response in ['yes', 'no']:
-        new_availability = response == 'yes'
-        try:
-            async with aiosqlite.connect(DB_PATH) as db:
-                await db.execute("UPDATE donors SET available = ? WHERE user_id = ?", (new_availability, user_id))
-                await db.commit()
-            await update.message.reply_text(f'Your availability has been updated to {"Available" if new_availability else "Not Available"}.')
-        except Exception as e:
-            logger.error(f"Database error: {e}")
-            await update.message.reply_text('An error occurred while updating your availability. Please try again later.')
-    else:
-        await update.message.reply_text('Invalid input. Please type "Yes" or "No".')
-        return UPDATE_AVAILABILITY
+        if inputs['mode'] == 'prompt':
+            # Generate prompt file only
+            result = main(
+                repo_url=inputs['repo_url'],
+                access_token=inputs['github_token'],
+                output_file=inputs['output_file']
+            )
 
-    return ConversationHandler.END
+            if isinstance(result, str) and result.startswith("Error"):
+                raise Exception(result)
 
-async def location(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
+            print(f"\nPrompt successfully generated and saved to {inputs['output_file']}")
 
-    if update.message.location:
-        context.user_data['latitude'] = update.message.location.latitude
-        context.user_data['longitude'] = update.message.location.longitude
-    elif update.message.text:
-        coords = parse_dms_coordinate(update.message.text)
-        if coords:
-            context.user_data['latitude'], context.user_data['longitude'] = coords
         else:
-            coords = extract_coords_from_google_maps_link(update.message.text)
-            if coords:
-                context.user_data['latitude'], context.user_data['longitude'] = coords
-            else:
-                try:
-                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
-                    if location:
-                        context.user_data['latitude'] = location.latitude
-                        context.user_data['longitude'] = location.longitude
-                    else:
-                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-                        return LOCATION
-                except Exception as e:
-                    logger.error(f"Geocoding error: {e}")
-                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
-                    return LOCATION
-    else:
-        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-        return LOCATION
+            # Generate prompt file and initialize RAG
+            result = main(
+                repo_url=inputs['repo_url'],
+                access_token=inputs['github_token'],
+                groq_api_key=inputs['groq_token'],
+                output_file=inputs['output_file'],
+                rag_mode=True
+            )
 
-    keyboard = [[InlineKeyboardButton(bt, callback_data=f'blood_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text('What is your blood type?', reply_markup=reply_markup)
-    return BLOOD_TYPE
+            if isinstance(result, str) and result.startswith("Error"):
+                raise Exception(result)
 
-def extract_coords_from_google_maps_link(link):
-    patterns = [
-        r"@(-?\d+\.\d+),(-?\d+\.\d+)",
-        r"ll=(-?\d+\.\d+),(-?\d+\.\d+)"
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, link)
-        if match:
-            return float(match.group(1)), float(match.group(2))
-    return None
+            print(f"\nPrompt file generated and saved to {inputs['output_file']}")
+            print("RAG system initialized successfully.")
 
-async def blood_type_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
+            # Start interactive RAG session
+            interactive_rag_session(result)
 
-    blood_type = query.data.split('_')[1]
-    context.user_data['blood_type'] = blood_type
-    await query.message.reply_text('Please provide your contact number.')
-    return CONTACT
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\nError: {str(e)}")
+        print("Please check your inputs and try again.")
+        sys.exit(1)
 
-async def contact(update: Update, context: CallbackContext) -> int:
-    contact = update.message.text
+if __name__ == "__main__":
+    main_interactive()
 
-    # Validate Bangladeshi phone number format
-    if re.match(r'^\+?880\d{10}$', contact):
-        context.user_data['contact'] = contact
-        await update.message.reply_text('When was your last blood donation? (YYYY-MM-DD or "Never")')
-        return PROFILE  # Return PROFILE state instead of proceeding directly
-    else:
-        await update.message.reply_text('Invalid contact number. Please enter a valid Bangladesh phone number.')
-        return CONTACT
+Directory: reporag
 
-async def profile(update: Update, context: CallbackContext) -> int:
-    last_donation = update.message.text
+File: reporag/__init__.py
+Size: 150 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/__init__.py
+"""
+RepoRAG: A Python package to convert a GitHub repository to a prompted text format for LLMs.
+"""
 
-    if last_donation.lower() == 'never':
-        last_donation = None
-    else:
-        try:
-            last_donation_date = datetime.strptime(last_donation, '%Y-%m-%d').date()
-            today = datetime.now().date()
-            if last_donation_date > today:
-                await update.message.reply_text('Invalid date. Last donation date cannot be in the future. Please enter a valid date or "Never".')
-                return PROFILE
-            last_donation = last_donation_date.isoformat()
-        except ValueError:
-            await update.message.reply_text('Invalid date format. Please use YYYY-MM-DD or "Never".')
-            return PROFILE
+__version__ = "0.1.0"
 
-    user_id = update.effective_user.id
-    name = update.effective_user.full_name
+Directory: reporag/reporag
 
-    is_eligible = is_eligible_to_donate(last_donation)
+File: reporag/reporag/__init__.py
+Size: 390 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/__init__.py
+from .main import main
+from .fetcher import fetch_repo_content
+from .converter import convert_to_text
+from .structurer import structure_text_for_llm
+from .prompter import create_prompt
+from .rag import RepoRAG
 
+__all__ = [
+    'main',
+    'fetch_repo_content',
+    'convert_to_text',
+    'structure_text_for_llm',
+    'create_prompt',
+    'RepoRAG'
+]
+
+File: reporag/reporag/converter.py
+Size: 1071 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/converter.py
+def convert_to_text(contents, repo):
+    text_content = []
+    for content in contents:
+        if content.type == "file":
+            try:
+                if content.encoding is None or content.encoding == 'none':
+                    raise UnicodeDecodeError("unsupported encoding", b"", 0, 1, "none")
+                file_content = content.decoded_content.decode('utf-8')
+                file_info = f"File: {content.path}\nSize: {content.size} bytes\nLast Modified: {content.last_modified}\nContent:\n{file_content}\n"
+                text_content.append(file_info)
+            except (UnicodeDecodeError, AttributeError):
+                text_content.append(f"File: {content.path} (binary or non-UTF-8 content)\nSize: {content.size} bytes\nLast Modified: {content.last_modified}\n")
+        elif content.type == "dir":
+            dir_info = f"Directory: {content.path}\n"
+            text_content.append(dir_info)
+            text_content.extend(convert_to_text(repo.get_contents(content.path), repo))
+    return text_content
+
+File: reporag/reporag/fetcher.py
+Size: 848 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/fetcher.py
+from github import Github, GithubException
+
+def fetch_repo_content(repo_url, access_token):
     try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            await db.execute("""
-            INSERT OR REPLACE INTO donors
-            (user_id, name, blood_type, latitude, longitude, contact, last_donation, available)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, (user_id, name, context.user_data['blood_type'],
-                  context.user_data['latitude'], context.user_data['longitude'],
-                  context.user_data['contact'], last_donation, is_eligible))
-            await db.commit()
-
-        if is_eligible:
-            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. You are currently marked as available to donate.')
+        g = Github(access_token)
+        repo = g.get_repo(repo_url)
+        contents = repo.get_contents("")
+        # print(f"Repository content fetched: {contents} items")
+        return repo, contents
+    except GithubException as e:
+        if e.status == 404:
+            raise Exception(f"Repository not found: {repo_url}. Please check the repository URL and access token.")
+        elif e.status == 401:
+            raise Exception(f"Unauthorized access: {repo_url}. Please check your access token and permissions.")
         else:
-            await update.message.reply_text('Thank you for registering as a donor! 🎉\n\nYour information has been saved successfully. However, you are currently marked as unavailable to donate due to your recent donation. You will become eligible again 56 days after your last donation.')
+            raise Exception(f"GitHub API error: {e.data['message']}")
+    except Exception as e:
+        raise Exception(f"Error fetching repository content: {str(e)}")
+
+
+File: reporag/reporag/main.py
+Size: 1484 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/main.py
+from .fetcher import fetch_repo_content
+from .converter import convert_to_text
+from .structurer import structure_text_for_llm
+from .prompter import create_prompt
+from .rag import RepoRAG
+
+def main(repo_url: str, access_token: str, groq_api_key: str = None,
+         output_file: str = None, rag_mode: bool = False):
+    """Main function to process repository content with optional RAG support."""
+    try:
+        # Always fetch and process content first
+        repo, contents = fetch_repo_content(repo_url, access_token)
+        text_content = convert_to_text(contents, repo)
+        structured_text = structure_text_for_llm(text_content)
+
+        # Debug: Print the structured text
+        # print("Structured Text:")
+        # print(structured_text)
+
+        # Always generate and save the prompt first
+        prompt = create_prompt(structured_text)
+        if output_file:
+            with open(output_file, 'w', encoding='utf-8') as file:
+                file.write(prompt)
+            print(f"Prompt saved to {output_file}")
+
+        # If RAG mode is enabled, initialize RAG with the processed content
+        if rag_mode:
+            if not groq_api_key:
+                raise ValueError("Groq API key is required for RAG mode")
+
+            rag = RepoRAG(groq_api_key=groq_api_key)
+            rag.ingest_content(structured_text)
+            return rag
+
+        return prompt
 
     except Exception as e:
-        logger.error(f"Database error: {e}")
-        await update.message.reply_text('An error occurred while saving your information. Please try again later.')
+        return f"Error: {str(e)}"
 
-    return ConversationHandler.END
 
-def is_eligible_to_donate(last_donation_str: str) -> bool:
-    if last_donation_str is None or last_donation_str.lower() == 'never':
-        return True
+File: reporag/reporag/prompter.py
+Size: 857 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/prompter.py
+def create_prompt(structured_text):
+    prompt = f"""
+    The following is the content of a GitHub repository converted into text format. The repository contains various files and directories, each serving a specific purpose. Please analyze and understand the content of this repository.
 
-    last_donation = datetime.fromisoformat(last_donation_str).date()
-    today = datetime.now().date()
-    min_days_between_donations = 56  # Typically 8 weeks between whole blood donations
+    Repository Content:
+    {structured_text}
 
-    return (today - last_donation).days >= min_days_between_donations
+    Instructions:
+    1. Identify the main purpose of the repository.
+    2. Summarize the key functionalities provided by the repository.
+    3. Highlight any important files or directories and their roles.
+    4. Note any dependencies or requirements specified in the repository.
+    5. Provide any additional insights or observations about the repository's structure and content.
 
-async def find_nearest_donors(lat: float, lon: float, blood_type: str, page: int = 1, limit: int = RESULTS_PER_PAGE) -> Tuple[List[Tuple], int]:
-    logger.info(f"Finding nearest donors to location: ({lat}, {lon}) for blood type: {blood_type}")
+    Please provide a detailed analysis based on the above instructions.
+    """
+    return prompt
 
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            # Check if 'available' column exists
-            async with db.execute("PRAGMA table_info(donors)") as cursor:
-                columns = await cursor.fetchall()
-                column_names = [column[1] for column in columns]
+File: reporag/reporag/rag.py
+Size: 25796 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+import logging
+from typing import List, Dict, Any, Optional, Tuple
+import shutil
+import os
+import hashlib
+import pickle
+import re
+from dataclasses import dataclass
+from concurrent.futures import ThreadPoolExecutor
 
-            if 'available' in column_names:
-                query = """
-                SELECT * FROM donors
-                WHERE blood_type = ?
-                AND available = TRUE
-                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
-                """
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.documents import Document
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_groq import ChatGroq
+from langchain.chains import ConversationalRetrievalChain
+
+# Download required NLTK data
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
+
+@dataclass
+class CodeChunk:
+    """Represents a chunk of code with metadata."""
+    content: str
+    file_path: str
+    start_line: int
+    end_line: int
+    language: str
+
+class RepoRAGSplitter:
+    """Custom text splitter for repository content."""
+
+    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.lemmatizer = WordNetLemmatizer()
+        self.stop_words = set(stopwords.words('english'))
+
+        # Regex patterns for different content types
+        self.patterns = {
+            'function': r'(?:def|class)\s+[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\):',
+            'markdown_section': r'^#{1,6}\s+.+$',
+            'code_block': r'```[\s\S]*?```',
+            'file_header': r'File:\s+([^\n]+)',
+            'import_statement': r'^(?:from|import)\s+\w+',
+        }
+
+    def split_content(self, content: str) -> List[Document]:
+        """Split content based on content type and semantic boundaries."""
+        chunks = []
+
+        # First, try to identify the content type
+        content_type = self._identify_content_type(content)
+
+        # Split based on content type
+        if content_type == "code":
+            raw_chunks = self._split_code(content)
+        elif content_type == "markdown":
+            raw_chunks = self._split_markdown(content)
+        else:
+            raw_chunks = self._split_generic(content)
+
+        # Process each chunk and convert to Document
+        for chunk in raw_chunks:
+            processed_chunk = self._process_chunk(chunk, content_type)
+            # Convert dict to Document
+            doc = Document(
+                page_content=processed_chunk["page_content"],
+                metadata=processed_chunk["metadata"]
+            )
+            chunks.append(doc)
+
+        return chunks
+
+    def _identify_content_type(self, content: str) -> str:
+        """Identify the type of content."""
+        if re.search(self.patterns['import_statement'], content) or '.py' in content[:100]:
+            return "code"
+        elif content.startswith('# ') or '```' in content:
+            return "markdown"
+        return "text"
+
+    def _split_code(self, content: str) -> List[str]:
+        """Split code content preserving function/class boundaries."""
+        chunks = []
+        lines = content.split('\n')
+        current_chunk = []
+        current_size = 0
+        in_function = False
+
+        for i, line in enumerate(lines):
+            # Check for function/class definition
+            if re.match(self.patterns['function'], line):
+                if current_chunk and (not in_function or current_size >= self.chunk_size):
+                    chunks.append('\n'.join(current_chunk))
+                    current_chunk = []
+                    current_size = 0
+                in_function = True
+
+            current_chunk.append(line)
+            current_size += len(line)
+
+            # Check if we should split
+            if not in_function and current_size >= self.chunk_size:
+                chunks.append('\n'.join(current_chunk))
+                current_chunk = []
+                current_size = 0
+
+            # Check if function ends
+            if in_function and line.strip() == "" and i < len(lines) - 1:
+                if not lines[i + 1].startswith(' '):
+                    in_function = False
+
+        if current_chunk:
+            chunks.append('\n'.join(current_chunk))
+
+        return chunks
+
+    def _split_markdown(self, content: str) -> List[str]:
+        """Split markdown content preserving section boundaries."""
+        chunks = []
+        current_chunk = []
+        current_size = 0
+
+        for line in content.split('\n'):
+            # Check for new section
+            if re.match(self.patterns['markdown_section'], line):
+                if current_chunk and current_size >= self.chunk_size:
+                    chunks.append('\n'.join(current_chunk))
+                    current_chunk = []
+                    current_size = 0
+
+            current_chunk.append(line)
+            current_size += len(line)
+
+            # Split if chunk is too large
+            if current_size >= self.chunk_size:
+                chunks.append('\n'.join(current_chunk))
+                current_chunk = []
+                current_size = 0
+
+        if current_chunk:
+            chunks.append('\n'.join(current_chunk))
+
+        return chunks
+
+    def _split_generic(self, content: str) -> List[str]:
+        """Split generic content using sentence boundaries."""
+        sentences = sent_tokenize(content)
+        chunks = []
+        current_chunk = []
+        current_size = 0
+
+        for sentence in sentences:
+            current_size += len(sentence)
+
+            if current_size >= self.chunk_size:
+                if current_chunk:
+                    chunks.append(' '.join(current_chunk))
+                current_chunk = [sentence]
+                current_size = len(sentence)
             else:
-                query = """
-                SELECT * FROM donors
-                WHERE blood_type = ?
-                AND (last_donation IS NULL OR date(last_donation) <= date('now', '-56 days'))
-                """
+                current_chunk.append(sentence)
 
-            params = [blood_type]
+        if current_chunk:
+            chunks.append(' '.join(current_chunk))
 
-            async with db.execute(query, params) as cursor:
-                exact_donors = await cursor.fetchall()
+        return chunks
 
-            if not exact_donors:
-                compatible_types = COMPATIBLE_BLOOD_TYPES[blood_type]
-                placeholders = ','.join('?' for _ in compatible_types)
+    def _process_chunk(self, chunk: str, content_type: str) -> Dict[str, Any]:
+        """Process chunk and add metadata with proper type handling."""
+        # Extract file path if present
+        file_path = None
+        file_match = re.search(self.patterns['file_header'], chunk)
+        if file_match:
+            file_path = file_match.group(1)
 
-                if 'available' in column_names:
-                    query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders}) AND available = TRUE"
+        # Ensure all metadata values are valid types (str, int, float, or bool)
+        metadata = {
+            "content_type": content_type or "unknown",
+            "file_path": file_path or "unknown",
+            "language": self._detect_language(chunk),
+            "size": len(chunk),
+            "tokens": len(word_tokenize(chunk))
+        }
+
+        # Filter out any None values and ensure proper types
+        filtered_metadata = {}
+        for key, value in metadata.items():
+            if value is not None:
+                # Convert to appropriate type if needed
+                if isinstance(value, (str, int, float, bool)):
+                    filtered_metadata[key] = value
                 else:
-                    query = f"SELECT * FROM donors WHERE blood_type IN ({placeholders})"
+                    # Convert other types to string
+                    filtered_metadata[key] = str(value)
 
-                params = compatible_types
+        return {
+            "page_content": chunk,
+            "metadata": filtered_metadata
+        }
 
-                async with db.execute(query, params) as cursor:
-                    compatible_donors = await cursor.fetchall()
+    def _preprocess_text(self, text: str) -> str:
+        """Preprocess text content."""
+        # Lowercase
+        text = text.lower()
 
-                donors = compatible_donors
+        # Tokenize
+        words = word_tokenize(text)
+
+        # Remove stop words and lemmatize
+        words = [self.lemmatizer.lemmatize(word) for word in words if word not in self.stop_words]
+
+        return ' '.join(words)
+
+    def _detect_language(self, content: str) -> str:
+        """Detect programming language from content."""
+        if '.py' in content or 'def ' in content:
+            return 'python'
+        elif '.js' in content or 'function ' in content:
+            return 'javascript'
+        elif '.java' in content or 'class ' in content:
+            return 'java'
+        return 'unknown'
+
+class RepoRAG:
+    """RAG system optimized for repository content."""
+
+    def __init__(
+        self,
+        groq_api_key: str,
+        model_name: str = "mixtral-8x7b-32768",
+        embedding_model: str = "BAAI/bge-small-en-v1.5",
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
+        k_retrieval: int = 4,
+        cache_dir: str = "./cache"
+    ):
+        self.setup_logging()
+        self.initialize_components(
+            groq_api_key, model_name, embedding_model,
+            chunk_size, chunk_overlap, k_retrieval, cache_dir
+        )
+
+    def setup_logging(self):
+        """Set up logging configuration."""
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        self.logger = logging.getLogger(__name__)
+
+    def initialize_components(
+        self,
+        groq_api_key: str,
+        model_name: str,
+        embedding_model: str,
+        chunk_size: int,
+        chunk_overlap: int,
+        k_retrieval: int,
+        cache_dir: str
+    ):
+        """Initialize RAG components."""
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.k_retrieval = k_retrieval
+        self.cache_dir = cache_dir
+        self.chat_history = []
+
+        # Initialize custom splitter
+        self.splitter = RepoRAGSplitter(chunk_size, chunk_overlap)
+
+        # Initialize embeddings
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name=embedding_model,
+            model_kwargs={'device': 'cpu'},
+            encode_kwargs={'normalize_embeddings': True}
+        )
+
+        # Initialize LLM
+        self.llm = ChatGroq(
+            api_key=groq_api_key,
+            model_name=model_name
+        )
+
+        # Create cache directory
+        os.makedirs(self.cache_dir, exist_ok=True)
+
+        # Initialize prompt templates
+        self._initialize_prompts()
+
+    def _initialize_prompts(self):
+        """Initialize different prompt templates for different types of queries."""
+        self.prompts = {
+            "code": """You are a code analysis assistant. Focus on:
+                1. Code structure and patterns
+                2. Implementation details
+                3. Best practices and potential improvements
+                4. Dependencies and requirements
+
+                Current context:
+                {context}
+
+                Question: {question}
+                """,
+
+            "documentation": """You are a documentation specialist. Focus on:
+                1. Project overview and purpose
+                2. Installation and setup
+                3. Usage instructions
+                4. API documentation
+
+                Current context:
+                {context}
+
+                Question: {question}
+                """,
+
+            "general": """You are a repository analysis assistant. Focus on:
+                1. Repository structure and organization
+                2. Code and documentation quality
+                3. Implementation patterns
+                4. Project requirements
+
+                Current context:
+                {context}
+
+                Question: {question}
+                """
+        }
+
+    def _filter_documents_metadata(self, documents: List[Document]) -> List[Document]:
+        """Filter document metadata to ensure compatibility with Chroma."""
+        filtered_documents = []
+        for doc in documents:
+            if doc.metadata:
+                # Create new filtered metadata dictionary
+                filtered_metadata = {}
+                for key, value in doc.metadata.items():
+                    if value is not None and isinstance(value, (str, int, float, bool)):
+                        filtered_metadata[key] = value
+                    elif value is not None:
+                        # Convert other types to string
+                        filtered_metadata[key] = str(value)
+
+                # Create new document with filtered metadata
+                filtered_doc = Document(
+                    page_content=doc.page_content,
+                    metadata=filtered_metadata
+                )
+                filtered_documents.append(filtered_doc)
             else:
-                donors = exact_donors
+                # If no metadata, add empty dict
+                filtered_doc = Document(
+                    page_content=doc.page_content,
+                    metadata={}
+                )
+                filtered_documents.append(filtered_doc)
 
-            if not donors:
-                logger.info(f"No available donors found with blood type: {blood_type} or compatible types")
-                return [], 0
+        return filtered_documents
 
-            columns = ['id', 'user_id', 'name', 'blood_type', 'latitude', 'longitude', 'contact', 'last_donation']
-            if 'available' in column_names:
-                columns.append('available')
+    def ingest_content(self, content: str) -> None:
+        """Ingest repository content with specialized processing."""
+        try:
+            # Clear existing vector store
+            self.clear_vector_store()
 
-            df = pd.DataFrame(donors, columns=columns)
+            # Process content with custom splitter
+            documents = self.splitter.split_content(content)
 
-            df['latitude'] = pd.to_numeric(df['latitude'], errors='coerce')
-            df['longitude'] = pd.to_numeric(df['longitude'], errors='coerce')
-            df = df.dropna(subset=['latitude', 'longitude'])
+            # Filter metadata before creating vector store
+            filtered_documents = self._filter_documents_metadata(documents)
 
-            df['distance'] = df.apply(lambda row: geodesic((lat, lon), (row['latitude'], row['longitude'])).km, axis=1)
-            df_sorted = df.sort_values(by='distance')
+            # Create vector store with filtered documents
+            self.vector_store = Chroma.from_documents(
+                documents=filtered_documents,
+                embedding=self.embeddings,
+                persist_directory="./repo_chroma_db"
+            )
 
-            total_results = len(df_sorted)
-            start_index = (page - 1) * limit
-            end_index = start_index + limit
+            # Initialize retrieval chain
+            self._initialize_qa_chain()
 
-            nearest_donors = df_sorted.iloc[start_index:end_index]
+            self.logger.info("Content ingestion completed successfully")
 
-            return [(row['blood_type'], row['distance'], row['contact'], row['latitude'], row['longitude']) for _, row in nearest_donors.iterrows()], total_results
+        except Exception as e:
+            self.logger.error(f"Error during content ingestion: {str(e)}")
+            raise
 
-    except Exception as e:
-        logger.error(f"Error while finding nearest donors: {e}")
-        return [], 0
+    def _initialize_qa_chain(self):
+        """Initialize the QA chain with custom prompts and retrieval settings."""
+        self.qa_chain = ConversationalRetrievalChain.from_llm(
+            llm=self.llm,
+            retriever=self.vector_store.as_retriever(
+                search_type="similarity",
+                search_kwargs={
+                    "k": self.k_retrieval,
+                    "filter": None
+                }
+            ),
+            return_source_documents=True,
+            verbose=False
+        )
 
-async def find_blood(update: Update, context: CallbackContext) -> int:
-    keyboard = [[InlineKeyboardButton(bt, callback_data=f'find_{bt}') for bt in BLOOD_TYPES[i:i+2]] for i in range(0, len(BLOOD_TYPES), 2)]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.callback_query.message.reply_text('What blood type do you need?', reply_markup=reply_markup)
-    return FIND
+    def query(
+        self,
+        question: str,
+        context_filter: Optional[Dict] = None,
+        query_type: str = "general"
+    ) -> Dict[str, Any]:
+        """Query the RAG system with custom filtering and response generation."""
+        if not self.vector_store:
+            raise ValueError("No content ingested. Call ingest_content first.")
 
-async def blood_type_find_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
+        try:
+            # Generate cache key
+            cache_key = self._generate_cache_key(question, context_filter, query_type)
 
-    blood_type = query.data.split('_')[1]
-    context.user_data['needed_blood_type'] = blood_type
-    await query.message.reply_text('Please enter the location where you need blood (district, address, or Google Maps link).')
-    return LOCATION_FIND
+            # Check cache
+            cached_response = self._check_cache(cache_key)
+            if cached_response:
+                return cached_response
 
-async def handle_find_blood_location(update: Update, context: CallbackContext) -> int:
-    user_id = update.effective_user.id
-    if not check_rate_limit(user_id):
-        await update.message.reply_text("You've reached the maximum number of requests. Please try again later.")
-        return ConversationHandler.END
+            # Update retriever filter
+            self._update_retriever_filter(query_type, context_filter)
 
-    if update.message.location:
-        latitude = update.message.location.latitude
-        longitude = update.message.location.longitude
-    elif update.message.text:
-        coords = parse_dms_coordinate(update.message.text)
-        if coords:
-            latitude, longitude = coords
+            # Get appropriate prompt
+            prompt = self.prompts.get(query_type, self.prompts["general"])
+
+            # Execute query
+            response = self.qa_chain({
+                "question": question,
+                "chat_history": self.get_chat_history()
+            })
+
+            # Process and structure response
+            processed_response = self._process_response(response, query_type)
+
+            # Update chat history
+            self._update_chat_history(question, processed_response["answer"])
+
+            # Cache response
+            self._cache_response(cache_key, processed_response)
+
+            return processed_response
+
+        except Exception as e:
+            self.logger.error(f"Error in query: {str(e)}")
+            raise
+
+    def _process_response(self, response: Dict[str, Any], query_type: str) -> Dict[str, Any]:
+        """Process and structure the response based on query type."""
+        # Format the answer for terminal readability
+        formatted_answer = self._format_for_terminal(response["answer"])
+
+        processed_response = {
+            "answer": formatted_answer,
+            "sources": [],
+            "metadata": {
+                "query_type": query_type,
+                "timestamp": RepoRAG._get_timestamp()
+            }
+        }
+
+        # Extract and format source information
+        for doc in response.get("source_documents", []):
+            source_info = {
+                "content": doc.page_content[:200] + "...",  # Truncate for brevity
+                "metadata": doc.metadata
+            }
+            processed_response["sources"].append(source_info)
+
+        # Create a formatted string representation
+        processed_response["formatted_output"] = self._create_formatted_output(processed_response)
+
+        return processed_response
+
+    def _format_for_terminal(self, text: str) -> str:
+        """Format text for better terminal readability."""
+        # Remove excessive newlines
+        text = re.sub(r'\n{3,}', '\n\n', text)
+
+        # Format code blocks
+        text = re.sub(
+            r'```(\w+)?\n(.*?)\n```',
+            lambda m: f"\n{'=' * 40}\n{m.group(2)}\n{'=' * 40}\n",
+            text,
+            flags=re.DOTALL
+        )
+
+        # Format inline code
+        text = re.sub(
+            r'`([^`]+)`',
+            lambda m: f"[{m.group(1)}]",
+            text
+        )
+
+        return text
+
+    def _create_formatted_output(self, processed_response: Dict[str, Any]) -> str:
+        """Create a formatted string representation of the response."""
+        sections = []
+
+        # Add answer section
+        sections.append("### Answer\n")
+        sections.append(processed_response["answer"])
+
+        # Add sources section if available
+        if processed_response["sources"]:
+            sections.append("\n### Sources\n")
+            for idx, source in enumerate(processed_response["sources"], 1):
+                source_text = f"\n{idx}. **File:** {source['metadata'].get('file_path', 'unknown')}"
+                if 'language' in source['metadata']:
+                    source_text += f"\n   **Language:** {source['metadata']['language']}"
+                source_text += f"\n   **Preview:** {source['content']}"
+                sections.append(source_text)
+
+        # Add metadata section
+        sections.append("\n### Metadata\n")
+        sections.append(f"**Query Type:** {processed_response['metadata']['query_type']}")
+        sections.append(f"**Timestamp:** {processed_response['metadata']['timestamp']}")
+
+        return "\n".join(sections)
+
+    @staticmethod
+    def _get_timestamp() -> str:
+        """Get current timestamp."""
+        from datetime import datetime
+        return datetime.now().isoformat()
+
+    def _generate_cache_key(
+        self,
+        question: str,
+        context_filter: Optional[Dict],
+        query_type: str
+    ) -> str:
+        """Generate cache key including context filter and query type."""
+        key_content = f"{question}-{str(context_filter)}-{query_type}"
+        return hashlib.md5(key_content.encode('utf-8')).hexdigest()
+
+    def _check_cache(self, cache_key: str) -> Optional[Dict]:
+        """Check if response is cached."""
+        cache_path = os.path.join(self.cache_dir, cache_key)
+        if os.path.exists(cache_path):
+            with open(cache_path, 'rb') as f:
+                return pickle.load(f)
+        return None
+
+    def _cache_response(self, cache_key: str, response: Dict[str, Any]) -> None:
+        """Cache response."""
+        cache_path = os.path.join(self.cache_dir, cache_key)
+        with open(cache_path, 'wb') as f:
+            pickle.dump(response, f)
+
+    def _update_retriever_filter(self, query_type: str, custom_filter: Optional[Dict] = None):
+        """Update retriever's filter based on query type and custom filter."""
+        base_filter = {}
+
+        # Add query type-specific filters
+        if query_type == "code":
+            base_filter["content_type"] = "code"
+        elif query_type == "documentation":
+            base_filter["content_type"] = "markdown"
+
+        # Merge with custom filter if provided
+        if custom_filter:
+            base_filter.update(custom_filter)
+
+        # Update retriever
+        if base_filter:
+            self.qa_chain.retriever.search_kwargs["filter"] = base_filter
         else:
-            coords = extract_coords_from_google_maps_link(update.message.text)
-            if coords:
-                latitude, longitude = coords
-            else:
-                try:
-                    location = geolocator.geocode(f"{update.message.text}, Bangladesh")
-                    if location:
-                        latitude = location.latitude
-                        longitude = location.longitude
-                    else:
-                        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-                        return LOCATION_FIND
-                except Exception as e:
-                    logger.error(f"Geocoding error: {e}")
-                    await update.message.reply_text('An error occurred while processing your location. Please try again.')
-                    return LOCATION_FIND
-    else:
-        await update.message.reply_text('Invalid location. Please send a Google Maps link, your current location, or a specific address.')
-        return LOCATION_FIND
+            self.qa_chain.retriever.search_kwargs["filter"] = None
 
-    needed_blood_type = context.user_data.get('needed_blood_type')
-    nearest_donors, total_results = await find_nearest_donors(latitude, longitude, blood_type=needed_blood_type, page=1)
+    def get_chat_history(self) -> List[Tuple[str, str]]:
+        """Get formatted chat history."""
+        return [(self.chat_history[i].content, self.chat_history[i + 1].content)
+                for i in range(0, len(self.chat_history), 2)]
 
-    if not nearest_donors:
-        await update.message.reply_text(f"No donors with blood type {needed_blood_type} or compatible types found in the area. Please try a wider search area.")
-    else:
-        if nearest_donors[0][0] == needed_blood_type:
-            response = f"Found {total_results} donors with exact blood type match {needed_blood_type}:\n\n"
-        else:
-            response = f"No exact matches found. Showing {total_results} donors with compatible blood types for {needed_blood_type}:\n\n"
+    def _update_chat_history(self, question: str, answer: str) -> None:
+        """Update chat history."""
+        self.chat_history.append(HumanMessage(content=question))
+        self.chat_history.append(AIMessage(content=answer))
 
-        for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
-            response += f"{i}. Blood Type: {blood_type}\n"
-            response += f"   Distance: {distance:.2f} km\n"
-            response += f"   Contact: {contact}\n"
-            response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
+    def clear_memory(self) -> None:
+        """Clear chat history."""
+        self.chat_history = []
+        self.logger.info("Chat history cleared")
 
-        if total_results > RESULTS_PER_PAGE:
-            keyboard = [
-                [InlineKeyboardButton("Next Page", callback_data=f"next_page_{2}_{latitude}_{longitude}_{needed_blood_type}")]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await update.message.reply_text(response, reply_markup=reply_markup)
-        else:
-            await update.message.reply_text(response)
+    def clear_vector_store(self) -> None:
+        """Clear the vector store."""
+        if hasattr(self, 'vector_store'):
+            self.logger.info("Clearing vector store")
+            shutil.rmtree('./repo_chroma_db', ignore_errors=True)
+            self.vector_store = None
 
-    return ConversationHandler.END
+    def clear_cache(self) -> None:
+        """Clear the cache directory."""
+        self.logger.info("Clearing cache directory")
+        shutil.rmtree(self.cache_dir, ignore_errors=True)
+        os.makedirs(self.cache_dir, exist_ok=True)
 
-async def paginate_results(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    await query.answer()
+    def get_stats(self) -> Dict[str, Any]:
+        """Get statistics about the RAG system."""
+        stats = {
+            "total_documents": 0,
+            "total_tokens": 0,
+            "content_types": {},
+            "languages": {},
+            "cache_size": 0,
+            "chat_history_length": len(self.chat_history) // 2
+        }
 
-    user_id = update.effective_user.id
-    if not check_rate_limit(user_id):
-        await query.message.reply_text("You've reached the maximum number of requests. Please try again later.")
-        return
+        # Get vector store stats if available
+        if self.vector_store:
+            collection = self.vector_store._collection
+            docs = collection.get()
+            stats["total_documents"] = len(docs["ids"])
 
-    _, page, lat, lon, blood_type = query.data.split('_')
-    page = int(page)
-    lat = float(lat)
-    lon = float(lon)
+            # Analyze metadata
+            for metadata in docs["metadatas"]:
+                # Count content types
+                content_type = metadata.get("content_type", "unknown")
+                stats["content_types"][content_type] = stats["content_types"].get(content_type, 0) + 1
 
-    nearest_donors, total_results = await find_nearest_donors(lat, lon, blood_type=blood_type, page=page)
+                # Count languages
+                language = metadata.get("language", "unknown")
+                stats["languages"][language] = stats["languages"].get(language, 0) + 1
 
-    if not nearest_donors:
-        await query.message.reply_text("No more results found.")
-        return
+                # Count tokens
+                stats["total_tokens"] += metadata.get("tokens", 0)
 
-    response = f"Page {page} of donors for blood type {blood_type}:\n\n"
-    for i, (blood_type, distance, contact, donor_lat, donor_lon) in enumerate(nearest_donors, 1):
-        response += f"{i}. Blood Type: {blood_type}\n"
-        response += f"   Distance: {distance:.2f} km\n"
-        response += f"   Contact: {contact}\n"
-        response += f"   Location: https://www.google.com/maps?q={donor_lat},{donor_lon}\n\n"
+        # Get cache size
+        cache_size = 0
+        for root, _, files in os.walk(self.cache_dir):
+            for file in files:
+                cache_size += os.path.getsize(os.path.join(root, file))
+        stats["cache_size"] = cache_size
 
-    keyboard = []
-    if page > 1:
-        keyboard.append(InlineKeyboardButton("Previous Page", callback_data=f"next_page_{page-1}_{lat}_{lon}_{blood_type}"))
-    if page * RESULTS_PER_PAGE < total_results:
-        keyboard.append(InlineKeyboardButton("Next Page", callback_data=f"next_page_{page+1}_{lat}_{lon}_{blood_type}"))
+        return stats
 
-    reply_markup = InlineKeyboardMarkup([keyboard])
-    await query.message.edit_text(response, reply_markup=reply_markup)
+    def optimize(self) -> None:
+        """Optimize the RAG system for better performance."""
+        if not self.vector_store:
+            return
 
-async def emergency_callback(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
+        try:
+            self.logger.info("Starting RAG system optimization")
 
-    blood_type = query.data.split('_')[1]
-    context.user_data['emergency_blood_type'] = blood_type
-    await query.message.reply_text('Please enter the location where you need blood (district, address, or Google Maps link).')
-    return LOCATION_FIND
+            # Get current stats
+            before_stats = self.get_stats()
 
-async def show_profile(update: Update, context: CallbackContext) -> int:
-    user_id = update.effective_user.id
+            # Optimize vector store
+            collection = self.vector_store._collection
+            collection.persist()
 
-    try:
-        async with aiosqlite.connect(DB_PATH) as db:
-            async with db.execute("SELECT * FROM donors WHERE user_id = ?", (user_id,)) as cursor:
-                donor = await cursor.fetchone()
+            # Clear unnecessary cache entries
+            self._clean_cache()
 
-        if donor:
-            profile_text = "📋 Your Donor Profile:\n\n"
-            profile_text += f"👤 Name: {donor[2]}\n"
-            profile_text += f"🩸 Blood Type: {donor[3]}\n"
-            profile_text += f"📞 Contact: {donor[6]}\n"
-            profile_text += f"📅 Last Donation: {donor[7] if donor[7] else 'Never'}\n"
+            # Get stats after optimization
+            after_stats = self.get_stats()
 
-            # Check if 'available' field exists in the donor tuple
-            if len(donor) > 8:
-                profile_text += f"✅ Available: {'Yes' if donor[8] else 'No'}\n"
-            else:
-                profile_text += "✅ Available: Yes (Default)\n"
+            # Log optimization results
+            self.logger.info(f"Optimization completed. Cache size reduced from "
+                           f"{before_stats['cache_size']} to {after_stats['cache_size']} bytes")
 
-            keyboard = [
-                [InlineKeyboardButton("Update Profile", callback_data='update_profile')],
-                [InlineKeyboardButton("Back to Main Menu", callback_data='back_to_menu')]
-            ]
-            reply_markup = InlineKeyboardMarkup(keyboard)
+        except Exception as e:
+            self.logger.error(f"Error during optimization: {str(e)}")
+            raise
 
-            if update.callback_query:
-                await update.callback_query.message.reply_text(profile_text, reply_markup=reply_markup)
-            else:
-                await update.message.reply_text(profile_text, reply_markup=reply_markup)
-        else:
-            await update.callback_query.message.reply_text("You haven't registered as a donor yet.")
+    def _clean_cache(self) -> None:
+        """Clean old or invalid cache entries."""
+        try:
+            # Get all cache files
+            cache_files = os.listdir(self.cache_dir)
 
-    except Exception as e:
-        logger.error(f"Database error in show_profile: {e}")
-        await update.callback_query.message.reply_text("An error occurred while retrieving your profile. Please try again later.")
+            # Remove files older than 7 days
+            from datetime import datetime, timedelta
+            max_age = timedelta(days=7)
+            now = datetime.now()
 
-    return PROFILE_VIEW
+            for cache_file in cache_files:
+                cache_path = os.path.join(self.cache_dir, cache_file)
+                file_modified = datetime.fromtimestamp(os.path.getmtime(cache_path))
 
-async def back_to_menu(update: Update, context: CallbackContext) -> int:
-    query = update.callback_query
-    await query.answer()
-    
-    keyboard = [
-        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
-        InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
-        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')],
-        [InlineKeyboardButton("My Profile 👤", callback_data='profile')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+                if now - file_modified > max_age:
+                    os.remove(cache_path)
 
-    await query.message.edit_text(
-        'Welcome back to the main menu! What would you like to do?',
-        reply_markup=reply_markup
-    )
-    return MENU
+        except Exception as e:
+            self.logger.error(f"Error cleaning cache: {str(e)}")
+            raise
 
-async def menu_command(update: Update, context: CallbackContext) -> int:
-    # Create the menu keyboard
-    keyboard = [
-        [InlineKeyboardButton("Donate Blood 🩸", callback_data='donate'),
-        InlineKeyboardButton("Find Blood 🔍", callback_data='find')],
-        [InlineKeyboardButton("Emergency 🚨", callback_data='emergency')],
-        [InlineKeyboardButton("My Profile 👤", callback_data='profile')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    def export_config(self) -> Dict[str, Any]:
+        """Export current configuration."""
+        return {
+            "chunk_size": self.chunk_size,
+            "chunk_overlap": self.chunk_overlap,
+            "k_retrieval": self.k_retrieval,
+            "cache_dir": self.cache_dir,
+            "stats": self.get_stats()
+        }
 
-    # Send a new message with the menu options
-    await update.message.reply_text(
-        'Welcome back to the main menu! What would you like to do?',
-        reply_markup=reply_markup
-    )
+    @classmethod
+    def from_config(cls, config: Dict[str, Any], groq_api_key: str) -> 'RepoRAG':
+        """Create a RepoRAG instance from configuration."""
+        instance = cls(
+            groq_api_key=groq_api_key,
+            chunk_size=config.get("chunk_size", 1000),
+            chunk_overlap=config.get("chunk_overlap", 200),
+            k_retrieval=config.get("k_retrieval", 4),
+            cache_dir=config.get("cache_dir", "./cache")
+        )
+        return instance
 
-    return MENU
+# Helper functions for external use
+def create_repo_rag(groq_api_key: str, **kwargs) -> RepoRAG:
+    """Create a new RepoRAG instance with given configuration."""
+    return RepoRAG(groq_api_key=groq_api_key, **kwargs)
 
-async def cancel(update: Update, context: CallbackContext) -> int:
-    await update.message.reply_text('Operation cancelled.')
-    return ConversationHandler.END
+def load_repo_rag(config_path: str, groq_api_key: str) -> RepoRAG:
+    """Load a RepoRAG instance from a configuration file."""
+    with open(config_path, 'r') as f:
+        config = pickle.load(f)
+    return RepoRAG.from_config(config, groq_api_key)
 
-async def error_handler(update: Update, context: CallbackContext) -> None:
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
-    if update.effective_message:
-        await update.effective_message.reply_text("An error occurred. Our team has been notified.")
-
-async def help_command(update: Update, context: CallbackContext) -> None:
-    help_text = (
-        '''
-        🩸🇧🇩 Welcome to BloodLY Bangladesh! 🦸‍♀️🦸‍♂️
-
-Ready to become a real-life superhero? Your adventure in saving lives starts here! 🚀
-
-🌟 Superhero Command Center:
-/menu - View your superhero options 📋
-/help - Call for backup (show this message) 📞
-/cancel - Abort mission (cancel current operation) 🚫
-
-🦸 Choose Your Heroic Path:
-• Donate Blood 🩸 - Be the hero someone is waiting for!
-• Find Blood 🔍 - Lead the search for lifesaving matches!
-• Hero Profile 👤 - Power up your alter ego! (for registered heroes)
-
-Remember: Every drop counts, every hero matters! 💖
-
-Stuck on your mission? Don't worry! Your trusty sidekick (that's me!) is here to help. Just ask! 😊
-
-Type /menu to see all your superhero options! Let's save lives together! 🌈✨
-
-Made with ❤️ by 💻 Ahammad Nafiz. Check out more cool projects at github.com/ahammadnafiz!
-
-#BloodHeroesBangladesh #EveryDropCounts #BeAHero
-        '''
-    )
-    await update.message.reply_text(help_text)
-
-def main() -> None:
-    # Set up the database before running the bot
-    import asyncio
-    asyncio.get_event_loop().run_until_complete(setup_database())
-
-    # Create the Application and pass it your bot's token.
-    application = Application.builder().token(BOT_TOKEN).build()
-
-    # Add conversation handler with the updated states
-    conv_handler = ConversationHandler(
-    entry_points=[CommandHandler('start', start), CommandHandler('menu', menu_command)],
-    states={
-        MENU: [CallbackQueryHandler(menu_callback)],
-        LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, location)],
-        BLOOD_TYPE: [CallbackQueryHandler(blood_type_callback)],
-        CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, contact)],
-        PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, profile)],  # Add this line
-        UPDATE_PROFILE: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_profile)],
-        FIND: [CallbackQueryHandler(blood_type_find_callback)],
-        LOCATION_FIND: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, handle_find_blood_location)],
-        PROFILE_VIEW: [CallbackQueryHandler(menu_callback)],
-        UPDATE_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_name)],
-        UPDATE_BLOOD_TYPE: [CallbackQueryHandler(update_blood_type_callback)],
-        UPDATE_CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_contact)],
-        UPDATE_LAST_DONATION: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_last_donation)],
-        UPDATE_LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, update_location)],
-        UPDATE_AVAILABILITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, update_availability)],
-        EMERGENCY: [CallbackQueryHandler(emergency_blood_type_callback)],
-        EMERGENCY_CONTACT: [MessageHandler(filters.TEXT & ~filters.COMMAND, emergency_contact)],
-        EMERGENCY_LOCATION: [MessageHandler(filters.LOCATION | filters.TEXT & ~filters.COMMAND, handle_emergency_location)],
-    },
-    fallbacks=[CommandHandler('cancel', cancel), CommandHandler('menu', menu_command)],
-)
-
-    application.add_handler(conv_handler)
-    application.add_handler(CallbackQueryHandler(paginate_results, pattern=r'^next_page_'))
-
-    # Add standalone command handlers
-    application.add_handler(CommandHandler("help", help_command))
-    application.add_handler(CommandHandler("menu", menu_command))
-
-    # Add error handler
-    application.add_error_handler(error_handler)
-
-    # Run the bot until the user presses Ctrl-C
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
-
-if __name__ == '__main__':
-    main()
+File: reporag/reporag/structurer.py
+Size: 156 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
+Content:
+# repoprompter/repoprompter/structurer.py
+def structure_text_for_llm(text_content):
+    structured_text = "\n".join(text_content)
+    return structured_text
 
 File: requirements.txt
-Size: 60 bytes
-Last Modified: Sun, 18 Aug 2024 16:09:57 GMT
+Size: 255 bytes
+Last Modified: Sat, 04 Jan 2025 14:29:56 GMT
 Content:
-python-telegram-bot
-geopy
-pandas
-aiosqlite
-python-dotenv
+# Core dependencies
+PyGithub>=2.1.1
+python-dotenv>=1.0.0
+
+# RAG-specific dependencies
+langchain>=0.1.0
+langchain-core>=0.1.0
+langchain-groq>=0.0.2
+langchain-community>=0.0.13
+chromadb>=0.4.22
+sentence-transformers>=2.2.2
+
+# Text processing
+tiktoken>=0.5.2
 
 
     Instructions:
