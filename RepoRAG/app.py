@@ -4,6 +4,7 @@ from typing import Dict, Any
 from dotenv import load_dotenv
 from reporag.reporag.main import main
 from reporag.reporag.rag import RepoRAG
+import shutil
 
 # Set page configuration
 st.set_page_config(
@@ -19,7 +20,7 @@ st.markdown("""
     .stApp {
         background-color:#171718;
     }
-    
+
     /* Header styling */
     .main-header {
         font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -28,7 +29,7 @@ st.markdown("""
         border-bottom: 1px solid #eee;
         margin-bottom: 2rem;
     }
-    
+
     /* Chat container styling */
     .chat-container {
         background-color: #0E1117;
@@ -36,23 +37,23 @@ st.markdown("""
         padding: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    
+
     /* Sidebar styling */
     .css-1d391kg {
-        background-color: #f4f1de;
+        background-color: #232325;
     }
-    
+
     /* Input field styling */
     .stTextInput > div > div > input {
         border-radius: 8px;
     }
-    
+
     /* Button styling */
     .stButton > button {
         border-radius: 8px;
         font-weight: 500;
     }
-    
+
     /* Status indicator styling */
     .status-indicator {
         padding: 4px 12px;
@@ -60,18 +61,18 @@ st.markdown("""
         font-size: 14px;
         font-weight: 500;
     }
-    
+
     /* Chat message styling */
     .chat-message {
         padding: 1rem;
         border-radius: 8px;
         margin: 0.5rem 0;
     }
-    
+
     .user-message {
         background-color: #f0f7ff;
     }
-    
+
     .assistant-message {
         background-color: #252422;
     }
@@ -111,7 +112,7 @@ def display_chat_history():
                         {message["answer"]}
                     </div>
                     """, unsafe_allow_html=True)
-                    
+
                     # Sources in a modern expander
                     if message.get("sources"):
                         with st.expander("📚 View Sources", expanded=False):
@@ -138,10 +139,10 @@ def create_sidebar():
             <h2 style='color: #f4f1de; font-size: 1.5rem;'>⚙️ Configuration</h2>
         </div>
         """, unsafe_allow_html=True)
-        
+
         # Create tabs for different settings
-        tab1, tab2 = st.tabs(["📝 Basic Settings", "🔧 Advanced"])
-        
+        tab1, tab2, tab3 = st.tabs(["📝 Basic Settings", "🔧 Advanced", "🧹 Cleanup"])
+
         with tab1:
             # Repository URL input
             repo_url = st.text_input(
@@ -157,21 +158,21 @@ def create_sidebar():
                 value=os.getenv('GITHUB_ACCESS_TOKEN', ''),
                 help="Your GitHub personal access token"
             )
-            
+
             groq_token = st.text_input(
                 "Groq API Key",
                 type="password",
                 value=os.getenv('GROQ_API_KEY', ''),
                 help="Your Groq API key"
             )
-            
+
             # Output file input with file extension validation
             output_file = st.text_input(
                 "Output File Name",
                 value=st.session_state.output_file,
                 help="Enter the name for the output file (e.g., output.txt)"
             )
-            
+
             if output_file and not output_file.endswith('.txt'):
                 output_file += '.txt'
             st.session_state.output_file = output_file
@@ -181,13 +182,13 @@ def create_sidebar():
             if st.session_state.is_initialized:
                 st.markdown("### 📊 System Stats")
                 stats = st.session_state.rag_instance.get_stats()
-                
+
                 # Display stats in a modern grid
                 col1, col2 = st.columns(2)
                 with col1:
                     st.metric("Documents", stats['total_documents'])
                     st.metric("Chat Messages", stats['chat_history_length'])
-                
+
                 with col2:
                     st.metric("Total Tokens", stats['total_tokens'])
                     st.metric("Cache Size", f"{stats['cache_size'] / 1024:.2f} KB")
@@ -196,6 +197,25 @@ def create_sidebar():
                 with st.expander("📑 Content Types"):
                     for content_type, count in stats['content_types'].items():
                         st.markdown(f"- **{content_type}**: {count}")
+
+        with tab3:
+            # Cleanup buttons
+            if st.session_state.is_initialized:
+                if st.button("🧹 Clear Chat History", use_container_width=True):
+                    st.session_state.chat_history = []
+                    if st.session_state.rag_instance:
+                        st.session_state.rag_instance.clear_memory()
+                    st.success("💫 Chat history cleared!")
+
+                if st.button("🧹 Clear Vector Store", use_container_width=True):
+                    if st.session_state.rag_instance:
+                        st.session_state.rag_instance.clear_vector_store()
+                        st.success("💫 Vector store cleared!")
+
+                if st.button("🧹 Clear Cache", use_container_width=True):
+                    if st.session_state.rag_instance:
+                        st.session_state.rag_instance.clear_cache()
+                        st.success("💫 Cache cleared!")
 
         # Initialize/Reset button with modern styling
         if st.button("🚀 Initialize/Reset System", type="primary", use_container_width=True):
@@ -213,7 +233,7 @@ def create_sidebar():
                             output_file=output_file,
                             rag_mode=True
                         )
-                        
+
                         if isinstance(result, str) and result.startswith("Error"):
                             st.error(result)
                         else:
@@ -225,14 +245,6 @@ def create_sidebar():
                     except Exception as e:
                         st.error(f"❌ Error: {str(e)}")
 
-        # Clear chat history button
-        if st.session_state.is_initialized:
-            if st.button("🧹 Clear Chat History", use_container_width=True):
-                st.session_state.chat_history = []
-                if st.session_state.rag_instance:
-                    st.session_state.rag_instance.clear_memory()
-                st.success("💫 Chat history cleared!")
-
 def main_app():
     """Main Streamlit application with modern layout."""
     initialize_session_state()
@@ -241,21 +253,40 @@ def main_app():
     # Create sidebar
     create_sidebar()
 
-    # Main content area with modern styling
     st.markdown("""
+    <style>
+        .main-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .main-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #eff7f6;
+        }
+        .main-header p {
+            font-size: 1.2em;
+            color: #ccc5b9;
+        }
+    </style>
     <div class='main-header'>
-        <h1>🤖 RepoRAG Assistant</h1>
-        <p style='color: #ccc5b9;'>Your intelligent repository analysis companion</p>
+        <h1>🤖 RepoRAGt</h1>
+        <p>Your intelligent repository analysis companion</p>
     </div>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 
     # Status indicator
     if not st.session_state.is_initialized:
         st.warning("🚨 Please initialize the system using the sidebar configuration.")
-        
+
         # Modern getting started guide
         st.markdown("""
-        <div style='background-color: white; padding: 2rem; border-radius: 10px; margin: 2rem 0;'>
+        <div style='background-color: #252422; padding: 2rem; border-radius: 10px; margin: 2rem 0;'>
             <h3>🚀 Getting Started</h3>
             <ol style='margin-top: 1rem;'>
                 <li>Enter your GitHub repository URL (format: owner/repo)</li>
