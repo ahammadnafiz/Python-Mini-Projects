@@ -6,17 +6,15 @@ import hashlib
 import pickle
 import re
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
 
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_groq import ChatGroq
 from langchain.chains import ConversationalRetrievalChain
 
