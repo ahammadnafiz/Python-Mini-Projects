@@ -234,10 +234,10 @@ class RepoRAG:
     def __init__(
         self,
         groq_api_key: str,
-        model_name: str = "mixtral-8x7b-32768",
+        model_name: str = "llama3-8b-8192",
         embedding_model: str = "BAAI/bge-small-en-v1.5",
-        chunk_size: int = 1000,
-        chunk_overlap: int = 200,
+        chunk_size: int = 512,
+        chunk_overlap: int = 128,
         k_retrieval: int = 4,
         cache_dir: str = "./cache"
     ):
