@@ -234,7 +234,7 @@ class RepoRAG:
     def __init__(
         self,
         groq_api_key: str,
-        model_name: str = "llama3-8b-8192",
+        model_name: str = "llama-3.1-8b-instant",
         embedding_model: str = "BAAI/bge-small-en-v1.5",
         chunk_size: int = 512,
         chunk_overlap: int = 128,
