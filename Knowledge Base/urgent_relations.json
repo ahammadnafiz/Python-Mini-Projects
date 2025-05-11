@@ -1,0 +1,40 @@
+{
+  "target": "urgent",
+  "relations": {
+    "need": [
+      {
+        "type": "syntactic",
+        "score": 7.327262209712753,
+        "weight": 0.3
+      }
+    ],
+    "care": [
+      {
+        "type": "syntactic",
+        "score": 7.327262209712753,
+        "weight": 0.3
+      }
+    ],
+    "countless": [
+      {
+        "type": "syntactic",
+        "score": 7.972907352874072,
+        "weight": 0.3
+      }
+    ],
+    "children": [
+      {
+        "type": "syntactic",
+        "score": 5.069448047901129,
+        "weight": 0.3
+      }
+    ],
+    "continue": [
+      {
+        "type": "syntactic",
+        "score": 7.972907352874072,
+        "weight": 0.3
+      }
+    ]
+  }
+}

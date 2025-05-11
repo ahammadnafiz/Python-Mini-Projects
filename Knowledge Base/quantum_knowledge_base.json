@@ -1,0 +1,24 @@
+{
+  "quantum": {
+    "\n\n": [
+      {
+        "type": "syntactic",
+        "score": 0.13043478260869565,
+        "original": [
+          "\n\n"
+        ]
+      }
+    ]
+  },
+  "Quantum": {
+    "\n\n": [
+      {
+        "type": "syntactic",
+        "score": 0.13043478260869565,
+        "original": [
+          "\n\n"
+        ]
+      }
+    ]
+  }
+}

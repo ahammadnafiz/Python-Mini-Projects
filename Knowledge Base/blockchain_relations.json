@@ -1,0 +1,101 @@
+{
+  "target": "blockchain",
+  "relations": {
+    "firmware": [
+      {
+        "type": "semantic",
+        "score": 0.717050313949585,
+        "weight": 0.7
+      },
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "nexustech": [
+      {
+        "type": "syntactic",
+        "score": 4.285407647011743,
+        "weight": 0.3
+      }
+    ],
+    "launched": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "quantum": [
+      {
+        "type": "syntactic",
+        "score": 3.7747720470008126,
+        "weight": 0.3
+      }
+    ],
+    "platform": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "java": [
+      {
+        "type": "syntactic",
+        "score": 3.997844335175281,
+        "weight": 0.3
+      }
+    ],
+    "developers": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "coffee": [
+      {
+        "type": "syntactic",
+        "score": 4.285407647011743,
+        "weight": 0.3
+      }
+    ],
+    "\n": [
+      {
+        "type": "syntactic",
+        "score": 3.6796173680403412,
+        "weight": 0.3
+      }
+    ],
+    "makers": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "neutrino": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "fluctuations": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ],
+    "transactions": [
+      {
+        "type": "syntactic",
+        "score": 5.38307035816287,
+        "weight": 0.3
+      }
+    ]
+  }
+}

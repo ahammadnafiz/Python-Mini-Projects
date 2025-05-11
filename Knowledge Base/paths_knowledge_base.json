@@ -1,0 +1,58 @@
+{
+  "paths": {
+    "predicting": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "predicting"
+        ]
+      }
+    ],
+    "human": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "human"
+        ]
+      }
+    ],
+    "enlightenment": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "enlightenment"
+        ]
+      }
+    ],
+    "loss": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "loss"
+        ]
+      }
+    ],
+    "function": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "function"
+        ]
+      }
+    ],
+    "remains": [
+      {
+        "type": "syntactic",
+        "score": 0.16666666666666666,
+        "original": [
+          "remains"
+        ]
+      }
+    ]
+  }
+}

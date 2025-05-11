@@ -1,0 +1,52 @@
+{
+  "target": "binary",
+  "statistics": {
+    "total_sentences": 14,
+    "total_relations": 7
+  },
+  "relations": {
+    "code": [
+      {
+        "type": "syntactic",
+        "score": 5.811140987991671,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "whispers": [
+      {
+        "type": "syntactic",
+        "score": 5.811140987991671,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "secrets": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "streams": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "\n": [
+      {
+        "type": "syntactic",
+        "score": 3.865230843222071,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "fueling": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "variants": []
+  }
+}

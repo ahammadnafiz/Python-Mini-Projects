@@ -1,0 +1,38 @@
+{
+  "target": "wheel",
+  "statistics": {
+    "total_sentences": 14,
+    "total_relations": 5
+  },
+  "relations": {
+    "oh": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "ancient": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "chisel": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "stone": [
+      {
+        "type": "syntactic",
+        "score": 6.504288163551616,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "variants": []
+  }
+}

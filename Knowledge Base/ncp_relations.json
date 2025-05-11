@@ -1,0 +1,232 @@
+{
+  "target": "NCP",
+  "statistics": {
+    "total_sentences": 16,
+    "total_relations": 31,
+    "frequency": 8
+  },
+  "relations": {
+    "party": [
+      {
+        "type": "semantic",
+        "score": 0.7076569199562073,
+        "weight": 0.7
+      },
+      {
+        "type": "syntactic",
+        "score": 4.089122624496184,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "state": [
+      {
+        "type": "syntactic",
+        "score": 3.8659790736819746,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "reform": [
+      {
+        "type": "syntactic",
+        "score": 2.990510337494741,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "says": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "akhter": [
+      {
+        "type": "syntactic",
+        "score": 4.55912624924192,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "hossen": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "interim": [
+      {
+        "type": "syntactic",
+        "score": 4.964591355683417,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "national": [
+      {
+        "type": "syntactic",
+        "score": 4.78226980005613,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "citizen": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "said": [
+      {
+        "type": "syntactic",
+        "score": 4.376804696114632,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "elections": [
+      {
+        "type": "syntactic",
+        "score": 4.089122624496184,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "member": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "secretary": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "start": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "dialogue": [
+      {
+        "type": "syntactic",
+        "score": 4.376804696114632,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "around": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "convenor": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "nahid": [
+      {
+        "type": "syntactic",
+        "score": 5.0699518716745775,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "islam": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "introducing": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "new": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "political": [
+      {
+        "type": "syntactic",
+        "score": 4.376804696114632,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "force": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "delegation": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "led": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "believes": [
+      {
+        "type": "syntactic",
+        "score": 4.782269802556129,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "government": [
+      {
+        "type": "syntactic",
+        "score": 3.97133958522869,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "wish": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "provide": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "input": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ],
+    "wants": [
+      {
+        "type": "syntactic",
+        "score": 5.475416978116075,
+        "weight": 0.30000000000000004
+      }
+    ]
+  }
+}
