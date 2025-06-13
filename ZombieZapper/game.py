@@ -36,7 +36,7 @@ class Game:
         self.speed_up_interval = 5000 
         
     def show_menu(self):
-        self.menu = pygame.transform.scale(pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\4. Background Art\full_menu.jpg'), (settings.WIDTH, settings.HEIGHT)).convert_alpha()
+        self.menu = pygame.transform.scale(pygame.image.load('Game_Assets/4. Background Art/full_menu.jpg'), (settings.WIDTH, settings.HEIGHT)).convert_alpha()
         self.display.screen.blit(self.menu, (0,0))
         pygame.display.flip()
         
@@ -149,7 +149,7 @@ class Game:
                 # Update the bullets list with the new one
                 self.bullet_setting.bullets = new_bullets
 
-                self.font = pygame.font.Font(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\font\BD_Cartoon_Shout.ttf', 25)
+                self.font = pygame.font.Font('Game_Assets/font/BD_Cartoon_Shout.ttf', 25)
                 self.score_text = self.font.render(f"Score: {self.score}", True, (0, 2, 10))
                 self.score_rect = self.score_text.get_rect(center=(settings.WIDTH // 5, 100))
                 self.display.screen.blit(self.score_text, self.score_rect)
@@ -166,10 +166,10 @@ class Game:
                 
             else:  
                 # Game over screen
-                self.game_over = pygame.transform.scale(pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\4. Background Art\restart.jpg'), (settings.WIDTH, settings.HEIGHT)).convert_alpha()
+                self.game_over = pygame.transform.scale(pygame.image.load('Game_Assets/4. Background Art/restart.jpg'), (settings.WIDTH, settings.HEIGHT)).convert_alpha()
                 self.display.screen.blit(self.game_over, (0,0))
                 
-                self.font = pygame.font.Font(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\font\BD_Cartoon_Shout.ttf', 45)
+                self.font = pygame.font.Font('Game_Assets/font/BD_Cartoon_Shout.ttf', 45)
                 self.score_text = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
                 self.score_rect = self.score_text.get_rect(center=(settings.WIDTH // 2, 193))
                 self.display.screen.blit(self.score_text, self.score_rect)

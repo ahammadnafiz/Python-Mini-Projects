@@ -14,32 +14,32 @@ class EnvironmentManager:
     def __init__(self, width, height):
         
         # Environment Setting
-        self.background_layer_1 = pygame.transform.scale(pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\4. Background Art\Layer 3.PNG'), (width, height)).convert_alpha()
-        self.background_layer_2 = pygame.transform.scale(pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\4. Background Art\Layer 2.PNG'), (width, height)).convert_alpha()
-        self.background_layer_3 = pygame.transform.scale(pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\4. Background Art\Layer 1.PNG'), (width, height)).convert_alpha()
+        self.background_layer_1 = pygame.transform.scale(pygame.image.load('Game_Assets/4. Background Art/Layer 3.PNG'), (width, height)).convert_alpha()
+        self.background_layer_2 = pygame.transform.scale(pygame.image.load('Game_Assets/4. Background Art/Layer 2.PNG'), (width, height)).convert_alpha()
+        self.background_layer_3 = pygame.transform.scale(pygame.image.load('Game_Assets/4. Background Art/Layer 1.PNG'), (width, height)).convert_alpha()
 
-        self.foreground_layer_1 = pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\3. Foreground Art\Bunker.PNG').convert_alpha()
+        self.foreground_layer_1 = pygame.image.load('Game_Assets/3. Foreground Art/Bunker.PNG').convert_alpha()
         self.foreground_layer_1_width = self.foreground_layer_1.get_width() // 1.6
         self.foreground_layer_1_height = self.foreground_layer_1.get_height() // 1.6
         self.scaled_foreground_layer_1 = pygame.transform.scale(self.foreground_layer_1, (self.foreground_layer_1_width, self.foreground_layer_1_height))
 
-        self.foreground_layer_2 = pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\3. Foreground Art\Bus Stop.PNG').convert_alpha()
+        self.foreground_layer_2 = pygame.image.load('Game_Assets/3. Foreground Art/Bus Stop.PNG').convert_alpha()
         self.foreground_layer_2_width = self.foreground_layer_2.get_width() // 1.4
         self.foreground_layer_2_height = self.foreground_layer_2.get_height() // 1.4
         self.scaled_foreground_layer_2 = pygame.transform.scale(self.foreground_layer_2, (self.foreground_layer_2_width, self.foreground_layer_2_height))
 
-        self.foreground_layer_3 = pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\3. Foreground Art\Ground.PNG').convert_alpha()
+        self.foreground_layer_3 = pygame.image.load('Game_Assets/3. Foreground Art/Ground.PNG').convert_alpha()
         self.foreground_layer_3_width = self.foreground_layer_3.get_width() // 2
         self.foreground_layer_3_height = self.foreground_layer_3.get_height() // 2
         self.scaled_foreground_layer_3 = pygame.transform.scale(self.foreground_layer_3, (self.foreground_layer_3_width, self.foreground_layer_3_height))
 
-        self.foreground_layer_4 = pygame.image.load(r'D:\Python Mini Projects\ZombieZapper\Game_Assets\3. Foreground Art\Platform.PNG').convert_alpha()
+        self.foreground_layer_4 = pygame.image.load('Game_Assets/3. Foreground Art/Platform.PNG').convert_alpha()
         self.foreground_layer_4_width = self.foreground_layer_4.get_width() // 2
         self.foreground_layer_4_height = self.foreground_layer_4.get_height() // 2
         self.scaled_foreground_layer_4 = pygame.transform.scale(self.foreground_layer_4, (self.foreground_layer_4_width, self.foreground_layer_4_height))
 
         # Load crypto images
-        self.crypto_images = [pygame.image.load(fr'D:\Python Mini Projects\ZombieZapper\Game_Assets\3. Foreground Art\Cryo Pod\Cryo{i}.PNG').convert_alpha() for i in range(1, 14)]
+        self.crypto_images = [pygame.image.load(f'Game_Assets/3. Foreground Art/Cryo Pod/Cryo{i}.PNG').convert_alpha() for i in range(1, 14)]
         self.current_frame = 0 
         self.current_frame_crypto = 0
         self.animation_count_crypto = 0
@@ -53,13 +53,13 @@ class EnvironmentManager:
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.run_frames = [pygame.image.load(fr"D:\Python Mini Projects\ZombieZapper\Game_Assets\1.MainCharacterArt\Animations\Run\Run{i}.PNG").convert_alpha() for i in range(1, 7)]
-        self.jump_frames = [pygame.image.load(fr"D:\Python Mini Projects\ZombieZapper\Game_Assets\1.MainCharacterArt\Animations\Jump\Jump{i}.PNG").convert_alpha() for i in range(1, 3)]
+        self.run_frames = [pygame.image.load(f"Game_Assets/1.MainCharacterArt/Animations/Run/Run{i}.PNG").convert_alpha() for i in range(1, 7)]
+        self.jump_frames = [pygame.image.load(f"Game_Assets/1.MainCharacterArt/Animations/Jump/Jump{i}.PNG").convert_alpha() for i in range(1, 3)]
         self.character_image = self.run_frames[0]
         self.image = self.character_image
         self.rect = self.image.get_rect(midbottom=(400, 640))
         self.current_frame = 0
-        self.gun_image = pygame.image.load(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\1.MainCharacterArt\Model & Weapon\Gun.PNG").convert_alpha()
+        self.gun_image = pygame.image.load(r"Game_Assets/1.MainCharacterArt/Model & Weapon/Gun.PNG").convert_alpha()
         self.gun_offset_y = 100
         self.gun_rect = self.gun_image.get_rect(midbottom=(self.rect.centerx, self.rect.centery + self.gun_offset_y))
         self.jump_velocity = 0  # Initialize jump velocity
@@ -96,7 +96,7 @@ class Player(pygame.sprite.Sprite):
 class SpawnAnimation(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.spawn_images = [pygame.image.load(fr'D:\Python Mini Projects\ZombieZapper\Game_Assets\2.Enemies\EnemySpawn\Spawn{i}.PNG').convert_alpha() for i in range(1, 8)]
+        self.spawn_images = [pygame.image.load(f'Game_Assets/2.Enemies/EnemySpawn/Spawn{i}.PNG').convert_alpha() for i in range(1, 8)]
         self.image = self.spawn_images[0]
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.animation_count = 0
@@ -114,7 +114,7 @@ class SpawnAnimation(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.original_images = [pygame.image.load(fr'D:\Python Mini Projects\ZombieZapper\Game_Assets\2.Enemies\Enemy2\Enemy2_{i}.PNG').convert_alpha() for i in range(1, 7)]
+        self.original_images = [pygame.image.load(f'Game_Assets/2.Enemies/Enemy2/Enemy2_{i}.PNG').convert_alpha() for i in range(1, 7)]
         self.images = self.original_images.copy()
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=(x, y))
@@ -136,7 +136,7 @@ class Enemy(pygame.sprite.Sprite):
 class AnotherEnemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.original_images = [pygame.image.load(fr'D:\Python Mini Projects\ZombieZapper\Game_Assets\2.Enemies\Enemy1\Enemy1_{i}.PNG').convert_alpha() for i in range(1, 7)]
+        self.original_images = [pygame.image.load(f'Game_Assets/2.Enemies/Enemy1/Enemy1_{i}.PNG').convert_alpha() for i in range(1, 7)]
         self.images = self.original_images.copy()
         self.image = self.images[0]
         self.rect = self.image.get_rect(midbottom=(x, y))
@@ -159,7 +159,7 @@ class AnotherEnemy(pygame.sprite.Sprite):
 class BulletAnimation:
     def __init__(self) -> None:
         # Bullet Settings
-        self.bullet_image = pygame.image.load(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\1.MainCharacterArt\Model & Weapon\Bullet.PNG").convert_alpha()
+        self.bullet_image = pygame.image.load("Game_Assets/1.MainCharacterArt/Model & Weapon/Bullet.PNG").convert_alpha()
         self.bullet_speed = 20
         self.bullets = []
         self.bullet_rect = self.bullet_image.get_rect(center=(400, 800))
@@ -215,10 +215,10 @@ class SoundManager:
         pygame.mixer.init()
 
         # Load sounds
-        self.main_sound = pygame.mixer.Sound(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\5. Music\Enigma-Long-Version-Complete-Version(chosic.com).mp3")
-        self.gun_shot_sound = pygame.mixer.Sound(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\6. Sound Affects\Gunshot.wav")
-        self.spawn_animation_sound = pygame.mixer.Sound(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\6. Sound Affects\EnemySpawn.wav")
-        self.jump_sound = pygame.mixer.Sound(r"D:\Python Mini Projects\ZombieZapper\Game_Assets\6. Sound Affects\Jump.wav")
+        self.main_sound = pygame.mixer.Sound("Game_Assets/5. Music/Enigma-Long-Version-Complete-Version(chosic.com).mp3")
+        self.gun_shot_sound = pygame.mixer.Sound("Game_Assets/6. Sound Affects/Gunshot.wav")
+        self.spawn_animation_sound = pygame.mixer.Sound("Game_Assets/6. Sound Affects/EnemySpawn.wav")
+        self.jump_sound = pygame.mixer.Sound("Game_Assets/6. Sound Affects/Jump.wav")
         
     def sound_setting(self):
         # Play main sound in a loop
