@@ -296,41 +296,44 @@ if prompt := st.chat_input("What would you like me to explain?"):
             try:                # Step 1: Generate complete video plan (both educational and Manim structure)
                 with status_container:
                     status = st.status("Understanding your request...", expanded=False)
-                    with status:
+                    with status:                        
                         st.write("Analyzing mathematical concept...")
                         
-                        # Auto-detect domain if needed
-                        detected_domain = domain
-                        if domain == "auto-detect":
-                            # Simple keyword-based domain detection
-                            prompt_lower = prompt.lower()
-                            if any(word in prompt_lower for word in ["derivative", "integral", "limit", "calculus"]):
-                                detected_domain = "calculus"
-                            elif any(word in prompt_lower for word in ["triangle", "circle", "angle", "geometry"]):
-                                detected_domain = "geometry"
-                            elif any(word in prompt_lower for word in ["equation", "solve", "algebra"]):
-                                detected_domain = "algebra"
-                            elif any(word in prompt_lower for word in ["statistics", "probability", "data"]):
-                                detected_domain = "statistics"
-                            elif any(word in prompt_lower for word in ["sin", "cos", "tan", "trigonometry"]):
-                                detected_domain = "trigonometry"
-                            else:
-                                detected_domain = "general"
-                        
                         enhanced_prompt = f"""
-                        {prompt}
+                        Create an educational video animation about: {prompt}
                         
-                        Educational requirements:
+                        Requirements:
                         - Complexity level: {complexity}
-                        - Mathematical domain: {detected_domain}
-                        - Create clear, step-by-step explanations suitable for animated video format
-                        - Include visual descriptions and animation plans
-                        """
-                          # Use the complete video plan generator
+                        - Mathematical domain: {domain}
+                        - Generate comprehensive educational content with clear step-by-step explanations
+                        - Include detailed visual descriptions and animation plans
+                        - Create engaging learning objectives and real-world applications
+                        - Design content suitable for animated video format with proper timing
+                        - Include mathematical equations, diagrams, and interactive elements
+                        """# Use the complete video plan generator
                         video_plan = script_generator.generate_complete_video_plan(enhanced_prompt)
                         
-                        if video_plan and video_plan.get("educational_breakdown"):
-                            educational_breakdown = video_plan["educational_breakdown"]
+                        # Print video plan to terminal for debugging
+                        if video_plan:
+                            print("\n" + "="*60)
+                            print("📋 VIDEO PLAN RECEIVED IN APP.PY")
+                            print("="*60)
+                            print(f"Topic: {video_plan.get('topic', 'N/A')}")
+                            educational_breakdown = video_plan.get("educational_breakdown", {})
+                            print(f"Title: {educational_breakdown.get('title', 'N/A')}")
+                            print(f"Educational Steps: {len(educational_breakdown.get('educational_steps', []))}")
+                            print(f"Learning Objectives: {len(educational_breakdown.get('learning_objectives', []))}")
+                            
+                            manim_structure = video_plan.get("manim_structure", {})
+                            if manim_structure:
+                                print(f"Animation Steps: {len(manim_structure.get('animation_steps', []))}")
+                            
+                            generation_metadata = video_plan.get("generation_metadata", {})
+                            print(f"Generation Metadata: {generation_metadata}")
+                            print("="*60)
+                        
+                        if video_plan:
+                            educational_breakdown = video_plan.get("educational_breakdown", {})
                             manim_structure = video_plan.get("manim_structure", {})
                             generation_metadata = video_plan.get("generation_metadata", {})
                             
@@ -348,40 +351,32 @@ if prompt := st.chat_input("What would you like me to explain?"):
                                 
                         else:
                             st.write("✗ Failed to generate content")
-                            raise Exception("Content generation failed")                  # Step 2: Generate Manim code
+                            raise Exception("Content generation failed")# Step 2: Generate Manim code
                 with status_container:
                     status.update(label="Creating animation code...", state="running")
-                    with status:
+                    with status:                        
                         st.write("Converting to Manim animation code...")
-                          # Use the complete video plan for enhanced Manim generation
-                        if video_plan and video_plan.get("educational_breakdown"):
-                            st.write("Using complete video plan with educational breakdown...")
-                            st.write(f"📚 Educational steps: {len(educational_breakdown.get('educational_steps', []))}")
+                        
+                        # Pass the complete video plan directly to Manim generator
+                        st.write("Using complete video plan...")
+                        if educational_breakdown.get('educational_steps'):
+                            st.write(f"📚 Educational steps: {len(educational_breakdown.get('educational_steps', []))}")                        
+                        if educational_breakdown.get('learning_objectives'):
                             st.write(f"🎯 Learning objectives: {len(educational_breakdown.get('learning_objectives', []))}")
-                            st.write(f"🏷️ Domain: {detected_domain}")
-                            # Pass the complete video plan to Manim generator
-                            manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
-                        elif manim_structure:
-                            st.write("Using Manim structure only...")
-                            # Create a minimal structured content dict
-                            structured_content = {
-                                "title": prompt,
-                                "educational_steps": [],
-                                "mathematical_domain": detected_domain
-                            }
-                            manim_code = manim_generator.generate_3b1b_manim_code(structured_content)
-                        elif educational_breakdown:
-                            st.write("Using educational breakdown only...")
-                            manim_code = manim_generator.generate_3b1b_manim_code({"educational_breakdown": educational_breakdown})
-                        else:
-                            st.write("No structured content available, using prompt...")
-                            # Create a minimal structured content dict for fallback
-                            structured_content = {
-                                "title": prompt,
-                                "educational_steps": [],
-                                "mathematical_domain": detected_domain
-                            }
-                            manim_code = manim_generator.generate_3b1b_manim_code(structured_content)
+                        st.write(f"🏷️ Domain: {domain}")
+                          # Pass the complete video plan to Manim generator
+                        manim_code = manim_generator.generate_3b1b_manim_code(video_plan)
+                        
+                        # Print Manim code info to terminal
+                        if manim_code:
+                            print("\n" + "="*60)
+                            print("🐍 MANIM CODE GENERATED IN APP.PY")
+                            print("="*60)
+                            print(f"Code length: {len(manim_code)} characters")
+                            print(f"Lines of code: {len(manim_code.split(chr(10)))}")
+                            print(f"Contains 'def construct': {'✅' if 'def construct' in manim_code else '❌'}")
+                            print(f"Contains 'from manim import': {'✅' if 'from manim import' in manim_code else '❌'}")
+                            print("="*60)
                         
                         if manim_code:
                             st.write("✓ Animation code generated")
