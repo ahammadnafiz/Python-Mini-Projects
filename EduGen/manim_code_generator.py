@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
 import logging
-import json
 import re
+import json
 from langchain.chains import ConversationChain
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
@@ -15,12 +15,19 @@ logging.getLogger('comtypes').setLevel(logging.WARNING)
 
 load_dotenv('.env')
 
-class Enhanced3B1BManimGenerator:
+class ManimGenerator:
+    """Enhanced Manim code generator that creates error-free, step-by-step educational animations"""
+    
     def __init__(self, groq_api_key):
         self.groq_api_key = groq_api_key
-        self.memory = ConversationBufferWindowMemory(k=3, memory_key="chat_history", return_messages=True)  # Reduced memory
-        self.groq_chat = ChatGroq(groq_api_key=self.groq_api_key, model_name='llama3-8b-8192')  # Smaller model
-        self.prompt = self._create_enhanced_3b1b_prompt()
+        self.memory = ConversationBufferWindowMemory(k=2, memory_key="chat_history", return_messages=True)
+        self.groq_chat = ChatGroq(groq_api_key=self.groq_api_key, model_name='qwen-qwq-32b')
+        
+        # Layout management for preventing overlaps
+        self.layout_zones = self._initialize_layout_zones()
+        self.animation_templates = self._initialize_animation_templates()
+        
+        self.prompt = self._create_advanced_prompt()
         self.conversation = ConversationChain(
             llm=self.groq_chat,
             prompt=self.prompt,
@@ -28,1056 +35,1056 @@ class Enhanced3B1BManimGenerator:
             memory=self.memory,
             input_key="human_input",
         )
-        self.generated_hashes = set()  # Track generated content to avoid repetition
+
+    def _initialize_layout_zones(self):
+        """Define non-overlapping screen zones for different content types"""
+        return {
+            'title_zone': {'position': 'UP*3.2', 'buffer': 0.3, 'font_size': 52},
+            'subtitle_zone': {'position': 'UP*2.5', 'buffer': 0.2, 'font_size': 36},
+            'step_title_zone': {'position': 'UP*2.8', 'buffer': 0.3, 'font_size': 40},
+            'main_equation_zone': {'position': 'UP*1.2', 'buffer': 0.4, 'font_size': 36},
+            'secondary_equation_zone': {'position': 'ORIGIN', 'buffer': 0.3, 'font_size': 28},
+            'visual_center_zone': {'position': 'ORIGIN', 'buffer': 0.5, 'scale': 1.0},
+            'left_panel_zone': {'position': 'LEFT*4.5', 'buffer': 0.3, 'font_size': 24},
+            'right_panel_zone': {'position': 'RIGHT*4.5', 'buffer': 0.3, 'font_size': 24},
+            'bottom_info_zone': {'position': 'DOWN*2.8', 'buffer': 0.2, 'font_size': 24},
+            'insight_zone': {'position': 'UP*0.5', 'buffer': 0.5, 'font_size': 32},
+            'axes_zone': {'x_range': [-6, 6, 1], 'y_range': [-3.5, 3.5, 1]}
+        }
+
+    def _initialize_animation_templates(self):
+        """Pre-defined animation sequences for different content types"""
+        return {
+            'title_entrance': {
+                'animation': 'Write',
+                'rate_func': 'smooth',
+                'run_time': 2.0,
+                'follow_up': 'self.wait(0.8)'
+            },
+            'equation_reveal': {
+                'animation': 'Write',
+                'rate_func': 'smooth',
+                'run_time': 2.5,
+                'follow_up': 'self.wait(1.0)'
+            },
+            'graph_creation': {
+                'animation': 'Create',
+                'rate_func': 'smooth',
+                'run_time': 3.0,
+                'follow_up': 'self.wait(1.2)'
+            },
+            'shape_draw': {
+                'animation': 'DrawBorderThenFill',
+                'rate_func': 'smooth',
+                'run_time': 2.0,
+                'follow_up': 'self.wait(0.8)'
+            },
+            'transformation': {
+                'animation': 'Transform',
+                'rate_func': 'smooth',
+                'run_time': 2.5,
+                'follow_up': 'self.wait(1.0)'
+            },
+            'fade_transition': {
+                'animation': 'FadeOut',
+                'rate_func': 'smooth',
+                'run_time': 1.5,
+                'follow_up': 'self.wait(0.5)'
+            }
+        }
 
     def generate_3b1b_manim_code(self, structured_content):
         """
-        Generate 3Blue1Brown style Manim code with consistent structure and animations.
+        Generate enhanced 3Blue1Brown style Manim code from structured educational content
+        
+        Args:
+            structured_content (dict): Rich educational content structure from script generator
         """
         if not structured_content:
-            return ""
+            return self._get_minimal_fallback()
 
         try:
-            title = structured_content.get('title', 'Math Concept')
-            domain = structured_content.get('mathematical_domain', 'general')
+            # Extract and validate content structure
+            educational_breakdown = structured_content.get('educational_breakdown', {})
+            manim_structure = structured_content.get('manim_structure', {})
             
-            # Check for repetition
-            content_hash = hash(str(structured_content))
-            if content_hash in self.generated_hashes:
-                print("Similar content detected, adding variation...")
-                structured_content['_variation'] = len(self.generated_hashes)
+            if not educational_breakdown:
+                logging.warning("No educational breakdown found, using fallback")
+                return self._get_minimal_fallback()
             
-            self.generated_hashes.add(content_hash)
+            # Extract key information
+            title = educational_breakdown.get('title', 'Mathematical Concept')
+            educational_steps = educational_breakdown.get('educational_steps', [])
+            topic_analysis = educational_breakdown.get('topic_analysis', {})
+            domain = topic_analysis.get('domain', 'Mathematics')
             
-            # Create a concise prompt
-            manim_prompt = self._create_structured_animation_prompt(title, domain, [], structured_content)
+            # Create comprehensive prompt with step-by-step structure
+            manim_prompt = self._create_comprehensive_prompt(
+                title, domain, educational_steps, manim_structure
+            )
             
+            # Generate code
             response = self.conversation.predict(human_input=manim_prompt)
-            cleaned_code = self._clean_and_enhance_code(response)
             
-            if not cleaned_code:
-                print("LLM generated invalid code, using enhanced fallback...")
-                return self._generate_enhanced_3b1b_fallback(structured_content)
+            # Enhanced validation and cleanup
+            validated_code = self._advanced_code_validation(response, educational_steps)
             
-            return cleaned_code
+            return validated_code
 
         except Exception as e:
-            print(f"Error generating 3B1B Manim code: {e}")
-            return self._generate_enhanced_3b1b_fallback(structured_content)
+            logging.error(f"Error generating enhanced Manim code: {e}")
+            return self._get_comprehensive_fallback(educational_steps)
 
-    def _create_structured_animation_prompt(self, title, domain, steps, content):
-        """Create a concise, varied prompt for consistent animations."""
-        # Clean title for class name
-        clean_title = re.sub(r'[^a-zA-Z0-9]', '', title.replace(' ', ''))
-        if not clean_title:
-            clean_title = "MathAnimation"
+    def _create_comprehensive_prompt(self, title, domain, educational_steps, manim_structure):
+        """Create a content-aware prompt that actually uses the educational breakdown"""
         
-        # Generate a unique seed based on content to ensure variety
-        content_hash = hash(str(content)) % 1000
+        clean_title = ''.join(c for c in title if c.isalnum())[:20] or "MathConcept"
         
-        # Get domain-specific requirements (shortened)
-        domain_specs = self._get_compact_domain_specs(domain, content_hash)
+        # Extract ACTUAL content from educational steps
+        content_analysis = self._extract_actual_content(educational_steps)
         
-        # Create varied approach based on content hash
-        approach_variants = [
-            "animated construction", "dynamic transformation", "step-by-step revelation",
-            "geometric interpretation", "algebraic visualization", "conceptual building"
-        ]
-        chosen_approach = approach_variants[content_hash % len(approach_variants)]
+        # Build SPECIFIC animation instructions based on actual content
+        specific_instructions = self._build_content_specific_instructions(educational_steps, content_analysis)
         
-        return f"""Create a unique {domain} Manim animation using {chosen_approach} approach.
+        # Create zone-based positioning instructions
+        zone_instructions = self._generate_zone_instructions()
+        
+        # Generate step method calls safely
+        step_method_calls = '\n        '.join([f'self.animate_step_{i+1}()' for i in range(len(educational_steps))])
+        
+        return """Create a 3Blue1Brown-style Manim animation for: "{title}"
 
-SPECIFICATIONS:
-- Title: {title}
-- Class: {clean_title}Scene  
-- Style: 3Blue1Brown (BLUE_E, TEAL, YELLOW, RED_B, GREEN_B, GOLD)
-- Structure: 5 methods (setup_scene, introduce_concept, animate_main_content, reveal_key_insight, conclude_animation)
+TOPIC DOMAIN: {domain}
+TOTAL EDUCATIONAL STEPS: {step_count}
 
-DOMAIN FOCUS ({domain}):
-{domain_specs}
+ACTUAL CONTENT TO VISUALIZE:
+{specific_instructions}
 
-UNIQUENESS REQUIREMENT #{content_hash}:
-Make this animation visually distinct from previous generations. Use creative mathematical visualizations, unique color combinations from the 3B1B palette, and innovative animation sequences.
+CONTENT-SPECIFIC REQUIREMENTS:
 
-CRITICAL FIXES:
-- DO NOT override text elements - use FadeOut on old elements before creating new ones
-- Use self.remove() to clear objects that might conflict
-- Position elements carefully to avoid overlap
-- Each animation should be mathematically different and visually unique
+1. IMPLEMENTATION MANDATE - Use ACTUAL Content:
+   - EVERY equation from the educational breakdown MUST be displayed
+   - EVERY key concept MUST be visualized appropriately
+   - EVERY animation plan MUST be implemented as specified
+   - NO generic animations - follow the specific content requirements above
 
-Generate ONLY complete Python code with proper object management and no text overriding."""
+2. EXACT CLASS STRUCTURE:
+```python
+from manim import *
+import numpy as np
 
-    def _get_compact_domain_specs(self, domain, variant_seed):
-        """Get compact, varied domain specifications."""
+class {clean_title}Scene(Scene):
+    def construct(self):
+        self.setup_educational_environment()
+        self.animate_step_by_step()
+        self.create_final_summary()
         
-        # Create variations based on seed
-        colors = [['BLUE_E', 'TEAL'], ['YELLOW', 'GREEN_B'], ['RED_B', 'GOLD']][variant_seed % 3]
-        primary_color, secondary_color = colors
+    def setup_educational_environment(self):
+        # Set 3B1B signature style
+        self.camera.background_color = "#0f0f23"
         
-        specs = {
-            "calculus": f"""
-- Show function f(x) with derivative visualization
-- Use {primary_color} for functions, {secondary_color} for tangents
-- Animate rate of change concepts
-- Include mathematical equations with MathTex
-- Use NumberPlane coordinate system
-            """,
-            "algebra": f"""
-- Demonstrate equation solving steps
-- Use {primary_color} for equations, {secondary_color} for solutions  
-- Show algebraic transformations
-- Include geometric interpretation if possible
-- Animate ReplacementTransform for equation changes
-            """,
-            "geometry": f"""
-- Construct geometric shapes step-by-step
-- Use {primary_color} for shapes, {secondary_color} for measurements
-- Show geometric relationships and theorems
-- Include angle measurements and side lengths
-- Use proper geometric objects (Circle, Polygon, Line, Arc)
-            """,
-            "linear_algebra": f"""
-- Show vector transformations
-- Use {primary_color} for vectors, {secondary_color} for transformations
-- Demonstrate matrix operations visually
-- Include basis vectors and coordinate systems
-- Animate linear transformations
-            """,
-            "trigonometry": f"""
-- Use unit circle approach
-- Show {primary_color} for circle, {secondary_color} for trig functions
-- Animate periodic function behavior
-- Include angle measurements and ratios
-- Connect geometric and algebraic representations
-            """
-        }
-        
-        default_spec = f"""
-- Create visually appealing mathematical content
-- Use {primary_color} primary, {secondary_color} secondary colors
-- Include coordinate systems and mathematical notation
-- Show mathematical relationships through animation
-- Focus on visual mathematical beauty
-        """
-        
-        return specs.get(domain, default_spec)
-        """Get specific animation specifications for each domain."""
-        specs = {
-            "calculus": {
-                "intro_code": """
-        # Introduce calculus with a function
-        plane = NumberPlane(
-            x_range=[-4, 4, 1], y_range=[-3, 3, 1],
-            background_line_style={"stroke_color": BLUE_E, "stroke_width": 1, "stroke_opacity": 0.3}
+        # Content-appropriate coordinate system
+        self.axes = Axes(
+            x_range=[-6, 6, 1], 
+            y_range=[-3.5, 3.5, 1],
+            axis_config={{"color": BLUE_E, "stroke_width": 2}}
         )
-        func = plane.plot(lambda x: 0.3*x**2 - 1, color=YELLOW, x_range=[-3, 3])
+        self.axes.set_opacity(0.3)
+        self.add(self.axes)
         
-        self.play(Create(plane, rate_func=smooth), run_time=2)
-        self.play(Create(func, rate_func=smooth), run_time=2)
+        # Initialize content tracking
+        self.current_objects = {{}}
+        self.step_number = 0
+        
+    def animate_step_by_step(self):
+        # MUST implement each step exactly as specified in content requirements
+        {step_method_calls}
+        
+    def clear_step(self, keep_axes=True):
+        objects_to_clear = [obj for obj in self.mobjects if obj != self.axes]
+        if objects_to_clear:
+            self.play(*[FadeOut(obj) for obj in objects_to_clear], run_time=1.2)
+            self.remove(*objects_to_clear)
+        self.current_objects.clear()
         self.wait(0.5)
-        
-        self.plane = plane
-        self.func = func
-                """,
-                "main_code": """
-        # Show derivative as tangent line
-        x_val = 1
-        point = Dot(self.plane.c2p(x_val, 0.3*x_val**2 - 1), color=RED_B, radius=0.08)
-        tangent = self.plane.plot(lambda x: 0.6*x_val*(x - x_val) + 0.3*x_val**2 - 1, 
-                                 color=GREEN_B, x_range=[x_val-1, x_val+1])
-        
-        self.play(GrowFromCenter(point, rate_func=smooth), run_time=1)
-        self.play(Create(tangent, rate_func=smooth), run_time=2)
-        
-        # Animate point moving along curve
-        self.play(
-            point.animate.move_to(self.plane.c2p(2, 0.3*4 - 1)),
-            Transform(tangent, self.plane.plot(lambda x: 1.2*(x - 2) + 0.3*4 - 1, 
-                                             color=GREEN_B, x_range=[1, 3])),
-            rate_func=smooth,
-            run_time=3
-        )
-        self.wait(1)
-                """,
-                "insight_code": """
-        # Highlight the derivative concept
-        derivative_eq = MathTex(r"f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}", 
-                               font_size=32, color=TEAL)
-        derivative_eq.to_edge(DOWN, buff=1)
-        
-        highlight_box = SurroundingRectangle(derivative_eq, color=YELLOW, buff=0.2)
-        
-        self.play(Write(derivative_eq, rate_func=smooth), run_time=2)
-        self.play(Create(highlight_box, rate_func=smooth), run_time=1)
-        self.wait(1)
-                """,
-                "requirements": """
-- Must include function graphs with derivatives
-- Show tangent lines as visual derivatives
-- Use NumberPlane for coordinate system
-- Animate limits or rate of change
-- Include proper calculus notation with MathTex
-                """
-            },
-            "algebra": {
-                "intro_code": """
-        # Introduce with an equation
-        equation = MathTex("x^2 + 4x + 4 = 0", font_size=40, color=WHITE)
-        equation.move_to(ORIGIN)
-        
-        self.play(Write(equation, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.equation = equation
-                """,
-                "main_code": """
-        # Show factoring process
-        factored = MathTex("(x + 2)^2 = 0", font_size=40, color=YELLOW)
-        factored.move_to(self.equation.get_center())
-        
-        self.play(ReplacementTransform(self.equation, factored, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        # Show solution
-        solution = MathTex("x = -2", font_size=40, color=GREEN_B)
-        solution.next_to(factored, DOWN, buff=1)
-        
-        self.play(Write(solution, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.factored = factored
-        self.solution = solution
-                """,
-                "insight_code": """
-        # Geometric interpretation
-        parabola_plane = NumberPlane(x_range=[-5, 1, 1], y_range=[-1, 8, 1])
-        parabola = parabola_plane.plot(lambda x: x**2 + 4*x + 4, color=BLUE_E)
-        root_point = Dot(parabola_plane.c2p(-2, 0), color=RED_B, radius=0.1)
-        
-        self.play(
-            Create(parabola_plane, rate_func=smooth),
-            Create(parabola, rate_func=smooth),
-            run_time=3
-        )
-        self.play(GrowFromCenter(root_point, rate_func=smooth), run_time=1)
-        self.wait(1)
-                """,
-                "requirements": """
-- Must show algebraic manipulation steps
-- Include geometric interpretation when possible
-- Use ReplacementTransform for equation changes
-- Show solutions with highlighting
-- Include proper algebraic notation
-                """
-            },
-            "geometry": {
-                "intro_code": """
-        # Introduce with a geometric shape
-        triangle = Polygon([-2, -1, 0], [2, -1, 0], [0, 2, 0], 
-                          color=BLUE_E, fill_opacity=0.3, stroke_width=3)
-        
-        self.play(Create(triangle, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.triangle = triangle
-                """,
-                "main_code": """
-        # Show geometric properties
-        sides = VGroup(*[
-            Line(self.triangle.get_vertices()[i], 
-                 self.triangle.get_vertices()[(i+1)%3], 
-                 color=YELLOW, stroke_width=4)
-            for i in range(3)
-        ])
-        
-        # Add angle arcs
-        angles = VGroup(*[
-            Arc(radius=0.3, start_angle=0, angle=PI/3, color=TEAL)
-            .move_to(self.triangle.get_vertices()[i])
-            for i in range(3)
-        ])
-        
-        self.play(Create(sides, lag_ratio=0.3, rate_func=smooth), run_time=2)
-        self.play(Create(angles, lag_ratio=0.3, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.sides = sides
-        self.angles = angles
-                """,
-                "insight_code": """
-        # Show geometric theorem
-        theorem = MathTex(r"\\text{Sum of angles} = 180°", 
-                         font_size=36, color=GOLD)
-        theorem.to_edge(DOWN, buff=1)
-        
-        # Highlight each angle
-        for angle in self.angles:
-            self.play(angle.animate.set_color(RED_B), rate_func=smooth, run_time=0.5)
-            self.play(angle.animate.set_color(TEAL), rate_func=smooth, run_time=0.5)
-        
-        self.play(Write(theorem, rate_func=smooth), run_time=2)
-        self.wait(1)
-                """,
-                "requirements": """
-- Must include geometric constructions
-- Show measurements and relationships
-- Use proper geometric shapes (Circle, Polygon, Line, Arc)
-- Animate step-by-step construction
-- Include geometric theorems or properties
-                """
-            }
-        }
-        
-        # Default specification for unknown domains
-        default_spec = {
-            "intro_code": """
-        # General mathematical introduction
-        plane = NumberPlane(
-            x_range=[-4, 4, 1], y_range=[-3, 3, 1],
-            background_line_style={"stroke_color": BLUE_E, "stroke_width": 1, "stroke_opacity": 0.3}
-        )
-        
-        self.play(Create(plane, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.plane = plane
-            """,
-            "main_code": """
-        # General mathematical visualization
-        spiral = ParametricFunction(
-            lambda t: np.array([0.3*t*np.cos(t), 0.3*t*np.sin(t), 0]),
-            t_range=[0, 4*PI], color=YELLOW
-        )
-        
-        self.play(Create(spiral, rate_func=smooth), run_time=4)
-        self.wait(1)
-            """,
-            "insight_code": """
-        # Mathematical beauty
-        beauty_text = MathTex(r"\\text{Mathematics is beautiful}", 
-                             font_size=36, color=GOLD)
-        beauty_text.move_to(ORIGIN)
-        
-        self.play(Write(beauty_text, rate_func=smooth), run_time=2)
-        self.wait(1)
-            """,
-            "requirements": """
-- Must include visual mathematical elements
-- Use coordinate systems appropriately
-- Show mathematical relationships
-- Include proper mathematical notation
-- Create visually appealing animations
-            """
-        }
-        
-        return specs.get(domain, default_spec)
+```
 
-    def _create_enhanced_3b1b_prompt(self):
-        """Create concise prompt for 3Blue1Brown style animations."""
+3. ZONE-BASED POSITIONING (PREVENTS OVERLAPS):
+{zone_instructions}
+
+4. CONTENT-DRIVEN ANIMATION REQUIREMENTS:
+- MANDATORY: Each animate_step_X() method MUST implement the specific content requirements listed above
+- MANDATORY: Display all equations exactly as provided in the educational breakdown
+- MANDATORY: Visualize all key concepts with appropriate mathematical/scientific representations
+- MANDATORY: Follow the specific animation plans provided for each step
+- NO GENERIC CONTENT: Every element must match the actual educational content
+
+5. STEP-BY-STEP IMPLEMENTATION GUIDE:
+- Create separate method for each step: animate_step_1(), animate_step_2(), etc.
+- Each method must start with self.clear_step() to prevent overlaps
+- Use the specific step title, description, and concepts provided
+- Implement the exact visual elements specified for each step
+- Follow the narration context to create appropriate animations
+
+6. MATHEMATICAL/SCIENTIFIC VISUALIZATION RULES:
+- Functions: Use self.axes.plot() for any mathematical functions mentioned
+- Equations: Create MathTex objects for all equations from educational content
+- Geometric shapes: Create specific shapes mentioned in key concepts
+- Scientific phenomena: Use appropriate Manim objects (vectors, waves, particles)
+- Real-world examples: Visualize using relevant analogies and representations
+
+7. CONTENT-SPECIFIC ANIMATION TIMING:
+- Title reveal: run_time=2.0, rate_func=smooth
+- Equation display: run_time=2.5, rate_func=smooth  
+- Concept visualization: run_time=3.0, rate_func=smooth
+- Transformations: run_time=2.5, rate_func=smooth
+- Always add self.wait(1.0) after important revelations
+
+8. 3BLUE1BROWN COLOR SCHEME:
+- BLUE_E: Primary titles and coordinate systems
+- TEAL_E: Step titles and mathematical labels  
+- YELLOW_E: Key equations and mathematical highlights
+- RED_E: Important emphasis and warnings
+- GREEN_E: Positive results and conclusions
+- GOLD: Key insights and "aha" moments
+- WHITE: General text and descriptions
+- ORANGE: Real-world connections and examples
+
+9. ERROR PREVENTION AND VALIDATION:
+- Every variable must be defined before use
+- All mathematical expressions must be domain-safe
+- Font sizes must be specified for all Text objects
+- Positions must use the zone system to prevent overlaps
+- All objects must be stored as instance variables
+
+10. CONTENT ENGAGEMENT REQUIREMENTS:
+- Highlight key concepts using Indicate() and ShowPassingFlash()
+- Create dramatic reveals for important equations
+- Use progressive build-up following the educational sequence
+- Add visual emphasis for insights and connections
+- Include smooth transitions that maintain educational flow
+
+CRITICAL OUTPUT REQUIREMENTS:
+1. GENERATE COMPLETE, EXECUTABLE PYTHON CODE ONLY
+2. NO MARKDOWN BLOCKS, NO EXPLANATIONS, NO COMMENTS OUTSIDE CODE
+3. EVERY LINE MUST BE SYNTACTICALLY CORRECT
+4. IMPLEMENT THE SPECIFIC EDUCATIONAL CONTENT - NOT GENERIC TEMPLATES
+
+CONTENT FIDELITY MANDATE:
+- Use the EXACT equations, concepts, and visual elements specified above
+- Create animations that directly correspond to the educational breakdown
+- Ensure each step implements its specific content requirements
+- NO placeholder content - everything must be derived from the actual educational material
+
+Generate the complete Manim Scene class that brings this specific educational content to life through precise, engaging animations.""".format(
+            title=title,
+            domain=domain, 
+            step_count=len(educational_steps),
+            specific_instructions=specific_instructions,
+            clean_title=clean_title,
+            step_method_calls=step_method_calls,
+            zone_instructions=zone_instructions
+        )
+
+    def _analyze_educational_steps(self, educational_steps):
+        """Analyze educational steps to determine optimal animation strategies"""
+        analysis = {
+            'total_steps': len(educational_steps),
+            'complexity_levels': [],
+            'visual_types': [],
+            'mathematical_content': [],
+            'animation_strategies': []
+        }
+        
+        for step in educational_steps:
+            # Analyze complexity
+            if 'difficulty_level' in step:
+                analysis['complexity_levels'].append(step['difficulty_level'])
+            
+            # Determine visual approach based on content
+            key_concepts = step.get('key_concepts', [])
+            equations = step.get('equations', [])
+            
+            if equations:
+                analysis['mathematical_content'].append('equations')
+                analysis['visual_types'].append('equation_focused')
+            
+            if any(concept in ['graph', 'function', 'plot'] for concept in key_concepts):
+                analysis['visual_types'].append('graph_based')
+            
+            if any(concept in ['geometric', 'shape', 'circle', 'triangle'] for concept in key_concepts):
+                analysis['visual_types'].append('geometric')
+                
+            # Determine animation strategy
+            if step.get('step_number', 0) <= 2:
+                analysis['animation_strategies'].append('gentle_introduction')
+            elif 'insight' in step.get('description', '').lower():
+                analysis['animation_strategies'].append('dramatic_reveal')
+            else:
+                analysis['animation_strategies'].append('progressive_build')
+        
+        return analysis
+
+    def _generate_zone_instructions(self):
+        """Generate specific positioning instructions for each zone"""
+        zones = self.layout_zones
+        instructions = []
+        
+        for zone_name, zone_config in zones.items():
+            if 'position' in zone_config:
+                instructions.append("   - {}: {}, font_size={}".format(
+                    zone_name, zone_config['position'], zone_config.get('font_size', 28)
+                ))
+        
+        return "\n".join(instructions)
+
+    def _build_step_instructions(self, educational_steps, step_analysis):
+        """Build detailed instructions for each educational step"""
+        instructions = []
+        
+        for i, step in enumerate(educational_steps, 1):
+            step_title = step.get('step_title', f'Step {i}')
+            description = step.get('description', '')
+            key_concepts = step.get('key_concepts', [])
+            equations = step.get('equations', [])
+            
+            instruction = """
+STEP {}: {}
+- Description: {}...
+- Key Concepts: {}
+- Equations: {}
+- Animation Method: animate_step_{}()
+- Visual Focus: {}
+""".format(
+                i, step_title, description[:100], 
+                ', '.join(key_concepts[:3]), ', '.join(equations[:2]), i,
+                'equations' if equations else 'concepts' if key_concepts else 'general'
+            )
+            instructions.append(instruction)
+        
+        return "\n".join(instructions)
+
+    def _create_advanced_prompt(self):
+        """Create the advanced system prompt for content-driven code generation"""
         system_message = SystemMessage(
-            content='''
-            You are a 3Blue1Brown style Manim animator. Create unique, mathematically rich animations.
-            
-            REQUIREMENTS:
-            - Always use 5-method structure: setup_scene, introduce_concept, animate_main_content, reveal_key_insight, conclude_animation
-            - Use 3B1B colors: BLUE_E, TEAL, YELLOW, RED_B, GREEN_B, GOLD
-            - Always use rate_func=smooth
-            - Include proper mathematical visualizations (NumberPlane, MathTex, geometric shapes)
-            - Avoid text overlap - use FadeOut before creating new elements
-            - Make each animation visually unique and mathematically meaningful
-            
-            Generate only complete Python code that compiles and runs.
-            '''
+            content="""
+You are an expert Manim developer specializing in content-driven 3Blue1Brown-style educational animations.
+
+CORE PRINCIPLES:
+1. Generate CONTENT-SPECIFIC animations based on actual educational material provided
+2. NO generic templates or placeholder content - use the exact concepts, equations, and requirements specified
+3. Create mathematically and scientifically accurate visualizations
+4. Ensure every animation directly corresponds to the educational breakdown
+5. Follow 3Blue1Brown aesthetic while being content-authentic
+
+CONTENT FIDELITY REQUIREMENTS:
+- Read and implement the SPECIFIC educational content provided in each prompt
+- Use the EXACT equations, formulas, and mathematical expressions given
+- Visualize the SPECIFIC key concepts mentioned in each step
+- Follow the DETAILED animation plans and visual requirements
+- Create representations that match the scientific/mathematical domain
+
+MANDATORY IMPLEMENTATION APPROACH:
+- Analyze each educational step for its unique content requirements
+- Extract specific mathematical expressions, scientific phenomena, or concepts
+- Create targeted visualizations for each piece of content
+- Avoid generic animations - every element must serve the educational goal
+- Ensure mathematical accuracy and scientific validity
+
+VISUAL CONTENT MAPPING:
+- Mathematical functions → Interactive plots with accurate representations
+- Geometric concepts → Precise shapes with correct measurements and properties
+- Physics phenomena → Accurate simulations with proper physical behavior
+- Chemical processes → Molecular representations with correct bonding
+- Equations → Step-by-step derivations and transformations
+- Real-world examples → Relevant analogies and practical applications
+
+ERROR PREVENTION:
+- Validate all mathematical expressions against their intended domains
+- Ensure scientific accuracy in all representations
+- Use correct units, scales, and proportions
+- Verify that visualizations match the educational content
+- Test all mathematical functions for domain safety
+- Verify that visualizations match the educational content
+- Test all mathematical functions for domain safety
+- Include proper error handling in mathematical functions
+
+ANIMATION AUTHENTICITY:
+- Every animation must serve a specific educational purpose
+- Use content-appropriate timing and pacing
+- Create mathematically accurate transformations
+- Ensure visual metaphors align with the scientific concepts
+- Build animations that enhance understanding of the specific content
+
+OUTPUT MANDATE: Generate complete, syntactically correct Python code that creates content-authentic, educationally accurate animations that directly implement the provided educational material.
+"""
         )
 
         human_message_prompt = HumanMessagePromptTemplate.from_template("{human_input}")
 
-        prompt = ChatPromptTemplate.from_messages([
+        return ChatPromptTemplate.from_messages([
             system_message,
             MessagesPlaceholder(variable_name="chat_history"),
             human_message_prompt,
         ])
-        
-        return prompt
-        """Create enhanced prompt for 3Blue1Brown style animations."""
-        system_message = SystemMessage(
-            content='''
-            You are Grant Sanderson (3Blue1Brown) creating mathematical animations with Manim.
-            
-            Your animations are characterized by:
-            
-            VISUAL STORYTELLING:
-            - Start with intuitive, visual introductions to abstract concepts
-            - Build complexity gradually through visual layers
-            - Use visual metaphors and analogies extensively
-            - Create "aha moments" through well-timed reveals
-            - Show multiple perspectives of the same mathematical idea
-            
-            ANIMATION TECHNIQUES:
-            - Smooth, purposeful camera movements
-            - Objects that morph and transform meaningfully
-            - Synchronized animations that create rhythm
-            - Strategic use of color to guide attention
-            - Elegant transitions between mathematical concepts
-            
-            MATHEMATICAL RIGOR:
-            - Every visual has mathematical meaning
-            - Show formal notation alongside intuitive visuals
-            - Demonstrate proofs through dynamic geometric constructions
-            - Use coordinate systems and function graphs extensively
-            - Make abstract concepts concrete through visualization
-            
-            CODE REQUIREMENTS:
-            - Rich use of NumberPlane, Axes, FunctionGraph
-            - Dynamic transformations with Transform, ReplacementTransform
-            - Geometric constructions with Circle, Polygon, Line, Arc
-            - Mathematical typography with MathTex and proper LaTeX
-            - Smooth animations with appropriate rate_func
-            - Strategic use of 3B1B color palette (BLUE_E, TEAL, YELLOW, etc.)
-            - Camera movements and zooming for emphasis
-            - Multiple simultaneous animations for richness
-            
-            Create animations that make viewers say "I never thought of it that way!"
-            Every animation should reveal mathematical beauty and insight.
-            
-            Generate only executable Python code with rich mathematical visualizations.
-            Make mathematics come alive through motion, color, and geometric beauty.
-            '''
-        )
 
-        human_message_prompt = HumanMessagePromptTemplate.from_template("{human_input}")
+    def _advanced_code_validation(self, raw_code, educational_steps):
+        """Advanced validation with enhanced error prevention and visual improvement"""
+        
+        # Extract and clean code
+        code = self._extract_code_from_response(raw_code)
+        
+        # Apply comprehensive fixes
+        code = self._apply_advanced_fixes(code, educational_steps)
+        
+        # Validate structure and syntax
+        if not self._validate_advanced_structure(code):
+            logging.warning("Advanced structure validation failed, using enhanced fallback")
+            return self._get_comprehensive_fallback(educational_steps)
+        
+        # Final syntax validation
+        try:
+            compile(code, '<manim_scene>', 'exec')
+            logging.info("Code passed syntax validation")
+        except SyntaxError as e:
+            logging.error(f"Syntax validation failed: {e}")
+            return self._get_comprehensive_fallback(educational_steps)
+        
+        return code
 
-        prompt = ChatPromptTemplate.from_messages([
-            system_message,
-            MessagesPlaceholder(variable_name="chat_history"),
-            human_message_prompt,
-        ])
-        
-        return prompt
-
-    def _clean_and_enhance_code(self, raw_code):
-        """Enhanced code cleaning for consistent 3Blue1Brown style animations."""
-        print(f"Raw LLM response length: {len(raw_code)}")
-        
-        # Remove markdown blocks and extract code
-        code = re.sub(r'^```[a-zA-Z]*\s*', '', raw_code.strip(), flags=re.MULTILINE)
-        code = re.sub(r'\s*```\s*$', '', code, flags=re.MULTILINE)
-        code = re.sub(r'```', '', code).strip()
-        
-        if not code or len(code) < 200:  # Increased minimum length for structured code
-            print("Code too short or empty")
-            return ""
+    def _extract_code_from_response(self, raw_code):
+        """Extract clean Python code from LLM response"""
+        if '```python' in raw_code:
+            code = raw_code.split('```python')[1].split('```')[0]
+        elif '```' in raw_code:
+            code = raw_code.split('```')[1]
+        else:
+            code = raw_code
         
         # Ensure proper imports
         if 'from manim import *' not in code:
-            code = 'from manim import *\n' + code
-        if 'import numpy as np' not in code:
+            code = 'from manim import *\nimport numpy as np\n\n' + code
+        elif 'import numpy as np' not in code:
             code = code.replace('from manim import *', 'from manim import *\nimport numpy as np')
         
+        return code.strip()
+
+    def _apply_advanced_fixes(self, code, educational_steps):
+        """Apply advanced fixes for better visual quality and error prevention"""
+        
+        # Fix positioning with zone-based system
+        code = self._apply_zone_positioning(code)
+        
+        # Enhance mathematical safety
+        code = self._enhance_mathematical_safety(code)
+        
+        # Add smooth transitions
+        code = self._add_smooth_transitions(code)
+        
         # Fix common syntax issues
-        code = self._fix_string_literals(code)
-        code = self._validate_latex_syntax(code)
-        code = self._fix_method_structure(code)
-        code = self._enhance_3b1b_syntax(code)
+        code = self._fix_advanced_syntax_issues(code)
         
-        # Validate structure
-        if not self._validate_structured_code(code):
-            print("Code failed structure validation")
-            return ""
-        
-        # Validate LaTeX syntax
-        code = self._validate_latex_syntax(code)
+        # Add visual enhancements
+        code = self._add_visual_enhancements(code)
         
         return code
 
-    def _fix_string_literals(self, code):
-        """Fix common string literal issues that cause syntax errors while preserving LaTeX."""
-        lines = code.split('\n')
-        fixed_lines = []
+    def _apply_zone_positioning(self, code):
+        """Apply zone-based positioning to prevent overlaps"""
+        zones = self.layout_zones
         
-        for i, line in enumerate(lines):
-            # Check for unescaped multi-line strings in Text() calls (not MathTex - preserve LaTeX)
-            if 'Text(' in line and '"' in line and 'MathTex(' not in line:
-                # Find the start of the string
-                start_quote = line.find('"')
-                if start_quote != -1:
-                    # Check if this looks like an unterminated string
-                    end_quote = line.find('"', start_quote + 1)
-                    if end_quote == -1:
-                        # Likely an unterminated string, try to fix it
-                        # Look for the next line that ends the string
-                        j = i + 1
-                        text_content = line[start_quote + 1:]
-                        while j < len(lines) and '", ' not in lines[j] and lines[j].strip() != '",':
-                            text_content += ' ' + lines[j].strip()
-                            j += 1
-                        
-                        if j < len(lines):
-                            # Found the end, reconstruct the line
-                            # Clean the text content (but preserve basic formatting)
-                            text_content = text_content.replace('\n', ' ').replace('\r', ' ')
-                            text_content = re.sub(r'\s+', ' ', text_content).strip()
-                            if text_content.endswith('"'):
-                                text_content = text_content[:-1]
-                            
-                            # Only escape quotes, don't touch backslashes (for LaTeX compatibility)
-                            text_content = text_content.replace('"', '\\"')
-                            
-                            # Limit length to prevent overly long strings
-                            if len(text_content) > 100:
-                                text_content = text_content[:97] + "..."
-                            
-                            # Reconstruct the line
-                            before_quote = line[:start_quote]
-                            after_content = lines[j][lines[j].find('",'):]
-                            new_line = f'{before_quote}"{text_content}"{after_content}'
-                            fixed_lines.append(new_line)
-                            
-                            # Skip the processed lines
-                            i = j
-                            continue
-            
-            fixed_lines.append(line)
+        # Title positioning
+        code = re.sub(
+            r'(\w+\s*=\s*Text\([^)]*title[^)]*\))',
+            r'\1\n        \1.move_to(UP*3.2)\n        \1.set_z_index(10)',
+            code, flags=re.IGNORECASE
+        )
         
-        return '\n'.join(fixed_lines)
+        # Step title positioning
+        code = re.sub(
+            r'(\w+\s*=\s*Text\([^)]*step[^)]*\))',
+            r'\1\n        \1.move_to(UP*2.8)\n        \1.set_z_index(9)',
+            code, flags=re.IGNORECASE
+        )
+        
+        # Equation positioning with hierarchy
+        code = re.sub(
+            r'(\w+\s*=\s*MathTex\([^)]+\))',
+            r'\1\n        \1.move_to(UP*1.2)\n        \1.set_z_index(8)',
+            code
+        )
+        
+        # Visual elements in center zone
+        code = re.sub(
+            r'(\w+\s*=\s*(?:Circle|Rectangle|Line|Arrow|Vector)\([^)]+\))',
+            r'\1\n        \1.move_to(ORIGIN)\n        \1.set_z_index(5)',
+            code
+        )
+        
+        return code
 
-    def _fix_method_structure(self, code):
-        """Ensure the required method structure is present."""
-        required_methods = [
-            'def setup_scene(self)',
-            'def introduce_concept(self)',
-            'def animate_main_content(self)',
-            'def reveal_key_insight(self)',
-            'def conclude_animation(self)'
+    def _enhance_mathematical_safety(self, code):
+        """Enhance mathematical expressions for safety and clarity"""
+        
+        # Safe function plotting with explicit ranges
+        code = re.sub(
+            r'\.plot\s*\(\s*lambda\s+(\w+):\s*([^,)]+)(?![^)]*x_range)',
+            r'.plot(lambda \1: \2, x_range=[-4, 4]',
+            code
+        )
+        
+        # Wrap complex mathematical expressions
+        unsafe_patterns = [
+            (r'lambda\s+x:\s*x\*\*(\d+)', r'lambda x: x**\1 if abs(x) < 10 else 0'),
+            (r'lambda\s+x:\s*(\d+)/x', r'lambda x: \1/x if abs(x) > 0.1 else 0'),
+            (r'lambda\s+x:\s*np\.tan\(([^)]+)\)', r'lambda x: np.clip(np.tan(\1), -10, 10)'),
         ]
         
-        # Check if all required methods are present
-        missing_methods = []
-        for method in required_methods:
-            if method not in code:
-                missing_methods.append(method)
-        
-        # Add missing methods with basic implementations
-        for method in missing_methods:
-            method_name = method.replace('def ', '').replace('(self)', '')
-            basic_implementation = f"""
-    {method}:
-        \"\"\"Required method - basic implementation\"\"\"
-        # Basic animation for {method_name}
-        placeholder = Text("Mathematical Concept", font_size=36, color=BLUE_E)
-        self.play(Write(placeholder, rate_func=smooth), run_time=2)
-        self.wait(1)
-        self.play(FadeOut(placeholder), run_time=1)
-"""
-            # Insert before the last method or at the end of the class
-            if 'def conclude_animation(self):' in code:
-                code = code.replace('def conclude_animation(self):', basic_implementation + '\n    def conclude_animation(self):')
-            else:
-                # Add at the end of the class
-                code = code.rstrip() + basic_implementation
+        for pattern, replacement in unsafe_patterns:
+            code = re.sub(pattern, replacement, code)
         
         return code
 
-    def _enhance_3b1b_syntax(self, code):
-        """Enhance code with 3Blue1Brown specific improvements."""
-        lines = code.split('\n')
-        enhanced_lines = []
+    def _add_smooth_transitions(self, code):
+        """Add smooth transitions between animation steps"""
         
-        for line in lines:
-            # Replace basic colors with 3B1B palette
-            line = line.replace('BLUE', 'BLUE_E')
-            line = line.replace('RED', 'RED_B')
-            line = line.replace('GREEN', 'GREEN_B')
-            
-            # Enhance animation calls
-            if 'self.play(' in line and 'run_time' not in line and not line.strip().endswith(','):
-                line = line.rstrip(')') + ', run_time=1.5)'
-            
-            # Add rate functions for smoother animations
-            if 'Transform(' in line and 'rate_func' not in line:
-                line = line.rstrip(')') + ', rate_func=smooth)'
-            
-            enhanced_lines.append(line)
+        # Add transition methods if missing
+        if 'def transition_to_next_step' not in code:
+            transition_methods = '''
+    def transition_to_next_step(self):
+        """Smooth transition between educational steps"""
+        current_objects = [obj for obj in self.mobjects if obj != self.axes]
+        if current_objects:
+            self.play(
+                *[FadeOut(obj, shift=DOWN*0.3) for obj in current_objects],
+                run_time=1.2
+            )
+            self.remove(*current_objects)
+        self.wait(0.5)
+    
+    def highlight_concept(self, obj, color=YELLOW_E):
+        """Highlight important concepts"""
+        highlight = SurroundingRectangle(obj, color=color, buff=0.1)
+        self.play(Create(highlight), run_time=1.0)
+        self.wait(0.5)
+        self.play(FadeOut(highlight), run_time=0.8)
         
-        return '\n'.join(enhanced_lines)
+    def emphasize_equation(self, equation):
+        """Add emphasis to key equations"""
+        self.play(Indicate(equation, scale_factor=1.2), run_time=1.5)
+        self.wait(0.5)
+'''
+            # Insert after class definition
+            code = code.replace(
+                'def setup_educational_environment(self):',
+                transition_methods + '\n    def setup_educational_environment(self):'
+            )
+        
+        return code
 
-    def _validate_structured_code(self, code):
-        """Validate that the code follows the required structure."""
-        # Check for class definition
-        if not re.search(r'class\s+\w+Scene\(Scene\):', code):
-            print("Missing proper class definition")
-            return False
+    def _fix_advanced_syntax_issues(self, code):
+        """Fix advanced syntax issues with better error handling"""
+        
+        # Fix incomplete method definitions
+        code = re.sub(
+            r'def\s+(\w+)\s*\([^)]*\):\s*$',
+            r'def \1(self):\n        pass',
+            code, flags=re.MULTILINE
+        )
+        
+        # Fix missing self parameters
+        code = re.sub(
+            r'def\s+(\w+)\s*\(\s*\):',
+            r'def \1(self):',
+            code
+        )
+        
+        # Fix incomplete play() calls
+        code = re.sub(
+            r'self\.play\(\s*\)',
+            r'self.wait(1)',
+            code
+        )
+        
+        # Add font_size to Text objects without it (safer regex)
+        code = re.sub(
+            r'Text\(([^,)]+)\)(?!\s*,\s*[^,)]*font_size)',
+            r'Text(\1, font_size=28)',
+            code
+        )
+        
+        return code
+
+    def _add_visual_enhancements(self, code):
+        """Add visual enhancements for better engagement"""
+        
+        # Add color specifications
+        color_enhancements = [
+            (r'Text\([^)]*title[^)]*\)(?![^,)]*color)', r'\g<0>, color=BLUE_E'),
+            (r'Text\([^)]*step[^)]*\)(?![^,)]*color)', r'\g<0>, color=TEAL_E'),
+            (r'MathTex\([^)]+\)(?![^,)]*color)', r'\g<0>, color=YELLOW_E'),
+            (r'Circle\([^)]*\)(?![^,)]*color)', r'\g<0>, color=GREEN_E'),
+            (r'Rectangle\([^)]*\)(?![^,)]*color)', r'\g<0>, color=BLUE_E'),
+        ]
+        
+        for pattern, replacement in color_enhancements:
+            code = re.sub(pattern, replacement, code)
+        
+        # Add proper timing
+        if 'self.wait(' not in code:
+            code = re.sub(
+                r'(self\.play\([^)]+\))',
+                r'\1\n        self.wait(1)',
+                code
+            )
+        
+        return code
+
+    def _validate_advanced_structure(self, code):
+        """Advanced validation for code structure and quality"""
         
         # Check for required methods
         required_methods = [
-            'def construct(self)',
-            'def setup_scene(self)',
-            'def introduce_concept(self)',
-            'def animate_main_content(self)',
-            'def reveal_key_insight(self)',
-            'def conclude_animation(self)'
+            'def construct(',
+            'def setup_educational_environment(',
+            'class ',
         ]
         
         for method in required_methods:
             if method not in code:
-                print(f"Missing required method: {method}")
+                logging.error(f"Missing required element: {method}")
                 return False
         
-        # Check for mathematical visual content
-        visual_indicators = [
-            'MathTex', 'NumberPlane', 'Axes', 'FunctionGraph', 'Circle', 
-            'Transform', 'Create', 'self.play', 'Vector', 'Line', 'Polygon'
+        # Check for proper Manim usage
+        manim_indicators = [
+            'self.play(',
+            'self.add(',
+            'self.wait(',
+            'Text(',
+            'MathTex(',
         ]
         
-        visual_count = sum(1 for indicator in visual_indicators if indicator in code)
-        if visual_count < 3:
-            print(f"Insufficient visual mathematical content (found {visual_count}, need 3+)")
+        found_indicators = sum(1 for indicator in manim_indicators if indicator in code)
+        if found_indicators < 3:
+            logging.error(f"Insufficient Manim usage. Found: {found_indicators}")
             return False
         
-        # Check for 3B1B color usage
-        color_indicators = ['BLUE_E', 'TEAL', 'YELLOW', 'RED_B', 'GREEN_B', 'GOLD']
-        color_count = sum(1 for color in color_indicators if color in code)
-        if color_count < 2:
-            print(f"Insufficient 3B1B color usage (found {color_count}, need 2+)")
+        # Check for mathematical content
+        math_indicators = ['MathTex', 'plot', 'lambda', 'np.', 'equation']
+        if not any(indicator in code for indicator in math_indicators):
+            logging.error("No mathematical content detected")
             return False
         
-        # Basic syntax validation
-        try:
-            compile(code, '<string>', 'exec')
-            return True
-        except SyntaxError as e:
-            print(f"Syntax error in generated code: {e}")
-            return False
-        except Exception as e:
-            print(f"Other error in code validation: {e}")
-            return False
+        return True
 
-    def _validate_latex_syntax(self, code):
-        """Validate and fix common LaTeX syntax issues in MathTex calls."""
-        lines = code.split('\n')
-        fixed_lines = []
+    def _get_comprehensive_fallback(self, educational_steps):
+        """Generate a comprehensive fallback animation with proper structure"""
         
-        for line in lines:
-            if 'MathTex(' in line:
-                # Common LaTeX fixes
-                # Ensure proper escaping for backslashes in raw strings
-                if not line.strip().startswith('r"') and not line.strip().startswith("r'"):
-                    # Check if this needs raw string conversion
-                    if '\\' in line and not line.count('\\\\') == line.count('\\'):
-                        # Convert to raw string if not already
-                        line = line.replace('MathTex("', 'MathTex(r"')
-                        line = line.replace("MathTex('", "MathTex(r'")
-                
-                # Fix common LaTeX command issues
-                # Ensure \frac, \text, etc. are properly preserved
-                line = line.replace('rac{', '\\frac{')  # Fix corrupted \frac
-                line = line.replace('ext{', '\\text{')  # Fix corrupted \text
-                line = line.replace('im{', '\\lim{')    # Fix corrupted \lim
-                line = line.replace('rac', '\\frac')    # Fix standalone corrupted frac
-                
-                # Ensure proper spacing in LaTeX
-                line = re.sub(r'\\(\w+)([a-zA-Z])', r'\\\1 \2', line)
+        step_count = len(educational_steps)
+        class_name = f"MathAnimation{step_count}Steps"
+        
+        # Generate step methods
+        step_methods = ""
+        for i, step in enumerate(educational_steps[:5], 1):  # Limit to 5 steps
+            step_title = step.get('step_title', f'Mathematical Step {i}')
+            equations = step.get('equations', [])
+            key_concepts = step.get('key_concepts', [])
             
-            fixed_lines.append(line)
+            # Choose visualization type based on content
+            if equations:
+                visual_type = "equation"
+                main_content = equations[0] if equations else "x^{}".format(i)
+            elif any('function' in concept.lower() for concept in key_concepts):
+                visual_type = "function"
+                main_content = "sin({}x)".format(i)
+            else:
+                visual_type = "geometric"
+                main_content = str(i)
+            
+            step_method = self._generate_step_method(i, step_title, visual_type, main_content)
+            step_methods += step_method + "\n"
         
-        return '\n'.join(fixed_lines)
-
-    def _generate_enhanced_3b1b_fallback(self, structured_content):
-        """Generate varied, structured 3Blue1Brown style fallback code."""
-        title = structured_content.get('title', 'Mathematical Concept')
-        domain = structured_content.get('mathematical_domain', 'general')
-        variation = structured_content.get('_variation', 0)
-        
-        # Clean the title to prevent syntax errors
-        title = title.replace('\n', ' ').replace('\r', ' ').strip()
-        title = re.sub(r'\s+', ' ', title)
-        if len(title) > 35:
-            title = title[:32] + "..."
-        
-        class_name = re.sub(r'[^a-zA-Z0-9]', '', title.replace(' ', ''))
-        if not class_name:
-            class_name = "MathAnimation"
-        
-        # Create variations based on domain and variation number
-        templates = self._get_varied_templates(domain, variation)
-        template = templates[variation % len(templates)]
-        
-        # Escape the title properly for Python string
-        escaped_title = title.replace('"', '\\"').replace("'", "\\'")
-        
-        return template.format(
-            class_name=class_name,
-            escaped_title=escaped_title,
-            variation=variation
-        )
-
-    def _get_varied_templates(self, domain, variation):
-        """Get varied animation templates to prevent repetition."""
-        
-        if domain == "calculus":
-            return [
-                # Template 1: Function and derivative
-                """from manim import *
+        return '''from manim import *
 import numpy as np
 
-class {class_name}Scene(Scene):
+class {}(Scene):'''.format(class_name) + '''
     def construct(self):
-        self.setup_scene()
-        self.introduce_concept()
-        self.animate_main_content()
-        self.reveal_key_insight()
-        self.conclude_animation()
+        self.setup_educational_environment()
+        self.animate_step_by_step()
+        self.create_final_summary()
     
-    def setup_scene(self):
-        self.camera.background_color = "#0d1117"
-        title = Text("{escaped_title}", font_size=40, color=BLUE_E, weight=BOLD)
-        title.to_edge(UP, buff=0.5)
-        self.play(Write(title, rate_func=smooth), run_time=1.5)
-        self.play(title.animate.scale(0.6).to_corner(UL), run_time=1)
-        self.title = title
-    
-    def introduce_concept(self):
-        axes = Axes(x_range=[-3, 3, 1], y_range=[-2, 4, 1], 
-                   axis_config={{"color": TEAL}})
-        func = axes.plot(lambda x: x**2, color=YELLOW)
+    def setup_educational_environment(self):
+        """Set up the 3Blue1Brown educational environment"""
+        self.camera.background_color = "#0f0f23"
         
-        self.play(Create(axes, rate_func=smooth), run_time=2)
-        self.play(Create(func, rate_func=smooth), run_time=2)
-        self.axes, self.func = axes, func
-    
-    def animate_main_content(self):
-        # Show derivative at specific point
-        x_val = 1.5
-        point = Dot(self.axes.c2p(x_val, x_val**2), color=RED_B, radius=0.08)
-        tangent = self.axes.plot(lambda x: 2*x_val*(x-x_val) + x_val**2, 
-                               color=GREEN_B, x_range=[x_val-1, x_val+1])
-        
-        self.play(GrowFromCenter(point, rate_func=smooth), run_time=1)
-        self.play(Create(tangent, rate_func=smooth), run_time=2)
-        
-        # Move point and update tangent
-        new_x = -1
-        self.play(
-            point.animate.move_to(self.axes.c2p(new_x, new_x**2)),
-            Transform(tangent, self.axes.plot(lambda x: 2*new_x*(x-new_x) + new_x**2, 
-                                            color=GREEN_B, x_range=[new_x-1, new_x+1])),
-            rate_func=smooth, run_time=3
+        # Professional coordinate system
+        self.axes = Axes(
+            x_range=[-6, 6, 1], 
+            y_range=[-3.5, 3.5, 1],
+            axis_config={{"color": BLUE_E, "stroke_width": 2, "stroke_opacity": 0.7}}
         )
-        self.point, self.tangent = point, tangent
+        self.axes.set_opacity(0.4)
+        self.add(self.axes)
+        
+        # Initialize tracking
+        self.step_objects = []
+        
+    def clear_step(self):
+        """Clear current step objects with smooth transition"""
+        objects_to_clear = [obj for obj in self.mobjects if obj != self.axes]
+        if objects_to_clear:
+            self.play(*[FadeOut(obj, shift=DOWN*0.5) for obj in objects_to_clear], run_time=1.2)
+            self.remove(*objects_to_clear)
+        self.step_objects.clear()
+        self.wait(0.5)
     
-    def reveal_key_insight(self):
-        # Clear previous elements properly
-        self.play(FadeOut(self.axes), FadeOut(self.func), 
-                 FadeOut(self.point), FadeOut(self.tangent), run_time=1)
-        
-        derivative_eq = MathTex(r"\\frac{{df}}{{dx}} = \\lim_{{h \\to 0}} \\frac{{f(x+h) - f(x)}}{{h}}", 
-                               font_size=28, color=TEAL)
-        derivative_eq.move_to(ORIGIN)
-        
-        self.play(Write(derivative_eq, rate_func=smooth), run_time=2)
-        self.derivative_eq = derivative_eq
+    def highlight_concept(self, obj):
+        """Add emphasis to important concepts"""
+        try:
+            highlight = SurroundingRectangle(obj, color=YELLOW_E, buff=0.15)
+            self.play(Create(highlight), run_time=1.0)
+            self.wait(0.8)
+            self.play(FadeOut(highlight), run_time=0.8)
+        except:
+            # Fallback if highlighting fails
+            self.play(Indicate(obj), run_time=1.0)
+            self.wait(0.5)
     
-    def conclude_animation(self):
-        summary = MathTex(r"\\text{{Derivative = Instantaneous Rate}}", 
-                         font_size=32, color=GOLD)
-        summary.next_to(self.derivative_eq, DOWN, buff=1)
-        
-        self.play(Write(summary, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.play(*[FadeOut(mob, shift=UP*0.3) for mob in self.mobjects], 
-                 run_time=2, rate_func=smooth)
-""",
-                # Template 2: Integral visualization
-                """from manim import *
-import numpy as np
+    def animate_step_by_step(self):
+        """Execute all educational steps with proper transitions"""
+        for step_num in range(1, min({} + 1, 6)):
+            if step_num > 1:
+                self.clear_step()
+            method_name = "animate_step_" + str(step_num)
+            if hasattr(self, method_name):
+                getattr(self, method_name)()
 
-class {class_name}Scene(Scene):
-    def construct(self):
-        self.setup_scene()
-        self.introduce_concept()
-        self.animate_main_content()
-        self.reveal_key_insight()
-        self.conclude_animation()
+{}
     
-    def setup_scene(self):
-        self.camera.background_color = "#0d1117"
-        title = Text("{escaped_title}", font_size=40, color=GREEN_B, weight=BOLD)
-        title.to_edge(UP, buff=0.5)
-        self.play(Write(title, rate_func=smooth), run_time=1.5)
-        self.play(title.animate.scale(0.6).to_corner(UR), run_time=1)
-        self.title = title
-    
-    def introduce_concept(self):
-        plane = NumberPlane(x_range=[-2, 4, 1], y_range=[-1, 3, 1],
-                           background_line_style={{"stroke_color": BLUE_E, "stroke_opacity": 0.3}})
-        curve = plane.plot(lambda x: 0.5*x + 1, color=YELLOW, x_range=[0, 3])
+    def create_final_summary(self):
+        """Create an engaging conclusion"""
+        self.clear_step()
         
-        self.play(Create(plane, rate_func=smooth), run_time=2)
-        self.play(Create(curve, rate_func=smooth), run_time=2)
-        self.plane, self.curve = plane, curve
-    
-    def animate_main_content(self):
-        # Show area under curve
-        area = plane.get_area(self.curve, x_range=[0, 3], color=TEAL, opacity=0.5)
+        # Title
+        summary_title = Text("Mathematical Journey Complete", font_size=42, color=GOLD)
+        summary_title.move_to(UP*2.5)
         
-        self.play(Create(area, rate_func=smooth), run_time=3)
-        
-        # Add Riemann rectangles
-        rectangles = plane.get_riemann_rectangles(
-            self.curve, x_range=[0, 3], dx=0.5, color=RED_B, opacity=0.7
+        # Key insights
+        insights = VGroup(
+            Text("✓ Explored fundamental concepts", font_size=28, color=GREEN_E),
+            Text("✓ Visualized mathematical relationships", font_size=28, color=GREEN_E),
+            Text("✓ Connected theory with intuition", font_size=28, color=GREEN_E)
         )
+        insights.arrange(DOWN, buff=0.5, aligned_edge=LEFT)
+        insights.move_to(ORIGIN)
         
-        self.play(Create(rectangles, lag_ratio=0.1, rate_func=smooth), run_time=2)
-        self.area, self.rectangles = area, rectangles
-    
-    def reveal_key_insight(self):
-        # Clear and show integral
-        self.play(FadeOut(self.rectangles), run_time=1)
+        # Closing message
+        closing = Text("Continue exploring mathematics...", font_size=24, color=TEAL_E, slant=ITALIC)
+        closing.move_to(DOWN*2.5)
         
-        integral_eq = MathTex(r"\\int_{{a}}^{{b}} f(x) \\, dx = \\text{{Area}}", 
-                             font_size=32, color=GOLD)
-        integral_eq.to_edge(DOWN, buff=1)
+        # Animate summary
+        self.play(Write(summary_title), run_time=2.5)
+        self.wait(0.8)
         
-        self.play(Write(integral_eq, rate_func=smooth), run_time=2)
-        self.integral_eq = integral_eq
-    
-    def conclude_animation(self):
-        summary = Text("Integration = Accumulated Change", font_size=28, color=RED_B)
-        summary.next_to(self.integral_eq, UP, buff=0.5)
+        for insight in insights:
+            self.play(Write(insight), run_time=1.5)
+            self.wait(0.5)
         
-        self.play(Write(summary, rate_func=smooth), run_time=2)
-        self.wait(1)
+        self.play(Write(closing), run_time=2.0)
+        self.wait(2.0)
         
-        self.play(*[FadeOut(mob, shift=DOWN*0.3) for mob in self.mobjects], 
-                 run_time=2, rate_func=smooth)
-"""
-            ]
-        
-        elif domain == "algebra":
-            return [
-                # Template 1: Equation solving
-                """from manim import *
-import numpy as np
+        # Final fade
+        all_objects = [summary_title, insights, closing]
+        self.play(*[FadeOut(obj) for obj in all_objects], run_time=2.5)
+        self.wait(1.0)
+'''.format(step_count, step_methods)
 
-class {class_name}Scene(Scene):
-    def construct(self):
-        self.setup_scene()
-        self.introduce_concept()
-        self.animate_main_content()
-        self.reveal_key_insight()
-        self.conclude_animation()
-    
-    def setup_scene(self):
-        self.camera.background_color = "#0d1117"
-        title = Text("{escaped_title}", font_size=40, color=YELLOW, weight=BOLD)
-        title.to_edge(UP, buff=0.5)
-        self.play(Write(title, rate_func=smooth), run_time=1.5)
-        self.play(title.animate.scale(0.6).to_corner(UL), run_time=1)
-        self.title = title
-    
-    def introduce_concept(self):
-        equation = MathTex("2x + 6 = 14", font_size=44, color=WHITE)
-        equation.move_to(ORIGIN)
+    def _generate_step_method(self, step_num, step_title, visual_type, content):
+        """Generate a specific step method based on content type"""
         
-        self.play(Write(equation, rate_func=smooth), run_time=2)
-        self.equation = equation
-    
-    def animate_main_content(self):
-        # Step 1: Subtract 6
-        step1 = MathTex("2x + 6 - 6 = 14 - 6", font_size=40, color=TEAL)
-        step1.move_to(self.equation.get_center())
+        # Safely clean title and content to prevent string literal issues
+        safe_title = ''.join(c for c in step_title[:30] if c.isalnum() or c in ' -_').strip()
+        safe_content = ''.join(c for c in str(content)[:20] if c.isalnum() or c in '^+-*/')
         
-        self.play(ReplacementTransform(self.equation, step1, rate_func=smooth), run_time=2)
-        self.wait(1)
+        if visual_type == "equation":
+            return '''    def animate_step_{}(self):
+        """Step {}: Mathematical Concept"""
+        # Step title
+        title = Text("Step {}: {}", font_size=36, color=TEAL_E)
+        title.move_to(UP*2.8)
         
-        # Step 2: Simplify
-        step2 = MathTex("2x = 8", font_size=44, color=GREEN_B)
-        step2.move_to(step1.get_center())
+        # Main equation
+        equation = MathTex(r"{}", font_size=32, color=YELLOW_E)
+        equation.move_to(UP*1.0)
         
-        self.play(ReplacementTransform(step1, step2, rate_func=smooth), run_time=2)
-        self.wait(1)
+        # Supporting visualization
+        if hasattr(self.axes, 'plot'):
+            try:
+                func = self.axes.plot(lambda x: x**{} if abs(x) < 3 else 0, 
+                                    color=BLUE_E, x_range=[-2, 2])
+                
+                # Animate sequence
+                self.play(Write(title), run_time=2.0)
+                self.wait(0.8)
+                self.play(Write(equation), run_time=2.5)
+                self.wait(1.0)
+                self.play(Create(func), run_time=3.0)
+                self.wait(1.5)
+                
+                # Highlight key concept
+                self.highlight_concept(equation)
+                
+                self.step_objects.extend([title, equation, func])
+            except:
+                # Fallback without function plotting
+                self.play(Write(title), run_time=2.0)
+                self.wait(0.8)
+                self.play(Write(equation), run_time=2.5)
+                self.wait(1.5)
+                self.step_objects.extend([title, equation])
+        else:
+            self.play(Write(title), run_time=2.0)
+            self.wait(0.8)
+            self.play(Write(equation), run_time=2.5)
+            self.wait(1.5)
+            self.step_objects.extend([title, equation])'''.format(step_num, step_num, step_num, safe_title, safe_content, step_num)
         
-        # Step 3: Divide by 2
-        step3 = MathTex("x = 4", font_size=48, color=GOLD)
-        step3.move_to(step2.get_center())
+        elif visual_type == "function":
+            return '''    def animate_step_{}(self):
+        """Step {}: Mathematical Function"""
+        # Step title
+        title = Text("Step {}: {}", font_size=36, color=TEAL_E)
+        title.move_to(UP*2.8)
         
-        self.play(ReplacementTransform(step2, step3, rate_func=smooth), run_time=2)
-        self.step3 = step3
-    
-    def reveal_key_insight(self):
-        # Show verification
-        verification = MathTex("\\text{{Check: }} 2(4) + 6 = 14 \\, \\checkmark", 
-                              font_size=32, color=RED_B)
-        verification.next_to(self.step3, DOWN, buff=1)
+        # Function visualization
+        try:
+            func = self.axes.plot(lambda x: np.sin({}*x) if abs(x) < 10 else 0, 
+                                color=RED_E, x_range=[-3, 3], stroke_width=4)
+            
+            # Function label
+            label = MathTex(r"f(x) = \\sin({}x)", font_size=28, color=YELLOW_E)
+            label.move_to(UP*1.2)
+            
+            # Animate
+            self.play(Write(title), run_time=2.0)
+            self.wait(0.8)
+            self.play(Write(label), run_time=2.0)
+            self.wait(0.5)
+            self.play(Create(func), run_time=3.5)
+            self.wait(1.5)
+            
+            # Add key point
+            key_point = Dot(self.axes.c2p(1, np.sin({})), color=GOLD, radius=0.08)
+            self.play(DrawBorderThenFill(key_point), run_time=1.0)
+            self.wait(1.0)
+            
+            self.step_objects.extend([title, func, label, key_point])
+        except:
+            # Fallback
+            self.play(Write(title), run_time=2.0)
+            self.wait(2.0)
+            self.step_objects.append(title)'''.format(step_num, step_num, step_num, safe_title, step_num, step_num, step_num)
         
-        self.play(Write(verification, rate_func=smooth), run_time=2)
-        self.verification = verification
-    
-    def conclude_animation(self):
-        conclusion = Text("Algebra: Balance and Solve", font_size=32, color=BLUE_E)
-        conclusion.to_edge(DOWN, buff=1)
+        else:  # geometric
+            return '''    def animate_step_{}(self):
+        """Step {}: Geometric Concept"""
+        # Step title  
+        title = Text("Step {}: {}", font_size=36, color=TEAL_E)
+        title.move_to(UP*2.8)
         
-        self.play(Write(conclusion, rate_func=smooth), run_time=2)
-        self.wait(1)
+        # Geometric shape
+        radius = 0.8 + {} * 0.3
+        shape = Circle(radius=radius, color=GREEN_E, stroke_width=3)
+        shape.move_to(ORIGIN)
         
-        self.play(*[FadeOut(mob, shift=LEFT*0.5) for mob in self.mobjects], 
-                 run_time=2, rate_func=smooth)
-"""
-            ]
+        # Mathematical property
+        area_text = MathTex(r"A = \\pi r^2", font_size=24, color=WHITE)
+        area_text.move_to(DOWN*2.0)
         
-        elif domain == "geometry":
-            return [
-                # Template 1: Triangle construction
-                """from manim import *
-import numpy as np
+        # Animate
+        self.play(Write(title), run_time=2.0)
+        self.wait(0.8)
+        self.play(Create(shape), run_time=2.5)
+        self.wait(1.0)
+        self.play(Write(area_text), run_time=2.0)
+        self.wait(1.5)
+        
+        # Emphasis
+        self.highlight_concept(shape)
+        
+        self.step_objects.extend([title, shape, area_text])'''.format(step_num, step_num, step_num, safe_title, step_num)
 
-class {class_name}Scene(Scene):
-    def construct(self):
-        self.setup_scene()
-        self.introduce_concept()
-        self.animate_main_content()
-        self.reveal_key_insight()
-        self.conclude_animation()
-    
-    def setup_scene(self):
-        self.camera.background_color = "#0d1117"
-        title = Text("{escaped_title}", font_size=40, color=TEAL, weight=BOLD)
-        title.to_edge(UP, buff=0.5)
-        self.play(Write(title, rate_func=smooth), run_time=1.5)
-        self.play(title.animate.scale(0.6).to_corner(UL), run_time=1)
-        self.title = title
-    
-    def introduce_concept(self):
-        # Create triangle vertices
-        A = np.array([-2, -1, 0])
-        B = np.array([2, -1, 0])
-        C = np.array([0, 2, 0])
+    def _extract_actual_content(self, educational_steps):
+        """Extract actual mathematical/scientific content from educational steps"""
+        content = {
+            'equations': [],
+            'key_concepts': [],
+            'visual_elements': [],
+            'real_world_examples': [],
+            'step_descriptions': [],
+            'animation_plans': [],
+            'mathematical_operations': [],
+            'scientific_phenomena': []
+        }
         
-        triangle = Polygon(A, B, C, color=BLUE_E, fill_opacity=0.3, stroke_width=3)
+        for step in educational_steps:
+            # Extract equations
+            equations = step.get('equations', [])
+            if equations:
+                content['equations'].extend(equations)
+            
+            # Extract key concepts
+            key_concepts = step.get('key_concepts', [])
+            if key_concepts:
+                content['key_concepts'].extend(key_concepts)
+            
+            # Extract visual elements
+            visual_elements = step.get('visual_elements', {})
+            if visual_elements:
+                content['visual_elements'].append({
+                    'step': step.get('step_number', 0),
+                    'elements': visual_elements
+                })
+            
+            # Extract real-world examples
+            examples = step.get('real_world_examples', [])
+            if examples:
+                content['real_world_examples'].extend(examples)
+            
+            # Extract descriptions for content analysis
+            description = step.get('description', '')
+            if description:
+                content['step_descriptions'].append({
+                    'step': step.get('step_number', 0),
+                    'title': step.get('step_title', ''),
+                    'description': description
+                })
+            
+            # Extract animation plans
+            animation_plan = step.get('animation_plan', '')
+            if animation_plan:
+                content['animation_plans'].append({
+                    'step': step.get('step_number', 0),
+                    'plan': animation_plan
+                })
+            
+            # Analyze for mathematical operations
+            if any(word in description.lower() for word in ['derivative', 'integral', 'function', 'graph', 'plot']):
+                content['mathematical_operations'].append('calculus')
+            if any(word in description.lower() for word in ['triangle', 'circle', 'polygon', 'geometric']):
+                content['mathematical_operations'].append('geometry')
+            if any(word in description.lower() for word in ['vector', 'matrix', 'linear']):
+                content['mathematical_operations'].append('linear_algebra')
+            
+            # Analyze for scientific phenomena
+            if any(word in description.lower() for word in ['wave', 'frequency', 'oscillation']):
+                content['scientific_phenomena'].append('wave_physics')
+            if any(word in description.lower() for word in ['force', 'motion', 'velocity', 'acceleration']):
+                content['scientific_phenomena'].append('mechanics')
+            if any(word in description.lower() for word in ['electron', 'atom', 'molecular']):
+                content['scientific_phenomena'].append('atomic_physics')
         
-        self.play(Create(triangle, rate_func=smooth), run_time=2)
-        self.triangle = triangle
-        self.vertices = [A, B, C]
-    
-    def animate_main_content(self):
-        # Add vertex labels
-        labels = VGroup(*[
-            MathTex(label, font_size=32, color=YELLOW).next_to(vertex, direction, buff=0.2)
-            for label, vertex, direction in zip(["A", "B", "C"], self.vertices, [DL, DR, UP])
-        ])
-        
-        self.play(Write(labels, lag_ratio=0.3, rate_func=smooth), run_time=2)
-        
-        # Show sides
-        sides = VGroup(*[
-            Line(self.vertices[i], self.vertices[(i+1)%3], color=GREEN_B, stroke_width=4)
-            for i in range(3)
-        ])
-        
-        self.play(Create(sides, lag_ratio=0.2, rate_func=smooth), run_time=2)
-        
-        # Add side lengths
-        side_labels = VGroup(
-            MathTex "a", font_size=28, color=RED_B).next_to(sides[0], DOWN),
-            MathTex "b", font_size=28, color=RED_B).next_to(sides[1], RIGHT),
-            MathTex "c", font_size=28, color=RED_B).next_to(sides[2], LEFT)
-        )
-        
-        self.play(Write(side_labels, lag_ratio=0.2, rate_func=smooth), run_time=1.5)
-        self.labels, self.sides, self.side_labels = labels, sides, side_labels
-    
-    def reveal_key_insight(self):
-        # Show triangle inequality
-        inequality = MathTex("a + b > c", font_size=36, color=GOLD)
-        inequality.to_edge(DOWN, buff=1)
-        
-        highlight_box = SurroundingRectangle(inequality, color=YELLOW, buff=0.2)
-        
-        self.play(Write(inequality, rate_func=smooth), run_time=2)
-        self.play(Create(highlight_box, rate_func=smooth), run_time=1)
-        self.inequality, self.highlight_box = inequality, highlight_box
-    
-    def conclude_animation(self):
-        summary = Text("Geometry: Shape and Space", font_size=28, color=TEAL)
-        summary.next_to(self.inequality, UP, buff=0.5)
-        
-        self.play(Write(summary, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.play(*[FadeOut(mob, shift=RIGHT*0.5) for mob in self.mobjects], 
-                 run_time=2, rate_func=smooth)
-"""
-            ]
-        
-        # Default/general template
-        return [
-            """from manim import *
-import numpy as np
+        return content
 
-class {class_name}Scene(Scene):
-    def construct(self):
-        self.setup_scene()
-        self.introduce_concept()
-        self.animate_main_content()
-        self.reveal_key_insight()
-        self.conclude_animation()
-    
-    def setup_scene(self):
-        self.camera.background_color = "#0d1117"
-        title = Text("{escaped_title}", font_size=40, color=BLUE_E, weight=BOLD)
-        title.to_edge(UP, buff=0.5)
-        self.play(Write(title, rate_func=smooth), run_time=1.5)
-        self.play(title.animate.scale(0.6).to_corner(UL), run_time=1)
-        self.title = title
-    
-    def introduce_concept(self):
-        # Mathematical spiral
-        spiral = ParametricFunction(
-            lambda t: np.array([0.2*t*np.cos(t), 0.2*t*np.sin(t), 0]),
-            t_range=[0, 6*PI], color=YELLOW
-        )
+    def _build_content_specific_instructions(self, educational_steps, content_analysis):
+        """Build specific animation instructions based on actual content"""
+        instructions = []
         
-        self.play(Create(spiral, rate_func=smooth), run_time=3)
-        self.spiral = spiral
-    
-    def animate_main_content(self):
-        # Golden ratio visualization
-        phi_eq = MathTex("\\phi = \\frac{{1 + \\sqrt{{5}}}}{{2}}", font_size=36, color=GOLD)
-        phi_eq.to_edge(DOWN, buff=2)
+        # Add content overview
+        instructions.append(f"CONTENT OVERVIEW:")
+        instructions.append(f"- Total Steps: {len(educational_steps)}")
+        instructions.append(f"- Equations to visualize: {len(content_analysis['equations'])}")
+        instructions.append(f"- Key concepts: {', '.join(content_analysis['key_concepts'][:5])}")
+        instructions.append(f"- Mathematical focus: {', '.join(set(content_analysis['mathematical_operations']))}")
+        instructions.append(f"- Scientific phenomena: {', '.join(set(content_analysis['scientific_phenomena']))}")
+        instructions.append("")
         
-        self.play(Write(phi_eq, rate_func=smooth), run_time=2)
+        # Add step-by-step specific instructions
+        instructions.append("STEP-BY-STEP CONTENT REQUIREMENTS:")
         
-        # Add circles at spiral points
-        circles = VGroup(*[
-            Circle(radius=0.05, color=TEAL, fill_opacity=0.8).move_to(
-                np.array([0.2*t*np.cos(t), 0.2*t*np.sin(t), 0])
-            ) for t in np.linspace(0, 6*PI, 20)
-        ])
+        for i, step in enumerate(educational_steps, 1):
+            step_title = step.get('step_title', f'Step {i}')
+            description = step.get('description', '')
+            key_concepts = step.get('key_concepts', [])
+            equations = step.get('equations', [])
+            visual_elements = step.get('visual_elements', {})
+            animation_plan = step.get('animation_plan', '')
+            narration = step.get('narration_script', '')
+            
+            instructions.append(f"STEP {i}: {step_title}")
+            instructions.append(f"Description: {description[:200]}...")
+            
+            if key_concepts:
+                instructions.append(f"Must visualize concepts: {', '.join(key_concepts)}")
+            
+            if equations:
+                instructions.append(f"Must display equations: {', '.join(equations[:2])}")
+            
+            if visual_elements:
+                diagrams = visual_elements.get('diagrams', [])
+                animations = visual_elements.get('animations', [])
+                if diagrams:
+                    instructions.append(f"Required diagrams: {', '.join(diagrams)}")
+                if animations:
+                    instructions.append(f"Required animations: {', '.join(animations)}")
+            
+            if animation_plan:
+                instructions.append(f"Specific animation plan: {animation_plan[:150]}...")
+            
+            if narration:
+                instructions.append(f"Narration context: {narration[:100]}...")
+            
+            # Add content-specific visualization requirements
+            self._add_visualization_requirements(instructions, step, content_analysis)
+            
+            instructions.append("")
         
-        self.play(Create(circles, lag_ratio=0.05, rate_func=smooth), run_time=2)
-        self.phi_eq, self.circles = phi_eq, circles
-    
-    def reveal_key_insight(self):
-        insight = Text("Mathematics: Pattern and Beauty", font_size=32, color=RED_B)
-        insight.move_to(ORIGIN)
-        
-        self.play(Write(insight, rate_func=smooth), run_time=2)
-        self.insight = insight
-    
-    def conclude_animation(self):
-        final_text = MathTex("\\text{{Variation {variation}: Mathematical Wonder}}", 
-                           font_size=28, color=GREEN_B)
-        final_text.next_to(self.insight, DOWN, buff=1)
-        
-        self.play(Write(final_text, rate_func=smooth), run_time=2)
-        self.wait(1)
-        
-        self.play(*[FadeOut(mob, shift=UP*0.3) for mob in self.mobjects], 
-                 run_time=2, rate_func=smooth)
-"""
-        ]
+        return "\n".join(instructions)
 
-# Initialize the enhanced 3Blue1Brown style generator
+    def _add_visualization_requirements(self, instructions, step, content_analysis):
+        """Add specific visualization requirements based on content type"""
+        description = step.get('description', '').lower()
+        key_concepts = [concept.lower() for concept in step.get('key_concepts', [])]
+        
+        # Mathematical visualization requirements
+        if any(word in description for word in ['function', 'graph', 'plot']):
+            instructions.append("MUST CREATE: Interactive function plot with axes and labeling")
+        
+        if any(word in description for word in ['triangle', 'circle', 'polygon']):
+            instructions.append("MUST CREATE: Geometric shapes with proper measurements and labels")
+        
+        if any(word in description for word in ['derivative', 'slope', 'tangent']):
+            instructions.append("MUST CREATE: Tangent line animation showing derivative concept")
+        
+        if any(word in description for word in ['integral', 'area']):
+            instructions.append("MUST CREATE: Area under curve visualization with Riemann sums")
+        
+        if any(word in description for word in ['vector', 'direction']):
+            instructions.append("MUST CREATE: Vector arrows with magnitude and direction")
+        
+        # Physics visualization requirements
+        if any(word in description for word in ['wave', 'oscillation']):
+            instructions.append("MUST CREATE: Animated wave propagation with frequency/amplitude controls")
+        
+        if any(word in description for word in ['force', 'motion']):
+            instructions.append("MUST CREATE: Moving objects with force vectors and trajectories")
+        
+        if any(word in description for word in ['electric', 'magnetic', 'field']):
+            instructions.append("MUST CREATE: Field line visualization with appropriate spacing")
+        
+        # Chemistry visualization requirements
+        if any(word in description for word in ['molecule', 'atom', 'bond']):
+            instructions.append("MUST CREATE: 3D molecular structure with bonds and electrons")
+        
+        if any(word in description for word in ['reaction', 'chemical']):
+            instructions.append("MUST CREATE: Chemical equation with reactants and products animation")
+        
+        # General requirements based on equations
+        equations = step.get('equations', [])
+        if equations:
+            instructions.append(f"MUST DISPLAY: All equations with proper LaTeX formatting: {', '.join(equations[:2])}")
+            instructions.append("MUST ANIMATE: Step-by-step equation derivation or transformation")
+
+# Initialize the enhanced generator
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-manim_code_generator = Enhanced3B1BManimGenerator(GROQ_API_KEY)
+manim_generator = ManimGenerator(GROQ_API_KEY)
