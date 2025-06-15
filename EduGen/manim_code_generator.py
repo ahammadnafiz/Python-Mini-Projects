@@ -191,13 +191,53 @@ REQUIREMENTS FOR MANIM CODE:
 - Create visual flow with object movements and morphing
 
 🎯 MANDATORY POSITIONING RULES:
-- NEVER place text in the same position (0,0) or CENTER
+- NEVER place text in the same position (0,0) or ORIGIN
 - Use UP, DOWN, LEFT, RIGHT with multipliers (2*UP, 3*LEFT, etc.)
-- Position titles at 3*UP, subtitles at 2*UP, content at CENTER to DOWN
+- Position titles at 3*UP, subtitles at 2*UP, content at ORIGIN to DOWN
 - Move previous content OFF-SCREEN before adding new content
 - Use .shift(LEFT*4) or .shift(RIGHT*4) to move objects sideways
 - Scale objects (.scale(0.8)) to fit more content without overlap
 - Always animate movements: self.play(obj.animate.shift(UP*2))
+
+📺 16:9 ASPECT RATIO OPTIMIZATION:
+- Standard Manim resolution is 1920x1080 (16:9)
+- Horizontal safe zone: X positions from -7 to +7 units
+- Vertical safe zone: Y positions from -4 to +4 units
+- NEVER position text beyond X=±6 or Y=±3.5 to prevent cutoff
+- Use .scale() to fit longer text instead of extending beyond screen bounds
+- Position titles between Y=2.5 to Y=3.5 for optimal visibility
+- Place main content between Y=-0.5 to Y=2 for best readability
+- Use LEFT=-5, RIGHT=5 for wide layouts, LEFT=-3, RIGHT=3 for compact layouts
+- Test positioning: title.shift(UP*3) should never go beyond screen top
+- For wide equations, use font_size reduction instead of horizontal overflow
+
+🚫 TEXT OVERLAP PREVENTION SYSTEM:
+- MANDATORY: Track used positions and avoid conflicts
+- Create position grid system: UP*3, UP*2, UP*1, ORIGIN, DOWN*1, DOWN*2, DOWN*3
+- Horizontal slots: LEFT*4, LEFT*2, ORIGIN, RIGHT*2, RIGHT*4  
+- NEVER place two Text objects at same coordinates simultaneously
+- Use .next_to() for automatic positioning relative to other objects
+- Implement z-layering with .set_z_index() when objects must overlap
+- Clear screen completely between major sections: self.play(FadeOut(*self.mobjects))
+- Move existing objects before adding new ones: old_text.animate.shift(UP*1)
+- Use VGroup() to manage multiple related text elements as single unit
+- Stagger positioning: first text at UP*2, second at ORIGIN, third at DOWN*2
+
+🎭 DYNAMIC VISUAL EXPLANATION REQUIREMENTS:
+- EVERY concept must have animated visual representation
+- Transform abstract ideas into moving geometric shapes
+- Use morphing animations: circle.animate.transform(square)
+- Implement step-by-step reveals with Write(), FadeIn(), Create()
+- Show mathematical relationships through connecting arrows and lines
+- Use color changes to highlight transformations: obj.animate.set_color(YELLOW)
+- Create animated comparisons: split screen with before/after animations
+- Build complexity progressively: start simple, add details with each step
+- Use Indicate(), Flash(), Wiggle() to emphasize key moments
+- Implement object journeys: move elements across screen to show relationships
+- Create visual metaphors using basic shapes and their transformations
+- Use growth animations: GrowFromCenter(), DrawBorderThenFill()
+- Show cause-and-effect through animated sequences
+- Implement visual proofs through animated geometric demonstrations
 
 🎬 REQUIRED ANIMATION PATTERNS:
 - Start each section by clearing: self.play(FadeOut(*self.mobjects))
@@ -207,6 +247,35 @@ REQUIREMENTS FOR MANIM CODE:
 - Use Transform() to change content, not create new overlapping text
 - End sections with content moving off-screen or fading out
 
+🎬 ADVANCED DYNAMIC ANIMATION REQUIREMENTS:
+- NO STATIC SCENES: Everything must move, transform, or animate
+- Use continuous motion: objects entering, moving, transforming, exiting
+- Implement smooth transitions between all visual elements
+- Create visual flow: guide viewer's eye with moving objects
+- Use multiple simultaneous animations: self.play(obj1.animate.shift(), obj2.animate.scale())
+- Implement entrance animations: objects slide in from edges of screen
+- Use exit animations: objects fade out or slide away before new content
+- Create animated connections: lines/arrows that draw between related concepts
+- Implement progressive disclosure: reveal information piece by piece
+- Use animated highlighting: temporary color changes, scaling, rotation
+- Create visual rhythms: alternating fast and slow animations for pacing
+- Build anticipation: use small movements before major reveals
+- Implement visual callbacks: return to previous elements with animations
+
+💥 VISUAL EXPLANATION DYNAMICS:
+- Transform equations step-by-step with intermediate states visible
+- Use animated graphs that draw themselves progressively
+- Create moving diagrams that demonstrate concepts in action
+- Implement split-screen comparisons with synchronized animations
+- Use object multiplication: show one object becoming many
+- Create animated timelines: show progression of ideas over time
+- Use perspective shifts: rotate 2D diagrams to show 3D relationships
+- Implement animated analogies: transform familiar objects into mathematical concepts
+- Create visual stories: sequences of scenes that build understanding
+- Use animated emphasis: zoom, highlight, circle key elements temporarily
+- Implement interactive-style reveals: as if responding to questions
+- Create animated proofs: visual demonstrations that prove mathematical statements
+
 🎨 VISUAL VARIETY REQUIREMENTS:
 - Use different font sizes: font_size=48 for titles, 36 for subtitles, 24 for content
 - Use colors: BLUE for titles, WHITE for content, YELLOW for emphasis
@@ -214,6 +283,46 @@ REQUIREMENTS FOR MANIM CODE:
 - Position diagrams LEFT and text RIGHT, or vice versa
 - Use arrows (Arrow()) to connect related concepts
 - Create mathematical plots with axes when relevant
+
+🎨 ENHANCED VISUAL LAYOUT SYSTEM:
+- Implement 3-column layout: LEFT (-4 to -2), ORIGIN (-1 to 1), RIGHT (2 to 4)
+- Use 5-row system: TOP (Y=3), UPPER (Y=1.5), MIDDLE (Y=0), LOWER (Y=-1.5), BOTTOM (Y=-3)
+- Create visual zones: Title zone (Y=2.5 to 3.5), Content zone (Y=-2 to 2), Footer zone (Y=-3 to -2)
+- Use asymmetric layouts: 60% content area, 40% visual area for better balance
+- Implement dynamic layouts that change during animation
+- Create visual breathing room: minimum 0.5 unit spacing between text elements
+- Use strategic white space: don't fill every pixel, leave empty areas for visual rest
+- Scale elements responsively: larger diagrams get .scale(0.8), smaller text gets font_size=20
+- Create visual hierarchy through size, color, and position combinations
+- Use consistent margin system: 0.5 units from screen edges for all content
+
+🎯 POSITIONING COORDINATION SYSTEM:
+- Before placing any object, check what's already on screen
+- Use incremental positioning: if UP*2 is taken, use UP*2.5 or UP*1.5
+- Implement content zones: never place title text in diagram zone
+- Create movement corridors: paths for objects to enter/exit without collision
+- Use depth layering: background elements, main content, highlighting overlays
+- Implement position memory: track where each object has been placed
+- Use relative positioning: new_obj.next_to(existing_obj, direction=RIGHT, buff=0.5)
+- Create position validation: ensure no object extends beyond screen boundaries
+- Use smart scaling: automatically reduce font_size if text doesn't fit in allocated space
+- Implement collision detection: check for overlap before finalizing positions
+
+⚠️ CRITICAL MANIM POSITIONING CONSTANTS (MUST USE THESE EXACT NAMES):
+- ORIGIN (center of screen, coordinates [0, 0, 0]) - NOT "CENTER"
+- UP (positive Y direction)
+- DOWN (negative Y direction) 
+- LEFT (negative X direction)
+- RIGHT (positive X direction)
+- UL (upper left), UR (upper right), DL (down left), DR (down right)
+- Use multiples: UP*2, DOWN*3, LEFT*4, RIGHT*1.5
+- Combine: UP*2 + LEFT*3, DOWN*1 + RIGHT*2
+
+⚠️ NEVER USE THESE (they don't exist in Manim):
+- CENTER (use ORIGIN instead)
+- MIDDLE (use ORIGIN instead)
+- TOP (use UP*3 instead)
+- BOTTOM (use DOWN*3 instead)
 
 📚 PROFESSIONAL MANIM EXAMPLES GALLERY:
 Study these high-quality examples for code patterns and techniques:
@@ -786,6 +895,41 @@ CRITICAL REQUIREMENTS:
 27. Clear screen between sections: self.play(FadeOut(*self.mobjects))
 28. Use different font sizes to create hierarchy: 48 for titles, 36 for subtitles, 24 for content
 
+🎯 16:9 ASPECT RATIO CRITICAL REQUIREMENTS:
+29. NEVER position objects beyond X=±6.5 or Y=±3.8 (safe viewing area)
+30. Use responsive scaling: if text doesn't fit, reduce font_size, don't extend bounds
+31. Test all positions: title.shift(UP*3.5) should be maximum upward positioning
+32. Implement automatic bounds checking for all object placements
+33. Use .get_width() and .get_height() to verify objects fit within screen
+34. Scale down oversized objects: if obj.get_width() > 12, use obj.scale(12/obj.get_width())
+35. Use multi-line text for long content instead of tiny fonts or overflow
+36. Position wide equations at Y=0 (screen center) for maximum horizontal space
+37. Create responsive layouts that adapt to content size automatically
+
+🚫 OVERLAP PREVENTION CRITICAL REQUIREMENTS:
+38. MANDATORY position tracking: maintain mental map of used screen areas
+39. Use position validation: before placing object, verify area is clear
+40. Implement smart positioning: if preferred position occupied, find nearest free space
+41. Create position buffers: minimum 0.3 units between adjacent text objects
+42. Use staged clearing: remove specific objects before adding new ones in same area
+43. Implement position queuing: queue objects that will move to make space for new content
+44. Use relative positioning chains: obj2.next_to(obj1, RIGHT).shift(DOWN*0.5)
+45. Create temporary positioning: place objects off-screen, then animate to final position
+46. Use position debugging: add brief pauses to verify no overlaps before proceeding
+47. Implement content flow management: ensure logical movement paths don't cause collisions
+
+💫 DYNAMIC VISUAL EXPLANATION CRITICAL REQUIREMENTS:
+48. Every abstract concept MUST have concrete visual representation
+49. Use transformation chains: circle → square → triangle to show concept evolution
+50. Implement visual analogies: familiar objects that morph into mathematical concepts
+51. Create animated cause-and-effect demonstrations
+52. Use progressive complexity: start with simple shapes, add details through animation
+53. Implement interactive-style responses: animations that react to previous content
+54. Create visual proof sequences: step-by-step animated demonstrations
+55. Use multi-perspective views: show same concept from different visual angles
+56. Implement concept journeys: objects that travel across screen to demonstrate relationships
+57. Create animated timelines: show historical or logical progression of ideas
+
 ⚠️ CRITICAL SYNTAX REQUIREMENTS ⚠️:
 - NEVER write Text("text",.shift() - comma before method is SYNTAX ERROR
 - ALWAYS write Text("text").shift() - proper method chaining
@@ -814,9 +958,103 @@ MANDATORY POSITIONING EXAMPLES:
 - Content: Text("Content", font_size=24).shift(DOWN*1)
 - Left diagram: Circle().shift(LEFT*4)
 - Right text: Text("Explanation").shift(RIGHT*3)
-- Multiple items: use UP*2, CENTER, DOWN*2 for vertical spacing
+- Multiple items: use UP*2, ORIGIN, DOWN*2 for vertical spacing
 - NEVER put two Text objects in the same position
 - ALWAYS move or remove old content before adding new content
+
+📺 16:9 POSITIONING EXAMPLES (1920x1080 safe zones):
+- Maximum title position: Text("Title").shift(UP*3.5) ✅
+- Beyond safe zone: Text("Title").shift(UP*4.5) ❌ (will be cut off)
+- Wide content max: Text("Long equation").shift(LEFT*6) ✅  
+- Too wide: Text("Content").shift(LEFT*8) ❌ (extends beyond screen)
+- Vertical content distribution:
+  * Header zone: Y=3 to Y=2 (titles, section headers)
+  * Main zone: Y=1.5 to Y=-1.5 (primary content, diagrams) 
+  * Footer zone: Y=-2 to Y=-3.5 (conclusions, notes)
+- Horizontal content distribution:
+  * Left panel: X=-5 to X=-2 (diagrams, visual elements)
+  * Center panel: X=-1.5 to X=1.5 (main text, equations)
+  * Right panel: X=2 to X=5 (explanations, annotations)
+
+🚫 OVERLAP PREVENTION EXAMPLES:
+✅ CORRECT - Sequential positioning:
+```python
+title = Text("Title").shift(UP*3)
+self.play(Write(title))
+subtitle = Text("Subtitle").shift(UP*1.5)  # Different Y position
+self.play(Write(subtitle))
+```
+
+❌ WRONG - Same position overlap:
+```python
+title = Text("Title").shift(UP*2)
+subtitle = Text("Subtitle").shift(UP*2)  # OVERLAP! Same position
+```
+
+✅ CORRECT - Clear before new content:
+```python
+self.play(FadeOut(title))  # Remove old content first
+new_title = Text("New Title").shift(UP*3)
+self.play(Write(new_title))
+```
+
+✅ CORRECT - Smart relative positioning:
+```python
+title = Text("Main Topic").shift(UP*2.5)
+subtitle = Text("Subtopic").next_to(title, DOWN, buff=0.5)  # Auto-positioned
+diagram = Circle().next_to(subtitle, DOWN*2, buff=1.0)      # Safe spacing
+```
+
+✅ CORRECT - Multi-column layout:
+```python
+left_text = Text("Concept A").shift(LEFT*4 + UP*1)
+right_text = Text("Concept B").shift(RIGHT*4 + UP*1)     # Same Y, different X
+center_arrow = Arrow(LEFT*1.5, RIGHT*1.5).shift(UP*1)    # Connects them
+```
+
+✅ CORRECT - Responsive scaling:
+```python
+long_equation = MathTex("Very long mathematical equation here")
+if long_equation.get_width() > 10:  # Check if too wide
+    long_equation.scale(10 / long_equation.get_width())  # Scale to fit
+long_equation.shift(ORIGIN)  # Position in safe center area
+```
+
+💫 DYNAMIC VISUAL EXPLANATION EXAMPLES:
+✅ CORRECT - Concept morphing:
+```python
+# Start with simple shape
+circle = Circle(color=BLUE).shift(LEFT*3)
+self.play(Create(circle))
+
+# Transform to show relationship  
+square = Square(color=RED).shift(LEFT*3)
+self.play(Transform(circle, square))
+
+# Add animated explanation
+explanation = Text("Shapes can transform").shift(RIGHT*3)
+arrow = Arrow(LEFT*1, RIGHT*1.5, color=YELLOW)
+self.play(Write(explanation), Create(arrow))
+```
+
+✅ CORRECT - Progressive complexity:
+```python
+# Start simple
+basic_formula = MathTex("a + b").shift(UP*2)
+self.play(Write(basic_formula))
+
+# Add complexity with animation
+complex_formula = MathTex("a^2 + 2ab + b^2").shift(UP*2)
+self.play(Transform(basic_formula, complex_formula))
+
+# Show visual proof below
+visual_squares = VGroup(
+    Square().shift(LEFT*2 + DOWN*1),
+    Rectangle(width=2, height=1).shift(DOWN*1),
+    Square().shift(RIGHT*2 + DOWN*1)
+).set_color(GREEN)
+self.play(Create(visual_squares))
+```
 
 FORBIDDEN ELEMENTS:
 - ImageMobject (will cause file not found errors)
@@ -925,47 +1163,462 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             - Following Manim best practices and conventions
             - Generating clean, modular, and well-documented code
             
-            CRITICAL CONSTRAINTS:
-            - NEVER use ImageMobject or any image file references
-            - Use only built-in Manim objects (Text, MathTex, Circle, Rectangle, Line, etc.)
-            - Create visual diagrams using geometric shapes and mathematical objects
-            - Represent real-world examples with text descriptions and geometric visualizations
-            - ANIMATE EVERYTHING - no static content is allowed
-            - Use proper scene management with clear transitions
-            - Implement dynamic positioning and object movements
-            - Avoid overlapping text and cluttered layouts
-            - DO NOT use invalid methods like self.set_background(), self.set_color_scheme(), etc.
-            - Background colors are handled automatically by Manim or in config files
-            - Use only valid Scene class methods like self.add(), self.play(), self.wait(), self.clear()
-            - CRITICAL: Never write Text("text",.shift() - always use Text("text").shift()
-            - CRITICAL: Method chaining must have proper syntax: .shift(UP*1).scale(0.8)
-            - CRITICAL: No comma before dot operators: Text("text").shift() NOT Text("text",.shift()
+            🚨 CRITICAL ERROR PREVENTION CONSTRAINTS 🚨:
             
-            FORBIDDEN METHODS (will cause AttributeError):
-            - self.set_background() - doesn't exist in Manim
-            - self.set_color_scheme() - not a valid Scene method
-            - self.set_theme() - not a valid Scene method
-            - self.configure_camera() - not a Scene method
+            ═══════════════════════════════════════════════════════════════
+            📋 ERROR CATEGORIES YOU MUST PREVENT:
+            ═══════════════════════════════════════════════════════════════
             
-            FORBIDDEN SYNTAX PATTERNS (will cause SyntaxError):
-            - Text("text",.shift(UP*1) ❌ (comma before method)
-            - Text("text").shift(UP*2 ❌ (missing closing parenthesis)
-            - Text("text",.shift(UP*2) ❌ (comma + missing closing paren)
-            - Text("text", .shift(UP*2) ❌ (comma space before method)
+            1. SYNTAX ERRORS (SyntaxError):
+               - Invalid syntax in Python code
+               - Missing parentheses, quotes, or brackets
+               - Incorrect indentation (IndentationError, TabError)
+               - Malformed expressions or statements
             
-            CORRECT SYNTAX EXAMPLES:
-            - Text("Hello World").shift(UP*2) ✅
-            - Text("Hello", font_size=24).shift(DOWN*1) ✅
-            - Text("Title", color=BLUE).shift(UP*3).scale(0.8) ✅
+            2. TYPE ERRORS (TypeError):
+               - Wrong argument types passed to functions
+               - Unexpected keyword arguments
+               - Operations between incompatible types
+               - Missing required arguments
             
-            MANDATORY SYNTAX RULES:
-            1. NEVER write Text("text",.shift() - always use Text("text").shift()
-            2. NEVER write Text("text", .method() - always use Text("text").method()
-            3. ALWAYS close parentheses: Text("text") NOT Text("text"
-            4. ALWAYS use proper method chaining: .shift(UP*1).scale(0.8)
-            5. NO orphaned lines starting with font_size= or color=
-            6. Every Text object must be complete on ONE line
-            7. Use proper indentation (4 spaces) for methods inside classes
+            3. ATTRIBUTE ERRORS (AttributeError):
+               - Calling methods that don't exist
+               - Accessing properties that don't exist
+               - Using invalid Scene or Mobject methods
+            
+            4. NAME ERRORS (NameError):
+               - Using undefined variables or constants
+               - Typos in variable/constant names
+               - Missing imports for used symbols
+            
+            5. VALUE ERRORS (ValueError):
+               - Invalid parameter values
+               - Out-of-range values
+               - Incompatible data formats
+            
+            6. FILE ERRORS (FileNotFoundError, IOError):
+               - Referencing non-existent files
+               - Missing image, audio, or data files
+               - Invalid file paths
+            
+            7. IMPORT ERRORS (ImportError, ModuleNotFoundError):
+               - Missing required modules
+               - Incorrect import statements
+               - Circular imports
+            
+            8. RUNTIME ERRORS:
+               - Division by zero
+               - Index out of range
+               - Memory errors
+               - Infinite loops
+            
+            9. Parathaneses Errors (ParenthesesError):
+               - Missing closing parentheses
+               - Extra or mismatched parentheses
+            10. OVERLAP ERRORS:
+               - Text or objects overlapping in the scene
+               - Objects positioned at the same coordinates
+               - Improper spacing between elements
+            11. POSITIONING ERRORS:
+               - Objects positioned outside the 16:9 safe area
+               - Objects overlapping the title or subtitles
+            12. ANIMATION ERRORS:
+               - Missing animations for key elements
+               - Incorrect animation sequences
+               - Objects not animated properly (e.g., using .animate instead of .play)
+            13. DYNAMIC POSITIONING ERRORS:
+               - Objects not positioned dynamically
+               - Static layouts instead of responsive designs
+            ═══════════════════════════════════════════════════════════════
+            🛡️ MANDATORY ERROR PREVENTION RULES:
+            ═══════════════════════════════════════════════════════════════
+            
+            ✅ RULE 1 - PROPER IMPORTS:
+            - ALWAYS start with: from manim import *
+            - NEVER import: PIL, cv2, pygame, ImageIO, matplotlib.image
+            - NEVER import external image/video processing libraries
+            
+            ✅ RULE 2 - VALID OBJECT CONSTRUCTION:
+            - Square(): Use Square() NOT Square(side_length=2)
+            - Circle(): Use Circle(radius=1) - radius is valid parameter
+            - Rectangle(): Use Rectangle(width=2, height=3) - both valid
+            - Line(): Use Line(start=ORIGIN, end=RIGHT*2) - proper format
+            - Text(): Use Text("content", font_size=24) - font_size valid
+            
+            ✅ RULE 3 - PROPER METHOD CALLS:
+            - Color setting: obj.set_color(BLUE) NOT obj.color = BLUE
+            - Scaling: obj.scale(2) NOT obj.set_scale(2)
+            - Positioning: obj.shift(UP*2) NOT obj.move(UP*2)
+            - Animation: self.play(Create(obj)) NOT self.animate(obj)
+            
+            ✅ RULE 4 - VALID SCENE METHODS:
+            - Use: self.add(), self.play(), self.wait(), self.clear(), self.remove()
+            - NEVER use: self.set_background(), self.configure_camera(), self.set_theme()
+            
+            ✅ RULE 5 - PROPER SYNTAX:
+            - Text("hello").shift(UP) ✅
+            - Text("hello",.shift(UP) ❌ SyntaxError
+            - Text("hello").shift(UP*2) ✅  
+            - Text("hello").shift(UP*2 ❌ SyntaxError (missing parenthesis)
+            
+            ✅ RULE 6 - VALID CONSTANTS:
+            - Position: UP, DOWN, LEFT, RIGHT, ORIGIN
+            - NEVER use: CENTER, MIDDLE, TOP, BOTTOM (undefined)
+            - Colors: RED, BLUE, GREEN, YELLOW, WHITE, BLACK, GRAY, PURPLE, ORANGE
+            - NEVER use: RED_DARK, BLUE_LIGHT (undefined variants)
+            
+            ✅ RULE 7 - PROPER INDENTATION:
+            - Use exactly 4 spaces per indentation level
+            - NEVER mix tabs and spaces
+            - Ensure consistent indentation throughout
+            
+            ✅ RULE 8 - NO EXTERNAL FILES:
+            - NEVER use ImageMobject() - causes FileNotFoundError
+            - NEVER reference .png, .jpg, .gif files
+            - Use Text() descriptions instead of images
+            - Use geometric shapes instead of external graphics
+            
+            ═══════════════════════════════════════════════════════════════
+            🔍 SPECIFIC ERROR PREVENTION EXAMPLES:
+            ═══════════════════════════════════════════════════════════════
+            IndentationError: expected an indented block after function definition please fix
+            ❌ WRONG - IndentationError Example:
+            def my_function():
+            print("Hello")  # IndentationError: expected an indented block
+            ✅ CORRECT - Proper Indentation:
+            def my_function():
+                print("Hello")  # Properly indented block
+            
+            ❌ WRONG - TypeError Example:
+            square = Square(side_length=2, color=RED)  # TypeError: unexpected keywords
+            
+            ✅ CORRECT - Proper Object Creation:
+            square = Square().scale(2).set_color(RED)  # Proper method chaining
+            
+            ❌ WRONG - AttributeError Example:  
+            self.set_background(BLACK)  # AttributeError: method doesn't exist
+            
+            ✅ CORRECT - No Background Method Needed:
+            # Background is handled automatically by Manim
+            
+            ❌ WRONG - NameError Example:
+            text = Text("Hello").shift(CENTER)  # NameError: CENTER not defined
+            
+            ✅ CORRECT - Use Defined Constants:
+            text = Text("Hello").shift(ORIGIN)  # ORIGIN is properly defined
+            
+            ❌ WRONG - SyntaxError Example:
+            title = Text("My Title",.shift(UP*3)  # SyntaxError: comma before method
+            
+            ✅ CORRECT - Proper Syntax:
+            title = Text("My Title").shift(UP*3)  # Proper method chaining
+            
+            ❌ WRONG - ValueError Example:
+            circle = Circle(radius=-1)  # ValueError: negative radius
+            
+            ✅ CORRECT - Valid Parameters:
+            circle = Circle(radius=1)  # Positive radius value
+            
+            ❌ WRONG - FileNotFoundError Example:
+            image = ImageMobject("picture.png")  # FileNotFoundError: file missing
+            
+            ✅ CORRECT - Use Text Description:
+            image_desc = Text("Visual: Picture Description", font_size=20)
+            
+            ═══════════════════════════════════════════════════════════════
+            🎯 ULTRA-SPECIFIC MANIM OBJECT GUIDELINES:
+            ═══════════════════════════════════════════════════════════════
+            
+            Circle():
+            ✅ Circle() - default radius
+            ✅ Circle(radius=2) - custom radius  
+            ❌ Circle(color=RED) - use .set_color(RED) instead
+            ❌ Circle(diameter=4) - no diameter parameter
+            
+            Square():
+            ✅ Square() - default size
+            ✅ Square().scale(2) - resize with scale
+            ❌ Square(side_length=3) - no side_length parameter
+            ❌ Square(size=2) - no size parameter
+            
+            Rectangle():
+            ✅ Rectangle() - default size
+            ✅ Rectangle(width=3, height=2) - both parameters valid
+            ❌ Rectangle(color=BLUE) - use .set_color(BLUE) instead
+            
+            Text():
+            ✅ Text("Hello") - basic text
+            ✅ Text("Hello", font_size=24) - with font size
+            ✅ Text("Hello", font_size=20).set_color(RED) - with color
+            ❌ Text("Hello", color=RED) - color not in constructor
+            ❌ Text("Hello", font="Arial") - font parameter doesn't exist
+            
+            Line():
+            ✅ Line(start=ORIGIN, end=RIGHT*2) - proper format
+            ✅ Line(ORIGIN, UP*3) - shorthand format
+            ❌ Line([0,0], [1,1]) - use np.array format
+            ❌ Line(start_point=ORIGIN) - wrong parameter name
+            
+            MathTex():
+            ✅ MathTex("x^2 + y^2 = r^2") - LaTeX formula
+            ✅ MathTex("\\frac{a}{b}", font_size=36) - with size
+            ❌ MathTex("x^2", color=BLUE) - color not in constructor
+            
+            ═══════════════════════════════════════════════════════════════
+            ⚡ ANIMATION METHOD VALIDATION:
+            ═══════════════════════════════════════════════════════════════
+            
+            Valid Animation Types:
+            ✅ Write(text) - for text objects
+            ✅ Create(shape) - for geometric shapes  
+            ✅ FadeIn(object) - fade in any object
+            ✅ FadeOut(object) - fade out any object
+            ✅ Transform(obj1, obj2) - morph between objects
+            ✅ ReplacementTransform(obj1, obj2) - replace with transform
+            ✅ DrawBorderThenFill(shape) - for filled shapes
+            ✅ ShowCreation(line) - for lines and curves
+            
+            Invalid Animation Usage:
+            ❌ Animate(object) - not a valid animation type
+            ❌ Show(object) - not a valid animation
+            ❌ Display(object) - not a valid animation
+            ❌ Draw(object) - use Create() instead
+            
+            Scene Method Validation:
+            ✅ self.play(animation) - play animations
+            ✅ self.add(object) - add without animation
+            ✅ self.wait(seconds) - pause for time
+            ✅ self.clear() - clear all objects
+            ✅ self.remove(object) - remove specific object
+            
+            Invalid Scene Methods:
+            ❌ self.animate(object) - not a Scene method
+            ❌ self.set_background() - doesn't exist
+            ❌ self.configure_camera() - not available
+            ❌ self.set_color_scheme() - doesn't exist
+            
+            🚨 COMPREHENSIVE ERROR PREVENTION GUIDE 🚨
+            
+            ═══════════════════════════════════════════════════════════════
+            ❌ CRITICAL SYNTAX ERRORS TO AVOID (WILL BREAK CODE):
+            ═══════════════════════════════════════════════════════════════
+            
+            Must follow these rules to prevent syntax errors:
+            AttributeError: method doesn't exist
+            IdentationError: expected an indented block
+            SyntaxError: invalid syntax
+            TypeError: unexpected keyword argument
+            NameError: name 'X' is not defined
+            ValueError: invalid value for parameter
+            FileNotFoundError: file not found
+            ImportError: cannot import name 'X'
+            ModuleNotFoundError: No module named 'X'
+            RuntimeError: unexpected runtime error
+            ZeroDivisionError: division by zero
+            IndexError: list index out of range
+            KeyError: key not found in dictionary
+            KeyError: 'X' not found in dictionary
+            UnboundLocalError: local variable 'X' referenced before assignment
+            RecursionError: maximum recursion depth exceeded
+            OverflowError: integer overflow
+            MemoryError: out of memory
+            IndentationError: unexpected indent
+            TabError: inconsistent use of tabs and spaces in indentation
+            UnicodeError: encoding error
+            UnicodeEncodeError: 'ascii' codec can't encode character
+            UnicodeDecodeError: 'utf-8' codec can't decode byte
+            SyntaxError: invalid character in identifier
+            
+            Must follow these rules to prevent syntax errors:
+            
+            1. SYNTAX ERRORS - Text Object Construction:
+            ❌ Text("text",.shift(UP*1)         # comma before method call
+            ❌ Text("text").shift(UP*2          # missing closing parenthesis
+            ❌ Text("text",.shift(UP*2)         # comma before method + missing closing paren
+            ❌ Text("text", .shift(UP*2)        # comma space before method
+            ❌ Text("text", font_size=24,.shift(UP) # comma before method with params
+            ❌ Text("Hello World"               # missing closing parenthesis
+            ❌ Text "Hello"                     # missing parentheses entirely
+            ❌ Text(                            # incomplete declaration
+               "Hello", font_size=24)           # split across lines improperly
+            
+            ✅ Text("Hello World").shift(UP*2)                    # CORRECT
+            ✅ Text("Hello", font_size=24).shift(DOWN*1)          # CORRECT 
+            ✅ Text("Title", color=BLUE).shift(UP*3).scale(0.8)   # CORRECT
+            
+            2. INDENTATION ERRORS:
+            ❌ class MyScene(Scene):
+               def construct(self):              # wrong indentation (3 spaces)
+            ❌     def method(self):             # inconsistent indentation
+                   pass                         # mixed spaces/tabs
+            ❌ def construct(self):              # method not in class
+               pass
+            
+            ✅ class MyScene(Scene):             # CORRECT
+            ✅     def construct(self):          # 4 spaces indentation
+            ✅         pass                     # consistent 4 spaces
+            
+            3. IMPORT ERRORS:
+            ❌ import manim                     # incomplete import
+            ❌ from manim import Scene          # missing essential imports
+            ❌ from manim import *
+               import PIL                       # image library conflicts
+            ❌ import cv2                       # video library conflicts
+            
+            ✅ from manim import *              # CORRECT - imports everything needed
+            
+            4. TYPE ERRORS - Invalid Object Parameters:
+            ❌ Square(side_length=2)            # TypeError: unexpected keyword 'side_length'
+            ❌ Circle(radius=1, color=RED)      # color should be set separately
+            ❌ Text(font="Arial")               # font parameter doesn't exist
+            ❌ Line(start=[0,0], end=[1,1])     # incorrect coordinate format
+            ❌ Rectangle(width=2, height=3, color=BLUE) # color in constructor
+            
+            ✅ Square(side_length=2).set_color(RED)           # CORRECT
+            ✅ Circle(radius=1).set_color(BLUE)               # CORRECT
+            ✅ Text("Hello", font_size=24).set_color(GREEN)   # CORRECT
+            ✅ Line(ORIGIN, UP*3).set_color(YELLOW)            # CORRECT
+            ✅ Rectangle(width=2, height=3).set_color(YELLOW) # CORRECT
+            
+            5. ATTRIBUTE ERRORS - Invalid Methods:
+            ❌ self.set_background(BLACK)       # AttributeError: method doesn't exist
+            ❌ self.set_color_scheme("dark")    # AttributeError: invalid method
+            ❌ self.set_theme("modern")         # AttributeError: invalid method
+            ❌ self.configure_camera()          # AttributeError: not a Scene method
+            ❌ text.set_font("Arial")           # AttributeError: invalid text method
+            ❌ circle.set_radius(2)             # AttributeError: use scale instead
+            
+            ✅ # Background handled by Manim config automatically    # CORRECT
+            ✅ circle.scale(2)                                      # CORRECT resize
+            ✅ text.set_color(BLUE)                                 # CORRECT color setting
+            
+            6. NAME ERRORS - Undefined Variables/Constants:
+            ❌ Text("Hello").shift(CENTER)      # NameError: CENTER undefined
+            ❌ Text("Hi").shift(MIDDLE)         # NameError: MIDDLE undefined  
+            ❌ Text("Top").shift(TOP*2)         # NameError: TOP undefined
+            ❌ Text("Bot").shift(BOTTOM*2)      # NameError: BOTTOM undefined
+            ❌ Circle().set_color(RED_DARK)     # NameError: RED_DARK undefined
+            ❌ Line(ORIGIN, ENDPOINT)           # NameError: ENDPOINT undefined
+            
+            ✅ Text("Hello").shift(ORIGIN)      # CORRECT - use ORIGIN for center
+            ✅ Text("Hi").shift(UP*0)           # CORRECT - UP*0 is center  
+            ✅ Text("Top").shift(UP*2)          # CORRECT - use UP for top
+            ✅ Text("Bot").shift(DOWN*2)        # CORRECT - use DOWN for bottom
+            ✅ Circle().set_color(DARK_RED)     # CORRECT - proper color name
+            ✅ Line(ORIGIN, RIGHT*3)            # CORRECT - defined endpoint
+            
+            7. VALUE ERRORS - Invalid Parameters:
+            ❌ Text("Hi", font_size=-10)        # ValueError: negative font size
+            ❌ Circle(radius=0)                 # ValueError: zero radius
+            ❌ self.wait(-1)                    # ValueError: negative wait time
+            ❌ UP*"hello"                       # TypeError: can't multiply by string
+            ❌ Text().shift(UP*None)            # TypeError: can't multiply by None
+            
+            ✅ Text("Hi", font_size=24)         # CORRECT - positive font size
+            ✅ Circle(radius=1)                 # CORRECT - positive radius  
+            ✅ self.wait(1)                     # CORRECT - positive wait time
+            ✅ UP*2                             # CORRECT - multiply by number
+            ✅ Text("Hello").shift(UP*1)        # CORRECT - valid positioning
+            
+            8. FILE ERRORS - Missing Resources:
+            ❌ ImageMobject("image.png")        # FileNotFoundError: file doesn't exist
+            ❌ Text().from_file("text.txt")     # FileNotFoundError: file missing
+            ❌ SVGMobject("icon.svg")           # FileNotFoundError: SVG missing
+            
+            ✅ Text("Image Description")        # CORRECT - use text instead
+            ✅ Text("Visual Representation")    # CORRECT - describe with text
+            ✅ Rectangle().set_color(BLUE)      # CORRECT - use shapes instead
+            
+            ═══════════════════════════════════════════════════════════════
+            ✅ MANDATORY SYNTAX RULES (MUST FOLLOW):
+            ═══════════════════════════════════════════════════════════════
+            
+            1. Text Object Rules:
+               - NEVER write Text("text",.shift() - always Text("text").shift()
+               - NEVER write Text("text", .method() - always Text("text").method()
+               - ALWAYS close parentheses: Text("text") NOT Text("text"
+               - EVERY Text object must be complete on ONE line
+               - NO orphaned lines starting with font_size= or color=
+            
+            2. Method Chaining Rules:
+               - ALWAYS use proper chaining: .shift(UP*1).scale(0.8)
+               - NEVER break chains across lines without backslash
+               - ALWAYS put dots immediately after closing parenthesis
+               - NO spaces before dots: .shift() NOT . shift()
+            
+            3. Indentation Rules:
+               - Use exactly 4 spaces for each indentation level
+               - NEVER mix tabs and spaces
+               - Class methods must be indented 4 spaces from class
+               - Method content must be indented 4 spaces from method def
+                - NEVER split method definitions across lines
+                - ALWAYS use consistent indentation throughout
+            
+            4. Import Rules:
+               - ALWAYS start with: from manim import *
+               - NEVER import image processing libraries (PIL, cv2, etc.)
+               - NEVER import audio libraries (pygame, etc.)
+               - ONLY import standard Python libraries if absolutely needed
+            
+            5. Object Creation Rules:
+               - Use exact parameter names: font_size NOT font_size
+               - Set colors separately: .set_color(BLUE) NOT color=BLUE in constructor
+               - Use proper coordinate format: np.array([x,y,z]) for custom points
+               - Always specify required parameters (radius for Circle, etc.)
+            
+            6. Animation Rules:
+               - Use valid Scene methods: self.add(), self.play(), self.wait()
+               - NEVER use invalid methods: self.set_background(), self.configure_camera()
+               - Clear between sections: self.play(FadeOut(*self.mobjects))
+               - Use proper animation types: Write(), Create(), Transform(), FadeIn()
+            
+            7. Positioning Rules:
+               - Use only defined constants: UP, DOWN, LEFT, RIGHT, ORIGIN
+               - Multiply by numbers: UP*2, LEFT*3, DOWN*0.5
+               - NEVER use undefined positions: CENTER, MIDDLE, TOP, BOTTOM
+               - Keep within screen bounds: X ∈ [-6.5, 6.5], Y ∈ [-3.8, 3.8]
+            
+            8. Error Prevention Rules:
+               - Test each Text object position to avoid overlap
+               - Validate all method calls exist in Manim
+               - Check all color constants are defined (RED, BLUE, GREEN, etc.)
+               - Ensure all parentheses are balanced
+               - Verify proper class/method structure
+            
+            9. Paratheses and Commas:
+            - ALWAYS close parentheses: Text("text").shift(UP*1)
+            - NEVER leave commas before method calls: Text("text",.shift(UP*1)
+            - NEVER use commas before method calls: Text("text",.shift(UP*1)
+            - ALWAYS use commas correctly: Text("text", font_size=24).shift(UP*1)
+            - NEVER use commas in method calls: Text("text").shift(UP*1, font_size=24)
+            
+            ═══════════════════════════════════════════════════════════════
+            🔧 COMMON ERROR PATTERNS & FIXES:
+            ═══════════════════════════════════════════════════════════════
+            
+            Pattern: Text("hello",.shift(UP)
+            Fix: Text("hello").shift(UP)
+            Error Type: SyntaxError - invalid syntax
+            
+            Pattern: Text("world").shift(UP*2
+            Fix: Text("world").shift(UP*2)
+            Error Type: SyntaxError - missing closing parenthesis
+            
+            Pattern: square = Square(side_length=2)
+            Fix: square = Square().scale(2)
+            Error Type: TypeError - unexpected keyword argument
+            
+            Pattern: self.set_background(BLACK)
+            Fix: # Background handled by Manim config
+            Error Type: AttributeError - method doesn't exist
+            
+            Pattern: text.shift(CENTER)
+            Fix: text.shift(ORIGIN)
+            Error Type: NameError - name 'CENTER' is not defined
+            
+            Pattern: Circle(color=RED)
+            Fix: Circle().set_color(RED)
+            Error Type: TypeError - color not accepted in constructor
             
             When generating Manim code, you MUST:
             1. Create complete, executable Python code
@@ -999,7 +1652,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             29. Position objects strategically and move them dynamically
             30. Transform objects instead of creating static new ones
             31. CRITICAL: Never place multiple objects at the same coordinates
-            32. CRITICAL: Always use different positions like UP*3, UP*1, CENTER, DOWN*1, DOWN*3
+            32. CRITICAL: Always use different positions like UP*3, UP*1, ORIGIN, DOWN*1, DOWN*3
             33. CRITICAL: Clear previous content before adding new content
             34. CRITICAL: Use LEFT and RIGHT sides for diagrams vs text
             35. CRITICAL: Create visual hierarchy with different font sizes
