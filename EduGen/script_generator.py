@@ -7,7 +7,7 @@ from langchain.chains import ConversationChain
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -16,10 +16,17 @@ logging.getLogger('comtypes').setLevel(logging.WARNING)
 load_dotenv('.env')
 
 class ScienceVideoGenerator:
-    def __init__(self, groq_api_key):
-        self.groq_api_key = groq_api_key
+    def __init__(self, google_api_key):
+        self.google_api_key = google_api_key
         self.memory = ConversationBufferWindowMemory(k=5, memory_key="chat_history", return_messages=True)
-        self.groq_chat = ChatGroq(groq_api_key=self.groq_api_key, model_name='llama-3.3-70b-versatile')
+        self.google_chat = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            google_api_key=self.google_api_key,
+            temperature=0.7,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2
+        )
         
         # Enhanced Stage 1 prompt with detailed step-by-step instructions
         self.stage1_prompt = self._create_enhanced_stage1_prompt()
@@ -27,7 +34,7 @@ class ScienceVideoGenerator:
         
         # Stage 1 conversation chain
         self.stage1_conversation = ConversationChain(
-            llm=self.groq_chat,
+            llm=self.google_chat,
             prompt=self.stage1_prompt,
             verbose=True,
             memory=self.memory,
@@ -885,7 +892,7 @@ Begin your comprehensive 6-step analysis now:
         print("🎉 COMPLETE VIDEO PLAN GENERATED!")
         print(f"📊 Summary:")
         print(f"   - Educational Steps: {complete_plan['generation_metadata']['educational_steps']}")
-        print(f"   - Animation Steps: {complete_plan['generation_metadata']['animation_steps']}")
+        print(f"   - Animation Steps: {complete_plan['generation_metadata']['animation_steps']}")        
         print(f"   - Total Duration: {complete_plan['generation_metadata']['total_duration']} seconds")
         print("=" * 60)
         
@@ -907,7 +914,7 @@ Begin your comprehensive 6-step analysis now:
         try:
             # Create Stage 2 conversation chain
             stage2_conversation = ConversationChain(
-                llm=self.groq_chat,
+                llm=self.google_chat,
                 prompt=self.stage2_prompt,
                 verbose=True,
                 memory=ConversationBufferWindowMemory(k=3, memory_key="chat_history", return_messages=True),
@@ -1154,10 +1161,10 @@ Begin the Manim structure generation now:
         }
         
 
-GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-if GROQ_API_KEY:
-    script_generator = ScienceVideoGenerator(GROQ_API_KEY)
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if GOOGLE_API_KEY:
+    script_generator = ScienceVideoGenerator(GOOGLE_API_KEY)
     print("✅ Enhanced Stage 1 Science Video Generator initialized successfully!")
-    print("🎯 Ready to generate detailed educational breakdowns with step-by-step analysis")
+    print("🎯 Ready to generate detailed educational breakdowns with step-by-step analysis using Google Gemini!")
 else:
-    print("❌ GROQ_API_KEY not found. Please set your API key in the .env file.")
+    print("❌ GOOGLE_API_KEY not found. Please set your API key in the .env file.")

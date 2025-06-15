@@ -3,11 +3,12 @@ import re
 import json
 import logging
 from dotenv import load_dotenv
+import textwrap  # Added to normalize indentation
 from langchain.chains import ConversationChain
 from langchain_core.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage
 from langchain.chains.conversation.memory import ConversationBufferWindowMemory
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Basic logging configuration
 logging.basicConfig(level=logging.INFO)
@@ -16,17 +17,24 @@ logging.getLogger('comtypes').setLevel(logging.WARNING)
 load_dotenv('.env')
 
 class ManIMCodeGenerator:
-    def __init__(self, groq_api_key):
-        self.groq_api_key = groq_api_key
+    def __init__(self, google_api_key):
+        self.google_api_key = google_api_key
         self.memory = ConversationBufferWindowMemory(k=3, memory_key="chat_history", return_messages=True)
-        self.groq_chat = ChatGroq(groq_api_key=self.groq_api_key, model_name='llama-3.3-70b-versatile')
+        self.google_chat = ChatGoogleGenerativeAI(
+            model="gemini-2.0-flash",
+            google_api_key=self.google_api_key,
+            temperature=0.7,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2
+        )
         
         # Enhanced Manim code generation prompt
         self.manim_prompt = self._create_manim_generation_prompt()
         
         # Manim conversation chain
         self.manim_conversation = ConversationChain(
-            llm=self.groq_chat,
+            llm=self.google_chat,
             prompt=self.manim_prompt,
             verbose=True,
             memory=self.memory,
@@ -60,8 +68,8 @@ class ManIMCodeGenerator:
         
         try:
             print("🎨 Generating Advanced Manim Code...")
-            print(f"📚 Topic: {educational_breakdown.get('title', 'Unknown')}")
-            print(f"🎯 Educational Steps: {len(educational_breakdown.get('educational_steps', []))}")
+            print("📚 Topic: {}".format(educational_breakdown.get('title', 'Unknown')))
+            print("🎯 Educational Steps: {}".format(len(educational_breakdown.get('educational_steps', []))))
             print("=" * 60)
             
             # Display video plan details in terminal
@@ -82,7 +90,7 @@ class ManIMCodeGenerator:
             
             if manim_code:
                 print("✅ Advanced Manim Code Generated Successfully!")
-                print(f"📝 Code Length: {len(manim_code)} characters")
+                print("📝 Code Length: {} characters".format(len(manim_code)))
                 print("🎬 Ready for animation rendering!")
                 
                 # Display generated manim code in terminal
@@ -93,7 +101,7 @@ class ManIMCodeGenerator:
                 raise Exception("Code extraction failed")
                 
         except Exception as e:
-            print(f"❌ Error in Manim code generation: {e}")
+            print("❌ Error in Manim code generation: {}".format(e))
             raise
 
     def _build_advanced_manim_prompt(self, video_plan):
@@ -113,13 +121,13 @@ class ManIMCodeGenerator:
         steps = educational_breakdown.get("educational_steps", [])
         duration = educational_breakdown.get("metadata", {}).get("estimated_total_duration", 180)
         
-        prompt_parts = [f"""
+        prompt_parts = ["""
 ADVANCED MANIM CODE GENERATION REQUEST
 
 VIDEO PLAN TO IMPLEMENT:
 Title: {title}
 Duration: {duration} seconds
-Educational Steps: {len(steps)}
+Educational Steps: {steps_count}""".format(title=title, duration=duration, steps_count=len(steps)) + """
 
 REQUIREMENTS FOR MANIM CODE:
 
@@ -207,25 +215,477 @@ REQUIREMENTS FOR MANIM CODE:
 - Use arrows (Arrow()) to connect related concepts
 - Create mathematical plots with axes when relevant
 
+📚 PROFESSIONAL MANIM EXAMPLES GALLERY:
+Study these high-quality examples for code patterns and techniques:
+
+Example 1: BraceAnnotation - Annotating geometric elements
+```python
+from manim import *
+
+class BraceAnnotation(Scene):
+    def construct(self):
+        dot = Dot([-2, -1, 0])
+        dot2 = Dot([2, 1, 0])
+        line = Line(dot.get_center(), dot2.get_center()).set_color(ORANGE)
+        b1 = Brace(line)
+        b1text = b1.get_text("Horizontal distance")
+        b2 = Brace(line, direction=line.copy().rotate(PI / 2).get_unit_vector())
+        b2text = b2.get_tex("x-x_1")
+        self.add(line, dot, dot2, b1, b2, b1text, b2text)
+```
+
+Example 2: VectorArrow - Coordinate system visualization
+```python
+from manim import *
+
+class VectorArrow(Scene):
+    def construct(self):
+        dot = Dot(ORIGIN)
+        arrow = Arrow(ORIGIN, [2, 2, 0], buff=0)
+        numberplane = NumberPlane()
+        origin_text = Text('(0, 0)').next_to(dot, DOWN)
+        tip_text = Text('(2, 2)').next_to(arrow.get_end(), RIGHT)
+        self.add(numberplane, dot, arrow, origin_text, tip_text)
+```
+
+Example 3: BooleanOperations - Interactive shape operations
+```python
+from manim import *
+
+class BooleanOperations(Scene):
+    def construct(self):
+        ellipse1 = Ellipse(
+            width=4.0, height=5.0, fill_opacity=0.5, color=BLUE, stroke_width=10
+        ).move_to(LEFT)
+        ellipse2 = ellipse1.copy().set_color(color=RED).move_to(RIGHT)
+        bool_ops_text = MarkupText("<u>Boolean Operation</u>").next_to(ellipse1, UP * 3)
+        ellipse_group = Group(bool_ops_text, ellipse1, ellipse2).move_to(LEFT * 3)
+        self.play(FadeIn(ellipse_group))
+
+        i = Intersection(ellipse1, ellipse2, color=GREEN, fill_opacity=0.5)
+        self.play(i.animate.scale(0.25).move_to(RIGHT * 5 + UP * 2.5))
+        intersection_text = Text("Intersection", font_size=23).next_to(i, UP)
+        self.play(FadeIn(intersection_text))
+
+        u = Union(ellipse1, ellipse2, color=ORANGE, fill_opacity=0.5)
+        union_text = Text("Union", font_size=23)
+        self.play(u.animate.scale(0.3).next_to(i, DOWN, buff=union_text.height * 3))
+        union_text.next_to(u, UP)
+        self.play(FadeIn(union_text))
+```
+
+Example 4: PointMovingOnShapes - Path animations and transformations
+```python
+from manim import *
+
+class PointMovingOnShapes(Scene):
+    def construct(self):
+        circle = Circle(radius=1, color=BLUE)
+        dot = Dot()
+        dot2 = dot.copy().shift(RIGHT)
+        self.add(dot)
+
+        line = Line([3, 0, 0], [5, 0, 0])
+        self.add(line)
+
+        self.play(GrowFromCenter(circle))
+        self.play(Transform(dot, dot2))
+        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.play(Rotating(dot, about_point=[2, 0, 0]), run_time=1.5)
+        self.wait()
+```
+
+Example 5: MovingAround - Object transformations with animate
+```python
+from manim import *
+
+class MovingAround(Scene):
+    def construct(self):
+        square = Square(color=BLUE, fill_opacity=1)
+
+        self.play(square.animate.shift(LEFT))
+        self.play(square.animate.set_fill(ORANGE))
+        self.play(square.animate.scale(0.3))
+        self.play(square.animate.rotate(0.4))
+```
+
+Example 6: MovingAngle - Dynamic angle measurement with updaters
+```python
+from manim import *
+
+class MovingAngle(Scene):
+    def construct(self):
+        rotation_center = LEFT
+
+        theta_tracker = ValueTracker(110)
+        line1 = Line(LEFT, RIGHT)
+        line_moving = Line(LEFT, RIGHT)
+        line_ref = line_moving.copy()
+        line_moving.rotate(
+            theta_tracker.get_value() * DEGREES, about_point=rotation_center
+        )
+        a = Angle(line1, line_moving, radius=0.5, other_angle=False)
+        tex = MathTex(r"\theta").move_to(
+            Angle(
+                line1, line_moving, radius=0.5 + 3 * SMALL_BUFF, other_angle=False
+            ).point_from_proportion(0.5)
+        )
+
+        self.add(line1, line_moving, a, tex)
+        self.wait()
+
+        line_moving.add_updater(
+            lambda x: x.become(line_ref.copy()).rotate(
+                theta_tracker.get_value() * DEGREES, about_point=rotation_center
+            )
+        )
+
+        a.add_updater(
+            lambda x: x.become(Angle(line1, line_moving, radius=0.5, other_angle=False))
+        )
+        tex.add_updater(
+            lambda x: x.move_to(
+                Angle(
+                    line1, line_moving, radius=0.5 + 3 * SMALL_BUFF, other_angle=False
+                ).point_from_proportion(0.5)
+            )
+        )
+
+        self.play(theta_tracker.animate.set_value(40))
+        self.play(theta_tracker.animate.increment_value(140))
+        self.play(tex.animate.set_color(RED), run_time=0.5)
+        self.play(theta_tracker.animate.set_value(350))
+```
+
+Example 7: MovingDots - Connected objects with updaters
+```python
+from manim import *
+
+class MovingDots(Scene):
+    def construct(self):
+        d1,d2=Dot(color=BLUE),Dot(color=GREEN)
+        dg=VGroup(d1,d2).arrange(RIGHT,buff=1)
+        l1=Line(d1.get_center(),d2.get_center()).set_color(RED)
+        x=ValueTracker(0)
+        y=ValueTracker(0)
+        d1.add_updater(lambda z: z.set_x(x.get_value()))
+        d2.add_updater(lambda z: z.set_y(y.get_value()))
+        l1.add_updater(lambda z: z.become(Line(d1.get_center(),d2.get_center())))
+        self.add(d1,d2,l1)
+        self.play(x.animate.set_value(5))
+        self.play(y.animate.set_value(4))
+        self.wait()
+```
+
+Example 8: MovingFrameBox - Highlighting mathematical expressions
+```python
+from manim import *
+
+class MovingFrameBox(Scene):
+    def construct(self):
+        self.play(Write(text))
+        framebox1 = SurroundingRectangle(text[1], buff = .1)
+        framebox2 = SurroundingRectangle(text[3], buff = .1)
+        self.play(Create(framebox1))
+        self.wait()
+        self.play(ReplacementTransform(framebox1,framebox2))
+        self.wait()
+```
+
+Example 9: SinAndCosFunctionPlot - Mathematical function plotting
+```python
+from manim import *
+
+class SinAndCosFunctionPlot(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[-10, 10.3, 1],
+            y_range=[-1.5, 1.5, 1],
+            x_length=10,
+            axis_config={"color": GREEN},
+            x_axis_config={
+                "numbers_to_include": np.arange(-10, 10.01, 2),
+                "numbers_with_elongated_ticks": np.arange(-10, 10.01, 2),
+            },
+            tips=False,
+        )
+        axes_labels = axes.get_axis_labels()
+        sin_graph = axes.plot(lambda x: np.sin(x), color=BLUE)
+        cos_graph = axes.plot(lambda x: np.cos(x), color=RED)
+
+        sin_label = axes.get_graph_label(
+            sin_graph, "\\sin(x)", x_val=-10, direction=UP / 2
+        )
+        cos_label = axes.get_graph_label(cos_graph, label="\\cos(x)")
+
+        vert_line = axes.get_vertical_line(
+            axes.i2gp(TAU, cos_graph), color=YELLOW, line_func=Line
+        )
+        line_label = axes.get_graph_label(
+            cos_graph, r"x=2\pi", x_val=TAU, direction=UR, color=WHITE
+        )
+
+        plot = VGroup(axes, sin_graph, cos_graph, vert_line)
+        labels = VGroup(axes_labels, sin_label, cos_label, line_label)
+        self.add(plot, labels)
+```
+
+Example 10: ArgMinExample - Interactive optimization visualization
+```python
+from manim import *
+
+class ArgMinExample(Scene):
+    def construct(self):
+        ax = Axes(
+            x_range=[0, 10], y_range=[0, 100, 10], axis_config={"include_tip": False}
+        )
+        labels = ax.get_axis_labels(x_label="x", y_label="f(x)")
+
+        t = ValueTracker(0)
+
+        def func(x):
+            return 2 * (x - 5) ** 2
+        graph = ax.plot(func, color=MAROON)
+
+        initial_point = [ax.coords_to_point(t.get_value(), func(t.get_value()))]
+        dot = Dot(point=initial_point)
+
+        dot.add_updater(lambda x: x.move_to(ax.c2p(t.get_value(), func(t.get_value()))))
+        x_space = np.linspace(*ax.x_range[:2],200)
+        minimum_index = func(x_space).argmin()
+
+        self.add(ax, labels, graph, dot)
+        self.play(t.animate.set_value(x_space[minimum_index]))
+        self.wait()
+```
+
+Example 11: GraphAreaPlot - Area under curves and Riemann rectangles
+```python
+from manim import *
+
+class GraphAreaPlot(Scene):
+    def construct(self):
+        ax = Axes(
+            x_range=[0, 5],
+            y_range=[0, 6],
+            x_axis_config={"numbers_to_include": [2, 3]},
+            tips=False,
+        )
+
+        labels = ax.get_axis_labels()
+
+        curve_1 = ax.plot(lambda x: 4 * x - x ** 2, x_range=[0, 4], color=BLUE_C)
+        curve_2 = ax.plot(
+            lambda x: 0.8 * x ** 2 - 3 * x + 4,
+            x_range=[0, 4],
+            color=GREEN_B,
+        )
+
+        line_1 = ax.get_vertical_line(ax.input_to_graph_point(2, curve_1), color=YELLOW)
+        line_2 = ax.get_vertical_line(ax.i2gp(3, curve_1), color=YELLOW)
+
+        riemann_area = ax.get_riemann_rectangles(curve_1, x_range=[0.3, 0.6], dx=0.03, color=BLUE, fill_opacity=0.5)
+        area = ax.get_area(curve_2, [2, 3], bounded_graph=curve_1, color=GREY, opacity=0.5)
+
+        self.add(ax, labels, curve_1, curve_2, line_1, line_2, riemann_area, area)
+```
+
+Example 12: PolygonOnAxes - Dynamic polygon areas with value tracking
+```python
+from manim import *
+
+class PolygonOnAxes(Scene):
+    def get_rectangle_corners(self, bottom_left, top_right):
+        return [
+            (top_right[0], top_right[1]),
+            (bottom_left[0], top_right[1]),
+            (bottom_left[0], bottom_left[1]),
+            (top_right[0], bottom_left[1]),
+        ]
+
+    def construct(self):
+        ax = Axes(
+            x_range=[0, 10],
+            y_range=[0, 10],
+            x_length=6,
+            y_length=6,
+            axis_config={"include_tip": False},
+        )
+
+        t = ValueTracker(5)
+        k = 25
+
+        graph = ax.plot(
+            lambda x: k / x,
+            color=YELLOW_D,
+            x_range=[k / 10, 10.0, 0.01],
+            use_smoothing=False,
+        )
+
+        def get_rectangle():
+            polygon = Polygon(
+                *[
+                    ax.c2p(*i)
+                    for i in self.get_rectangle_corners(
+                        (0, 0), (t.get_value(), k / t.get_value())
+                    )
+                ]
+            )
+            polygon.stroke_width = 1
+            polygon.set_fill(BLUE, opacity=0.5)
+            polygon.set_stroke(YELLOW_B)
+            return polygon
+
+        polygon = always_redraw(get_rectangle)
+
+        dot = Dot()
+        dot.add_updater(lambda x: x.move_to(ax.c2p(t.get_value(), k / t.get_value())))
+        dot.set_z_index(10)
+
+        self.add(ax, graph, dot)
+        self.play(Create(polygon))
+        self.play(t.animate.set_value(10))
+        self.play(t.animate.set_value(k / 10))
+        self.play(t.animate.set_value(5))
+```
+
+Example 13: HeatDiagramPlot - Scientific data visualization
+```python
+from manim import *
+
+class HeatDiagramPlot(Scene):
+    def construct(self):
+        ax = Axes(
+            x_range=[0, 40, 5],
+            y_range=[-8, 32, 5],
+            x_length=9,
+            y_length=6,
+            x_axis_config={"numbers_to_include": np.arange(0, 40, 5)},
+            y_axis_config={"numbers_to_include": np.arange(-5, 34, 5)},
+            tips=False,
+        )
+        labels = ax.get_axis_labels(
+            x_label=Tex(r"$\Delta Q$"), y_label=Tex(r"T[$^\circ C$]")
+        )
+
+        x_vals = [0, 8, 38, 39]
+        y_vals = [20, 0, 0, -5]
+        graph = ax.plot_line_graph(x_values=x_vals, y_values=y_vals)
+
+        self.add(ax, labels, graph)
+```
+
+Example 14: FollowingGraphCamera - Advanced camera movements
+```python
+from manim import *
+
+class FollowingGraphCamera(MovingCameraScene):
+    def construct(self):
+        self.camera.frame.save_state()
+
+        # create the axes and the curve
+        ax = Axes(x_range=[-1, 10], y_range=[-1, 10])
+        graph = ax.plot(lambda x: np.sin(x), color=BLUE, x_range=[0, 3 * PI])
+
+        # create dots based on the graph
+        moving_dot = Dot(ax.i2gp(graph.t_min, graph), color=ORANGE)
+        dot_1 = Dot(ax.i2gp(graph.t_min, graph))
+        dot_2 = Dot(ax.i2gp(graph.t_max, graph))
+
+        self.add(ax, graph, dot_1, dot_2, moving_dot)
+        self.play(self.camera.frame.animate.scale(0.5).move_to(moving_dot))
+
+        def update_curve(mob):
+            mob.move_to(moving_dot.get_center())
+
+        self.camera.frame.add_updater(update_curve)
+        self.play(MoveAlongPath(moving_dot, graph, rate_func=linear))
+        self.camera.frame.remove_updater(update_curve)
+
+        self.play(Restore(self.camera.frame))
+```
+
+Example 15: ThreeDSurfacePlot - 3D mathematical surfaces
+```python
+from manim import *
+
+class ThreeDSurfacePlot(ThreeDScene):
+    def construct(self):
+        resolution_fa = 24
+        self.set_camera_orientation(phi=75 * DEGREES, theta=-30 * DEGREES)
+
+        def param_gauss(u, v):
+            x = u
+            y = v
+            sigma, mu = 0.4, [0.0, 0.0]
+            d = np.linalg.norm(np.array([x - mu[0], y - mu[1]]))
+            z = np.exp(-(d ** 2 / (2.0 * sigma ** 2)))
+            return np.array([x, y, z])
+
+        gauss_plane = Surface(
+            param_gauss,
+            resolution=(resolution_fa, resolution_fa),
+            v_range=[-2, +2],
+            u_range=[-2, +2]
+        )
+
+        gauss_plane.scale(2, about_point=ORIGIN)
+        gauss_plane.set_style(fill_opacity=1,stroke_color=GREEN)
+        gauss_plane.set_fill_by_checkerboard(ORANGE, BLUE, opacity=0.5)
+        axes = ThreeDAxes()
+        self.add(axes,gauss_plane)
+```
+
+🎓 KEY PATTERNS FROM EXAMPLES:
+- Use ValueTracker() for dynamic values that change over time
+- Implement .add_updater() for objects that need to update automatically
+- Use always_redraw() for objects that need constant redrawing
+- Combine VGroup() to manage multiple related objects
+- Apply .animate for smooth transformations
+- Use proper positioning with .next_to(), .move_to(), .shift()
+- Create custom functions for complex mathematical visualizations
+- Use axes.plot() for mathematical functions and axes.get_area() for regions
+- Implement SurroundingRectangle() for highlighting elements
+- Use MathTex() for mathematical expressions and Text() for regular text
+- Apply proper color schemes and opacity for visual clarity
+- Use .set_z_index() to control layering of objects
+
 EDUCATIONAL STEPS TO IMPLEMENT:"""]
         
         # Add detailed information about each educational step
         for i, step in enumerate(steps, 1):
-            prompt_parts.append(f"""
+            step_title = step.get('step_title', 'Step {}'.format(i))
+            prompt_parts.append("""
 
-Step {i}: {step.get('step_title', f'Step {i}')}
-- Duration: {step.get('duration_seconds', 30)} seconds
-- Key Concepts: {', '.join(step.get('key_concepts', []))}
-- Narration: {step.get('narration_script', '')}
-- Visual Plan: {step.get('animation_plan', '')}
-- Visual Elements: {step.get('visual_elements', {})}
-- Equations: {step.get('equations', [])}
-- Real-world Examples: {step.get('real_world_examples', [])}""")
+Step {step_num}: {step_title}
+- Duration: {duration} seconds
+- Key Concepts: {key_concepts}
+- Narration: {narration}
+- Visual Plan: {visual_plan}
+- Visual Elements: {visual_elements}
+- Equations: {equations}
+- Real-world Examples: {examples}""".format(
+                step_num=i,
+                step_title=step_title,
+                duration=step.get('duration_seconds', 30),
+                key_concepts=', '.join(step.get('key_concepts', [])),
+                narration=step.get('narration_script', ''),
+                visual_plan=step.get('animation_plan', ''),
+                visual_elements=step.get('visual_elements', {}),
+                equations=step.get('equations', []),
+                examples=step.get('real_world_examples', [])
+            ))
 
-        prompt_parts.append(f"""
+        # Create class name safely outside f-string
+        class_name = title.replace(' ', '').replace(':', '').replace('(', '').replace(')', '').replace('-', '').replace("'", "").replace('"', '')
+        if not class_name:
+            class_name = "Educational"
+        
+        complexity = educational_breakdown.get('metadata', {}).get('difficulty_progression', 'intermediate')
+        prompt_parts.append("""
 
 TOTAL DURATION: {duration} seconds
-TARGET COMPLEXITY: {educational_breakdown.get('metadata', {}).get('difficulty_progression', 'intermediate')}
+TARGET COMPLEXITY: {complexity}
 
 OUTPUT FORMAT:
 Provide complete, executable Manim Python code following this structure:
@@ -233,8 +693,8 @@ Provide complete, executable Manim Python code following this structure:
 ```python
 from manim import *
 
-class {title.replace(' ', '').replace(':', '')}Scene(Scene):
-    def construct(self):
+class {class_name}Scene(Scene):
+    def construct(self):""".format(duration=duration, complexity=complexity, class_name=class_name) + """
         # Main orchestration method - CLEAR between each step
         self.intro_sequence()
         self.clear_and_transition()
@@ -252,7 +712,7 @@ class {title.replace(' ', '').replace(':', '')}Scene(Scene):
     
     def intro_sequence(self):
         # Engaging introduction with DYNAMIC positioning
-        title = Text("{title}", font_size=48, color=BLUE).shift(UP*3)
+        title = Text("{{title}}", font_size=48, color=BLUE).shift(UP*3)
         subtitle = Text("Educational Animation", font_size=32, color=WHITE).shift(UP*1.5)
         
         self.play(Write(title))
@@ -267,7 +727,7 @@ class {title.replace(' ', '').replace(':', '')}Scene(Scene):
         )
         
         intro_text = Text("Let's explore this concept step by step", 
-                         font_size=24, color=YELLOW).shift(DOWN*1)
+                          font_size=24, color=YELLOW).shift(DOWN*1)
         self.play(FadeIn(intro_text))
         self.wait(2)
         
@@ -325,6 +785,16 @@ CRITICAL REQUIREMENTS:
 26. ALWAYS position objects at different coordinates using UP*2, DOWN*1, LEFT*3, RIGHT*2
 27. Clear screen between sections: self.play(FadeOut(*self.mobjects))
 28. Use different font sizes to create hierarchy: 48 for titles, 36 for subtitles, 24 for content
+
+⚠️ CRITICAL SYNTAX REQUIREMENTS ⚠️:
+- NEVER write Text("text",.shift() - comma before method is SYNTAX ERROR
+- ALWAYS write Text("text").shift() - proper method chaining
+- NEVER write Text("text").shift(UP*2 - missing closing parenthesis is SYNTAX ERROR  
+- ALWAYS write Text("text").shift(UP*2) - complete parentheses
+- NEVER split Text declarations across multiple lines
+- ALWAYS complete Text objects on single lines
+- NEVER create orphaned lines starting with font_size= or color=
+- ALWAYS use proper 4-space indentation for class methods
 
 ANIMATION REQUIREMENTS:
 - Every text element should be animated (Write, FadeIn, etc.)
@@ -478,21 +948,24 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             - self.configure_camera() - not a Scene method
             
             FORBIDDEN SYNTAX PATTERNS (will cause SyntaxError):
-            - Text("text",.shift() - missing closing parenthesis before comma
-            - Text("text"), .shift() - comma before method call
-            - Text("text" .shift() - missing closing parenthesis and quote
-            - Missing closing parentheses in method calls
+            - Text("text",.shift(UP*1) ❌ (comma before method)
+            - Text("text").shift(UP*2 ❌ (missing closing parenthesis)
+            - Text("text",.shift(UP*2) ❌ (comma + missing closing paren)
+            - Text("text", .shift(UP*2) ❌ (comma space before method)
             
             CORRECT SYNTAX EXAMPLES:
             - Text("Hello World").shift(UP*2) ✅
             - Text("Hello", font_size=24).shift(DOWN*1) ✅
             - Text("Title", color=BLUE).shift(UP*3).scale(0.8) ✅
             
-            FORBIDDEN SYNTAX EXAMPLES:
-            - Text("Hello",.shift(UP*2) ❌ (comma before method)
-            - Text("Hello").shift(UP*2 ❌ (missing closing parenthesis)
-            - Text("Hello World",.shift(UP*2) ❌ (comma + missing closing paren)
-            - Text("Hello World", .shift(UP*2) ❌ (comma space before method)
+            MANDATORY SYNTAX RULES:
+            1. NEVER write Text("text",.shift() - always use Text("text").shift()
+            2. NEVER write Text("text", .method() - always use Text("text").method()
+            3. ALWAYS close parentheses: Text("text") NOT Text("text"
+            4. ALWAYS use proper method chaining: .shift(UP*1).scale(0.8)
+            5. NO orphaned lines starting with font_size= or color=
+            6. Every Text object must be complete on ONE line
+            7. Use proper indentation (4 spaces) for methods inside classes
             
             When generating Manim code, you MUST:
             1. Create complete, executable Python code
@@ -559,51 +1032,51 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
         generation_metadata = video_plan.get("generation_metadata", {})
         
         # Basic info
-        print(f"🎯 Title: {educational_breakdown.get('title', 'N/A')}")
-        print(f"📝 Abstract: {educational_breakdown.get('abstract', 'N/A')[:100]}...")
-        print(f"⏱️  Duration: {educational_breakdown.get('metadata', {}).get('estimated_total_duration', 'N/A')} seconds")
-        print(f"👥 Target Audience: {educational_breakdown.get('metadata', {}).get('target_audience', 'N/A')}")
+        print("🎯 Title: {}".format(educational_breakdown.get('title', 'N/A')))
+        print("📝 Abstract: {}...".format(educational_breakdown.get('abstract', 'N/A')[:100]))
+        print("⏱️  Duration: {} seconds".format(educational_breakdown.get('metadata', {}).get('estimated_total_duration', 'N/A')))
+        print("👥 Target Audience: {}".format(educational_breakdown.get('metadata', {}).get('target_audience', 'N/A')))
         
         # Learning objectives
         objectives = educational_breakdown.get('learning_objectives', [])
         if objectives:
-            print(f"\n🎯 Learning Objectives ({len(objectives)}):")
+            print("\n🎯 Learning Objectives ({}):".format(len(objectives)))
             for i, obj in enumerate(objectives[:3], 1):
-                print(f"   {i}. {obj}")
+                print("   {}. {}".format(i, obj))
             if len(objectives) > 3:
-                print(f"   ... and {len(objectives) - 3} more")
+                print("   ... and {} more".format(len(objectives) - 3))
         
         # Educational steps
         steps = educational_breakdown.get('educational_steps', [])
         if steps:
-            print(f"\n📚 Educational Steps ({len(steps)}):")
+            print("\n📚 Educational Steps ({}):".format(len(steps)))
             for i, step in enumerate(steps, 1):
-                title = step.get('step_title', f'Step {i}')
+                title = step.get('step_title', 'Step {}'.format(i))
                 duration = step.get('duration_seconds', 'N/A')
                 concepts = step.get('key_concepts', [])
-                print(f"   {i}. {title} ({duration}s)")
+                print("   {}. {} ({}s)".format(i, title, duration))
                 if concepts:
-                    print(f"      Key Concepts: {', '.join(concepts[:3])}")
+                    print("      Key Concepts: {}".format(', '.join(concepts[:3])))
         
         # Manim structure
         if manim_structure:
             animation_steps = manim_structure.get('animation_steps', [])
-            print(f"\n🎬 Animation Steps ({len(animation_steps)}):")
+            print("\n🎬 Animation Steps ({}):".format(len(animation_steps)))
             for i, step in enumerate(animation_steps[:3], 1):
                 objects = step.get('manim_objects', [])
                 animations = step.get('animations', [])
-                print(f"   {i}. {step.get('description', 'Animation step')}")
-                print(f"      Objects: {', '.join(objects[:3])}")
-                print(f"      Animations: {', '.join(animations[:3])}")
+                print("   {}. {}".format(i, step.get('description', 'Animation step')))
+                print("      Objects: {}".format(', '.join(objects[:3])))
+                print("      Animations: {}".format(', '.join(animations[:3])))
             if len(animation_steps) > 3:
-                print(f"   ... and {len(animation_steps) - 3} more steps")
+                print("   ... and {} more steps".format(len(animation_steps) - 3))
         
         # Generation metadata
         if generation_metadata:
-            print(f"\n⚙️  Generation Info:")
-            print(f"   Stages Completed: {generation_metadata.get('stages_completed', [])}")
-            print(f"   Total Duration: {generation_metadata.get('total_duration', 'N/A')} seconds")
-            print(f"   Complexity: {generation_metadata.get('complexity_level', 'N/A')}")
+            print("\n⚙️  Generation Info:")
+            print("   Stages Completed: {}".format(generation_metadata.get('stages_completed', [])))
+            print("   Total Duration: {} seconds".format(generation_metadata.get('total_duration', 'N/A')))
+            print("   Complexity: {}".format(generation_metadata.get('complexity_level', 'N/A')))
         
         print("="*80)
 
@@ -620,9 +1093,9 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
         
         # Code analysis
         lines = manim_code.split('\n')
-        print(f"📊 Code Statistics:")
-        print(f"   Lines of code: {len(lines)}")
-        print(f"   Characters: {len(manim_code)}")
+        print("📊 Code Statistics:")
+        print("   Lines of code: {}".format(len(lines)))
+        print("   Characters: {}".format(len(manim_code)))
         
         # Check for key components
         has_imports = 'from manim import' in manim_code or 'import manim' in manim_code
@@ -630,37 +1103,37 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
         has_construct = 'def construct' in manim_code
         has_methods = manim_code.count('def ') > 1
         
-        print(f"   Has imports: {'✅' if has_imports else '❌'}")
-        print(f"   Has scene class: {'✅' if has_class else '❌'}")
-        print(f"   Has construct method: {'✅' if has_construct else '❌'}")
-        print(f"   Has additional methods: {'✅' if has_methods else '❌'}")
+        print("   Has imports: {}".format('✅' if has_imports else '❌'))
+        print("   Has scene class: {}".format('✅' if has_class else '❌'))
+        print("   Has construct method: {}".format('✅' if has_construct else '❌'))
+        print("   Has additional methods: {}".format('✅' if has_methods else '❌'))
         
         # Extract class name
         import re
         class_match = re.search(r'class\s+(\w+)', manim_code)
         if class_match:
-            print(f"   Class name: {class_match.group(1)}")
+            print("   Class name: {}".format(class_match.group(1)))
         
         # Show first few lines and last few lines
-        print(f"\n📝 Code Preview:")
+        print("\n📝 Code Preview:")
         print("─" * 40)
         
         # First 15 lines
         for i, line in enumerate(lines[:15], 1):
-            print(f"{i:2}: {line}")
+            print("{:2}: {}".format(i, line))
         
         if len(lines) > 30:
             print("   ...")
-            print(f"   [... {len(lines) - 30} lines omitted ...]")
+            print("   [... {} lines omitted ...]".format(len(lines) - 30))
             print("   ...")
             
             # Last 15 lines
             for i, line in enumerate(lines[-15:], len(lines) - 14):
-                print(f"{i:2}: {line}")
+                print("{:2}: {}".format(i, line))
         elif len(lines) > 15:
             # Show remaining lines if total is between 15-30
             for i, line in enumerate(lines[15:], 16):
-                print(f"{i:2}: {line}")
+                print("{:2}: {}".format(i, line))
         
         print("─" * 40)
         print("🎬 Code ready for Manim rendering!")
@@ -676,9 +1149,8 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
         Returns:
             str: Fixed and validated Manim code
         """
-        if not code:
-            return code
-        
+        # Normalize indentation to avoid unexpected indent errors
+        code = textwrap.dedent(code)
         print("🔧 Starting code validation and fixing...")
         
         # CRITICAL: Fix syntax errors FIRST before anything else
@@ -693,9 +1165,9 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             # Fix set_background method which doesn't exist in Manim
             if 'self.set_background' in line:
                 # Comment out the problematic line and add explanation
-                fixed_lines.append(f"        # REMOVED: {line.strip()} (set_background method doesn't exist in Manim)")
-                fixed_lines.append(f"        # Background color is set in Manim config or using Camera background_color")
-                fixed_lines.append(f"        # Scene backgrounds are handled automatically by Manim")
+                fixed_lines.append("        # REMOVED: {} (set_background method doesn't exist in Manim)".format(line.strip()))
+                fixed_lines.append("        # Background color is set in Manim config or using Camera background_color")
+                fixed_lines.append("        # Scene backgrounds are handled automatically by Manim")
                 continue
             
             # Fix overlapping text positions - detect Text objects without positioning
@@ -712,7 +1184,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                     positions = ['UP*1', 'DOWN*1', 'LEFT*2', 'RIGHT*2', 'UP*2', 'DOWN*2']
                     for pos in positions:
                         if pos not in text_positions_used:
-                            line = line.rstrip() + f'.shift({pos})'
+                            line = line.rstrip() + '.shift({})'.format(pos)
                             text_positions_used.add(pos)
                             break
             
@@ -722,34 +1194,34 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                 method_name = line.strip()
                 fixed_lines.append(line)
                 # Add clearing instruction as comment
-                fixed_lines.append(f"        # Clear previous content to avoid overlap")
-                fixed_lines.append(f"        # self.play(FadeOut(*self.mobjects)) # Uncomment if needed")
+                fixed_lines.append("        # Clear previous content to avoid overlap")
+                fixed_lines.append("        # self.play(FadeOut(*self.mobjects)) # Uncomment if needed")
                 continue
             
             # Skip lines with ImageMobject references
             if 'ImageMobject' in line or 'Image.open' in line:
                 # Replace with a comment explaining what was removed
                 comment_line = line.strip()
-                fixed_lines.append(f"        # REMOVED: {comment_line} (ImageMobject not supported)")
-                fixed_lines.append(f"        # Using text description instead:")
+                fixed_lines.append("        # REMOVED: {} (ImageMobject not supported)".format(comment_line))
+                fixed_lines.append("        # Using text description instead:")
                 
                 # Extract variable name if possible
                 if '=' in line and 'ImageMobject' in line:
                     var_name = line.split('=')[0].strip()
                     # Replace with a text description with positioning
-                    fixed_lines.append(f"        {var_name} = Text('Visual representation of concept', font_size=24).shift(DOWN*1)")
+                    fixed_lines.append("        {} = Text('Visual representation of concept', font_size=24).shift(DOWN*1)".format(var_name))
                 continue
             
             # Skip lines that reference image files
             if any(ext in line.lower() for ext in ['.png', '.jpg', '.jpeg', '.gif', '.ico']):
                 # Comment out the problematic line
-                fixed_lines.append(f"        # REMOVED: {line.strip()} (Image file reference not supported)")
+                fixed_lines.append("        # REMOVED: {} (Image file reference not supported)".format(line.strip()))
                 continue
             
             # Fix other common Manim method errors
             if any(method in line for method in ['self.set_color_scheme', 'self.set_theme', 'self.configure_camera']):
                 # Comment out invalid methods
-                fixed_lines.append(f"        # REMOVED: {line.strip()} (Invalid Manim method)")
+                fixed_lines.append("        # REMOVED: {} (Invalid Manim method)".format(line.strip()))
                 continue
                 
             # Fix common import issues
@@ -757,7 +1229,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                 fixed_lines.append(line)
             elif 'import' in line and any(img_ref in line for img_ref in ['PIL', 'Image', 'cv2', 'opencv']):
                 # Comment out image-related imports
-                fixed_lines.append(f"        # REMOVED: {line.strip()} (Image library import not needed)")
+                fixed_lines.append("        # REMOVED: {} (Image library import not needed)".format(line.strip()))
                 continue
             else:
                 fixed_lines.append(line)
@@ -795,8 +1267,8 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             ast.parse(fixed_code)
             print("✅ Final syntax validation passed")
         except SyntaxError as e:
-            print(f"❌ Final syntax error detected: {e.msg}")
-            print(f"   Problem line {e.lineno}: {e.text}")
+            print("❌ Final syntax error detected: {}".format(e.msg))
+            print("   Problem line {}: {}".format(e.lineno, e.text))
             # Try one more aggressive fix
             fixed_code = self._emergency_syntax_fix(fixed_code, e)
         
@@ -816,162 +1288,166 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             return code
         
         import re
+        import ast
         
-        # Pre-process to fix the most common pattern that causes issues
-        # Fix the exact pattern: Text("text",.shift(UP*1) -> Text("text").shift(UP*1)
+        print("🔧 Starting comprehensive syntax error fixing...")
+        
+        # Step 1: Fix orphaned lines and incomplete Text declarations
         lines = code.split('\n')
         fixed_lines = []
+        i = 0
         
-        for line in lines:
-            original_line = line
+        while i < len(lines):
+            line = lines[i]
+            stripped = line.strip()
             
-            # Look for the specific problematic pattern: Text("text",.shift(UP*1)
-            if 'Text(' in line and '",' in line and '.shift(' in line:
-                # Pattern: Text("some text",.shift(UP*1)
-                # Fix by replacing ",.shift( with ").shift(
-                line = re.sub(r'Text\("([^"]*)",\s*\.shift\(', r'Text("\1").shift(', line)
-                print(f"🔧 Pre-fixed Text+comma+shift pattern: {line.strip()}")
+            # Skip empty lines and comments
+            if not stripped or stripped.startswith('#'):
+                fixed_lines.append(line)
+                i += 1
+                continue
             
-            # Fix pattern: Text("text"), .shift(
+            # Detect orphaned method calls (lines that start with parameters or method calls)
+            if stripped.startswith(('font_size=', 'color=', '.shift(', '.scale(', '.rotate(')):
+                print("🔧 Removing orphaned line {}: {}".format(i+1, stripped))
+                # Skip this line entirely as it's a broken continuation
+                i += 1
+                continue
+            
+            # Fix the main problematic pattern: Text("text",.shift(
+            if 'Text(' in line and '",' in line and any(method in line for method in ['.shift(', '.scale(', '.rotate(']):
+                # Pattern: Text("some text",.shift(UP*1) -> Text("some text").shift(UP*1)
+                original_line = line
+                # Fix comma before method calls
+                line = re.sub(r'Text\("([^"]*)",\s*\.(shift|scale|rotate|set_color)\(', r'Text("\1").\2(', line)
+                if line != original_line:
+                    print("🔧 Fixed Text+comma+method pattern: {}".format(line.strip()))
+            
+            # Fix pattern: Text("text"), .method( -> Text("text").method(
             if 'Text(' in line and '"), .' in line:
-                line = re.sub(r'Text\("([^"]*)"\),\s*\.', r'Text("\1").', line)
-                print(f"🔧 Pre-fixed Text+closing+comma+dot pattern: {line.strip()}")
+                original_line = line
+                line = re.sub(r'Text\("([^"]*)"\),\s*\.(shift|scale|rotate|set_color)\(', r'Text("\1").\2(', line)
+                if line != original_line:
+                    print("🔧 Fixed Text+closing+comma+method pattern: {}".format(line.strip()))
             
-            # Fix any Text objects with missing closing parenthesis before .shift
-            if 'Text(' in line and '.shift(' in line:
-                # Check if there's an unmatched quote-comma pattern
-                if '",.' in line or '",.shift(' in line:
-                    line = line.replace('",', '")')
-                    print(f"🔧 Pre-fixed quote-comma pattern: {line.strip()}")
+            # Fix incomplete Text declarations that may span multiple lines
+            if 'Text(' in line and not ')' in line and not line.strip().endswith(','):
+                # This might be an incomplete Text declaration - look ahead
+                if i + 1 < len(lines):
+                    next_line = lines[i + 1].strip()
+                    if next_line.startswith(('font_size=', 'color=')) and ')' in next_line:
+                        # Combine the lines properly
+                        combined = line.rstrip() + ', ' + next_line
+                        # Ensure proper syntax
+                        if combined.count('(') == combined.count(')'):
+                            fixed_lines.append(combined)
+                            print("🔧 Combined incomplete Text declaration: {}".format(combined.strip()))
+                            i += 2  # Skip both lines
+                            continue
             
             # Handle missing closing parentheses
-            if 'Text(' in line and '.shift(' in line and line.count('(') > line.count(')'):
-                # Count missing closing parentheses
+            if 'Text(' in line and line.count('(') > line.count(')'):
                 missing_parens = line.count('(') - line.count(')')
+                original_line = line
                 line = line.rstrip() + ')' * missing_parens
-                print(f"🔧 Added {missing_parens} missing closing parenthesis(es): {line.strip()}")
-            
-            # Fix any remaining ",.method(" patterns
-            line = re.sub(r'",\s*\.(shift|scale|rotate|set_color)\(', r'").\1(', line)
-            
-            if line != original_line:
-                print(f"   Original: {original_line.strip()}")
-                print(f"   Fixed:    {line.strip()}")
+                if line != original_line:
+                    print("🔧 Added {} missing closing parenthesis(es): {}".format(missing_parens, line.strip()))
             
             fixed_lines.append(line)
+            i += 1
         
+        # Rebuild the code
         code = '\n'.join(fixed_lines)
         
-        # Now apply the regular fixes
-        fixes = [
-            # Fix the specific error: Text("text",.shift() -> Text("text").shift()
-            (r'Text\([^)]+\),\s*\.shift\(', lambda m: m.group(0).replace('",', '")')),
-            (r'Text\([^)]+\)\s*,\s*\.shift\(', lambda m: m.group(0).replace(',', '')),
-            
-            # Fix missing closing parentheses with extra comma before method calls
-            (r'Text\([^)]+\),\.(shift|scale|rotate|set_color)', lambda m: m.group(0).replace(',', ')')),
-            
-            # Fix specific pattern: "text",.shift -> "text").shift
-            (r'"[^"]*",\s*\.(shift|scale|rotate)', r'").\1'),
-            
-            # Fix double commas
-            (r',,', ','),
+        # Step 2: Apply regex-based fixes
+        print("🔧 Applying regex-based syntax fixes...")
+        
+        # Fix patterns in order of complexity
+        patterns_and_fixes = [
+            # Fix Text("text",.shift() patterns
+            (r'Text\("([^"]*)",\s*\.shift\(', r'Text("\1").shift('),
+            (r'Text\("([^"]*)",\s*\.scale\(', r'Text("\1").scale('),
+            (r'Text\("([^"]*)",\s*\.rotate\(', r'Text("\1").rotate('),
             
             # Fix trailing commas before method calls
-            (r',\s*\.(shift|scale|rotate|set_color)', r'.\1'),
+            (r'",\s*\.(shift|scale|rotate|set_color)\(', r'").\1('),
             
-            # Fix missing quotes around strings
-            (r'Text\(\s*([^"\'][^,)]*[^"\'])\s*\)', r'Text("\1")'),
+            # Fix double commas
+            (r',,+', ','),
             
-            # Fix malformed method chaining
-            (r'\.shift\([^)]*\)\.(shift|scale|rotate)', r'.shift(UP*1).\1'),
-            
-            # Fix missing parentheses in Text() calls
-            (r'Text\s*\(\s*([^)]+)\s*\.', r'Text(\1).'),
+            # Fix spaces around operators
+            (r'\s+\.', '.'),
             
             # Fix missing closing parentheses at end of lines
             (r'Text\([^)]*$', lambda m: m.group(0) + ')'),
-            
-            # Fix spacing issues around method calls
-            (r'\s+\.', '.'),
-            
-            # Fix invalid color references
-            (r'color=([A-Z_]+)([^A-Z_,)])', r'color=\1, \2'),
-            
-            # Fix specific pattern with parentheses mismatch
-            (r'Text\("([^"]*)",\s*\.', r'Text("\1").'),
-            
-            # Fix any remaining malformed Text calls
-            (r'Text\("([^"]*)",[^)]*\.shift\(([^)]*)\)', r'Text("\1").shift(\2)'),
         ]
         
-        fixed_code = code
-        
-        for pattern, replacement in fixes:
+        for pattern, replacement in patterns_and_fixes:
             if callable(replacement):
-                # Use re.sub with a function
-                fixed_code = re.sub(pattern, replacement, fixed_code)
+                code = re.sub(pattern, replacement, code)
             else:
-                # Use simple string replacement
-                fixed_code = re.sub(pattern, replacement, fixed_code)
+                code = re.sub(pattern, replacement, code)
         
-        # Check for syntax errors by trying to parse
+        # Step 3: Final syntax validation and targeted fixes
         try:
-            import ast
-            ast.parse(fixed_code)
+            ast.parse(code)
             print("✅ Syntax validation passed")
         except SyntaxError as e:
-            print(f"⚠️ Syntax error detected at line {e.lineno}: {e.msg}")
-            print(f"   Problem line: {e.text}")
+            print("⚠️ Syntax error detected at line {}: {}".format(e.lineno, e.msg))
             
-            # Try to fix the specific error
             if e.lineno and e.text:
-                lines = fixed_code.split('\n')
-                if e.lineno <= len(lines):
-                    problem_line = lines[e.lineno - 1]
+                lines = code.split('\n')
+                if 0 < e.lineno <= len(lines):
+                    problem_line_index = e.lineno - 1
+                    problem_line = lines[problem_line_index]
                     
-                    # Common fixes for specific syntax errors
-                    if 'invalid syntax' in e.msg.lower():
-                        # Fix common parentheses issues
-                        if '.shift(' in problem_line and problem_line.count('(') > problem_line.count(')'):
-                            # Missing closing parenthesis
-                            fixed_line = problem_line + ')'
-                            lines[e.lineno - 1] = fixed_line
-                            print(f"🔧 Fixed missing closing parenthesis: {fixed_line.strip()}")
-                        
-                        elif ',.' in problem_line or ',.shift(' in problem_line:
-                            # Extra comma before dot or method call
-                            fixed_line = problem_line.replace(',.', '.').replace(',', ')')
-                            lines[e.lineno - 1] = fixed_line
-                            print(f"🔧 Fixed extra comma: {fixed_line.strip()}")
-                        
-                        elif 'Text(' in problem_line and problem_line.count('"') % 2 == 1:
-                            # Missing quote
-                            if not problem_line.rstrip().endswith('"'):
-                                fixed_line = problem_line.rstrip() + '")'
-                            else:
-                                fixed_line = problem_line + '"'
-                            lines[e.lineno - 1] = fixed_line
-                            print(f"🔧 Fixed missing quote: {fixed_line.strip()}")
-                        
-                        elif 'Text(' in problem_line and '),' in problem_line and '.shift(' in problem_line:
-                            # Text("text",.shift( pattern - remove comma after closing paren
-                            fixed_line = problem_line.replace('),', ')')
-                            lines[e.lineno - 1] = fixed_line
-                            print(f"🔧 Fixed comma after closing parenthesis: {fixed_line.strip()}")
+                    print("   Problem line: {}".format(problem_line.strip()))
                     
-                    fixed_code = '\n'.join(lines)
+                    # Apply targeted fixes based on error type
+                    if isinstance(e, IndentationError):
+                        if "unexpected indent" in e.msg.lower():
+                            # Remove unexpected indentation
+                            fixed_line = problem_line.lstrip()
+                            lines[problem_line_index] = fixed_line
+                            print("🔧 Removed unexpected indentation: {}".format(fixed_line.strip()))
+                        elif "expected an indented block" in e.msg.lower():
+                            # Add proper indentation
+                            fixed_line = "    " + problem_line
+                            lines[problem_line_index] = fixed_line
+                            print("🔧 Added expected indentation: {}".format(fixed_line.strip()))
                     
-                    # Try parsing again
+                    elif 'invalid syntax' in e.msg.lower():
+                        # Handle specific syntax issues
+                        if problem_line.count('(') > problem_line.count(')'):
+                            # Missing closing parentheses
+                            missing = problem_line.count('(') - problem_line.count(')')
+                            fixed_line = problem_line + ')' * missing
+                            lines[problem_line_index] = fixed_line
+                            print("🔧 Added {} missing closing parentheses".format(missing))
+                        
+                        elif ',.' in problem_line:
+                            # Fix comma-dot patterns
+                            fixed_line = problem_line.replace(',.', '.')
+                            lines[problem_line_index] = fixed_line
+                            print("🔧 Fixed comma-dot pattern: {}".format(fixed_line.strip()))
+                    
+                    # Rebuild and try again
+                    code = '\n'.join(lines)
+                    
                     try:
-                        ast.parse(fixed_code)
+                        ast.parse(code)
                         print("✅ Syntax error fixed successfully")
                     except SyntaxError as e2:
-                        print(f"❌ Could not automatically fix syntax error: {e2.msg}")
-                        # Return original code with comment about the error
-                        fixed_code = f"# SYNTAX ERROR DETECTED: {e.msg}\n# LINE {e.lineno}: {e.text}\n\n" + fixed_code
+                        print("❌ Could not fix syntax error: {}".format(e2.msg))
+                        # Add error comment but keep the code
+                        error_comment = "# SYNTAX ERROR: {} at line {}\n".format(e.msg, e.lineno)
+                        code = error_comment + code
+            else:
+                print("❌ Syntax error without line information: {}".format(e.msg))
+                error_comment = "# SYNTAX ERROR: {}\n".format(e.msg)
+                code = error_comment + code
         
-        return fixed_code
+        return code
 
     def _emergency_syntax_fix(self, code, syntax_error):
         """
@@ -992,7 +1468,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
             return code
         
         problem_line = lines[syntax_error.lineno - 1]
-        print(f"🚨 Emergency syntax fix for line {syntax_error.lineno}: {problem_line.strip()}")
+        print("🚨 Emergency syntax fix for line {}: {}".format(syntax_error.lineno, problem_line.strip()))
         
         # Common emergency fixes
         fixed_line = problem_line
@@ -1001,13 +1477,13 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
         if 'Text(' in problem_line and '",' in problem_line and '.shift(' in problem_line:
             # Pattern: Text("text",.shift(UP*1) -> Text("text").shift(UP*1)
             fixed_line = re.sub(r'Text\("([^"]*)",\s*\.shift\(([^)]*)\)', r'Text("\1").shift(\2)', problem_line)
-            print(f"🔧 Emergency fix applied: {fixed_line.strip()}")
+            print("🔧 Emergency fix applied: {}".format(fixed_line.strip()))
         
         # Fix missing closing parentheses
         elif problem_line.count('(') > problem_line.count(')'):
             missing = problem_line.count('(') - problem_line.count(')')
             fixed_line = problem_line.rstrip() + ')' * missing
-            print(f"🔧 Emergency fix: added {missing} closing parentheses")
+            print("🔧 Emergency fix: added {} closing parentheses".format(missing))
         
         # Fix missing opening parentheses (rare)
         elif problem_line.count(')') > problem_line.count('('):
@@ -1016,7 +1492,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                 parts = problem_line.split('=', 1)
                 if len(parts) == 2:
                     fixed_line = parts[0] + '= Text(' + parts[1].lstrip().lstrip('Text(')
-                    print(f"🔧 Emergency fix: added opening parenthesis")
+                    print("🔧 Emergency fix: added opening parenthesis")
         
         # Fix malformed quotes
         elif problem_line.count('"') % 2 == 1:
@@ -1029,7 +1505,7 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                     next_char_pos = last_quote_pos + 1
                     if next_char_pos < len(problem_line) and problem_line[next_char_pos] in ',.):':
                         fixed_line = problem_line[:last_quote_pos + 1] + '"' + problem_line[next_char_pos:]
-                        print(f"🔧 Emergency fix: added missing quote")
+                        print("🔧 Emergency fix: added missing quote")
         
         # Apply the fix if we made one
         if fixed_line != problem_line:
@@ -1043,18 +1519,18 @@ Generate the complete Manim code now. Ensure it's production-ready and follows a
                 print("✅ Emergency fix successful!")
                 return fixed_code
             except SyntaxError as e2:
-                print(f"❌ Emergency fix failed: {e2.msg}")
+                print("❌ Emergency fix failed: {}".format(e2.msg))
                 # Return original code with a comment about the error
-                return f"# SYNTAX ERROR DETECTED: {syntax_error.msg}\n# LINE {syntax_error.lineno}: {syntax_error.text}\n\n" + code
+                return "# SYNTAX ERROR DETECTED: {}\n# LINE {}: {}\n\n".format(syntax_error.msg, syntax_error.lineno, syntax_error.text) + code
         
         # If no fix was applied, return original with error comment
-        return f"# SYNTAX ERROR DETECTED: {syntax_error.msg}\n# LINE {syntax_error.lineno}: {syntax_error.text}\n\n" + code
+        return "# SYNTAX ERROR DETECTED: {}\n# LINE {}: {}\n\n".format(syntax_error.msg, syntax_error.lineno, syntax_error.text) + code
 
 # Initialize the Manim code generator
-GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-if GROQ_API_KEY:
-    manim_generator = ManIMCodeGenerator(GROQ_API_KEY)
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if GOOGLE_API_KEY:
+    manim_generator = ManIMCodeGenerator(GOOGLE_API_KEY)
     print("✅ Advanced Manim Code Generator initialized successfully!")
-    print("🎨 Ready to generate dynamic, educational animations!")
+    print("🎨 Ready to generate dynamic, educational animations with Google Gemini!")
 else:
-    print("❌ GROQ_API_KEY not found. Please set your API key in the .env file.")
+    print("❌ GOOGLE_API_KEY not found. Please set your API key in the .env file.")

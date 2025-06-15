@@ -5,7 +5,7 @@ python-dotenv
 # AI and LLM Libraries
 langchain
 langchain-core
-langchain-groq
+langchain-google-genai
 
 # Manim for Animations
 manim

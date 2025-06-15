@@ -51,18 +51,36 @@ def create_animation_from_code(manim_code, output_dir="media/videos"):
                 return video_path
             else:
                 print("Animation rendered but video file not found")
-                return None
+                return None        
         else:
             print(f"Manim rendering failed: {result.stderr}")
             print(f"Command output: {result.stdout}")
             
-            # If there's a syntax error, print the problematic code for debugging
-            if "NameError" in result.stderr or "SyntaxError" in result.stderr:
+            # Enhanced error reporting for syntax errors
+            if "IndentationError" in result.stderr or "SyntaxError" in result.stderr:
+                print("\n" + "="*60)
+                print("🚨 SYNTAX ERROR DETECTED IN GENERATED CODE")
+                print("="*60)
                 print("Generated code that caused the error:")
-                print("=" * 50)
-                with open(temp_file_path, 'r') as f:
-                    print(f.read())
-                print("=" * 50)
+                print("─" * 40)
+                lines = manim_code.split('\n')
+                for i, line in enumerate(lines, 1):
+                    print(f"{i:3}: {line}")
+                print("─" * 40)
+                print("This indicates the Manim code generator needs improvement.")
+                print("The code should be sent back to the LLM for fixing.")
+                print("="*60)
+            elif "NameError" in result.stderr:
+                print("\n" + "="*60)
+                print("🚨 NAME ERROR DETECTED IN GENERATED CODE")
+                print("="*60)
+                print("This suggests missing imports or undefined variables.")
+                print("Generated code preview:")
+                print("─" * 40)
+                for i, line in enumerate(manim_code.split('\n')[:20], 1):
+                    print(f"{i:3}: {line}")
+                print("─" * 40)
+                print("="*60)
             
             return None
             

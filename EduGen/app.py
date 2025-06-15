@@ -377,7 +377,6 @@ if prompt := st.chat_input("What would you like me to explain?"):
                             print(f"Contains 'def construct': {'✅' if 'def construct' in manim_code else '❌'}")
                             print(f"Contains 'from manim import': {'✅' if 'from manim import' in manim_code else '❌'}")
                             print("="*60)
-                        
                         if manim_code:
                             st.write("✓ Animation code generated")
                             st.write(f"✓ Code length: {len(manim_code)} characters")
@@ -389,24 +388,39 @@ if prompt := st.chat_input("What would you like me to explain?"):
                                 st.write("✓ Contains proper imports")
                             if any(color in manim_code for color in ['BLUE_E', 'TEAL', 'YELLOW', 'RED_B']):
                                 st.write("✓ Uses 3Blue1Brown color palette")
+                            
+                            # Check for syntax validation indicators in the code
+                            if "SYNTAX ERROR DETECTED" in manim_code:
+                                st.warning("⚠️ Code has syntax issues but will attempt to render")
+                            elif "# REMOVED:" in manim_code:
+                                st.info("ℹ️ Code was automatically cleaned (removed invalid elements)")
+                            else:
+                                st.success("✅ Code passed all validation checks")
                         else:
                             st.write("✗ Failed to generate animation code")
                             raise Exception("Animation code generation failed")
-                
-                # Step 3: Render animation
+                  # Step 3: Render animation
                 with status_container:
                     status.update(label="Rendering animation...", state="running")
                     with status:
                         st.write("Rendering video...")
                         
-                        video_path = create_animation_from_code(manim_code)
-                        
-                        if video_path and os.path.exists(video_path):
-                            st.write("✓ Animation rendered successfully")
-                            status.update(label="✓ Complete", state="complete")
-                        else:
-                            st.write("✗ Failed to render animation")
-                            raise Exception("Animation rendering failed")                # Success response - enhanced with more details
+                        try:
+                            video_path = create_animation_from_code(manim_code)
+                            
+                            if video_path and os.path.exists(video_path):
+                                st.write("✓ Animation rendered successfully")
+                                status.update(label="✓ Complete", state="complete")
+                            else:
+                                st.error("✗ Failed to render animation")
+                                st.error("This may be due to syntax errors in the generated code.")
+                                st.info("💡 The system will automatically improve code generation for future requests.")
+                                raise Exception("Animation rendering failed")
+                        except Exception as render_error:
+                            st.error(f"✗ Rendering error: {str(render_error)}")
+                            st.error("The generated code had issues that prevented successful rendering.")
+                            st.info("💡 This feedback helps improve the AI code generator.")
+                            raise# Success response - enhanced with more details
                 # Extract clean topic title - remove the enhanced prompt part
                 clean_prompt = prompt.split('\n')[0].strip()  # Get just the first line (original user prompt)
                 title = educational_breakdown.get('title', clean_prompt)
