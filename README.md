@@ -24,6 +24,7 @@ This repository contains a diverse collection of Python mini-projects that demon
 ## 🚀 Projects
 
 ### AI & Machine Learning
+- **[Analyzia](./Analyzia/)** - AI-powered data analysis and visualization tool
 - **[Cognix](./Cognix/)** - Intelligent assistant with cognitive capabilities
 - **[ConvertirseAI](./ConvertirseAI/)** - AI-powered conversion tool
 - **[EduGen](./EduGen/)** - Educational content generator
