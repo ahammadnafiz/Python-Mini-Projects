@@ -48,7 +48,7 @@ This repository contains a diverse collection of Python mini-projects that demon
 
 ### Games & Entertainment
 - **[Tic-Tac-Toe](./Tic-Tac-Toe/)** - Classic game implementation
-- **[ZombieZapper](./ZombieZapper/)** - Arcade-style game
+- **[ZombieZapper](./ZombieZapper/)** - 2d Arcade-style game
 
 ### Data Analysis
 - **[Rokomari Book Prediction](./Rokomari%20Book%20Prediction/)** - Book recommendation analysis
