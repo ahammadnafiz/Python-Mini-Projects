@@ -5,7 +5,7 @@ from .structurer import structure_text_for_llm
 from .prompter import create_prompt
 from .rag import RepoRAG
 
-def main(repo_url: str, access_token: str, groq_api_key: str = None,
+def main(repo_url: str, access_token: str, google_api_key: str = None,
          output_file: str = None, rag_mode: bool = False):
     """Main function to process repository content with optional RAG support."""
     try:
@@ -27,10 +27,10 @@ def main(repo_url: str, access_token: str, groq_api_key: str = None,
 
         # If RAG mode is enabled, initialize RAG with the processed content
         if rag_mode:
-            if not groq_api_key:
-                raise ValueError("Groq API key is required for RAG mode")
+            if not google_api_key:
+                raise ValueError("Google API key is required for RAG mode")
 
-            rag = RepoRAG(groq_api_key=groq_api_key)
+            rag = RepoRAG(google_api_key=google_api_key)
             rag.ingest_content(structured_text)
             return rag
 

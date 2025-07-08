@@ -1,2 +1,4 @@
 title,description,due_date,priority,status,created_at,recurring,subtasks,time_estimate,category,auto_adjust
 gym,hlr.ghljdgtl,2025-01-20,High,Completed,2025-01-20 13:50:55,,[],3,workout,True
+Complete Stat Class,Complete Stat online classes,2025-06-29,High,Completed,2025-06-29 16:20:18,,[],0,Study,False
+Demo,,2025-06-29,High,Pending,2025-06-29 16:22:14,,[],0,,False

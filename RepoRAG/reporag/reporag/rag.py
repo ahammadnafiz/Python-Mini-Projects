@@ -5,245 +5,31 @@ import os
 import hashlib
 import pickle
 import re
-from dataclasses import dataclass
 
-import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains import ConversationalRetrievalChain
-
-# Download required NLTK data
-nltk.download('punkt', quiet=True)
-nltk.download('stopwords', quiet=True)
-nltk.download('wordnet', quiet=True)
-
-@dataclass
-class CodeChunk:
-    """Represents a chunk of code with metadata."""
-    content: str
-    file_path: str
-    start_line: int
-    end_line: int
-    language: str
-
-class RepoRAGSplitter:
-    """Custom text splitter for repository content."""
-
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
-        self.lemmatizer = WordNetLemmatizer()
-        self.stop_words = set(stopwords.words('english'))
-
-        # Regex patterns for different content types
-        self.patterns = {
-            'function': r'(?:def|class)\s+[a-zA-Z_][a-zA-Z0-9_]*\s*\([^)]*\):',
-            'markdown_section': r'^#{1,6}\s+.+$',
-            'code_block': r'```[\s\S]*?```',
-            'file_header': r'File:\s+([^\n]+)',
-            'import_statement': r'^(?:from|import)\s+\w+',
-        }
-
-    def split_content(self, content: str) -> List[Document]:
-        """Split content based on content type and semantic boundaries."""
-        chunks = []
-
-        # First, try to identify the content type
-        content_type = self._identify_content_type(content)
-
-        # Split based on content type
-        if content_type == "code":
-            raw_chunks = self._split_code(content)
-        elif content_type == "markdown":
-            raw_chunks = self._split_markdown(content)
-        else:
-            raw_chunks = self._split_generic(content)
-
-        # Process each chunk and convert to Document
-        for chunk in raw_chunks:
-            processed_chunk = self._process_chunk(chunk, content_type)
-            # Convert dict to Document
-            doc = Document(
-                page_content=processed_chunk["page_content"],
-                metadata=processed_chunk["metadata"]
-            )
-            chunks.append(doc)
-
-        return chunks
-
-    def _identify_content_type(self, content: str) -> str:
-        """Identify the type of content."""
-        if re.search(self.patterns['import_statement'], content) or '.py' in content[:100]:
-            return "code"
-        elif content.startswith('# ') or '```' in content:
-            return "markdown"
-        return "text"
-
-    def _split_code(self, content: str) -> List[str]:
-        """Split code content preserving function/class boundaries."""
-        chunks = []
-        lines = content.split('\n')
-        current_chunk = []
-        current_size = 0
-        in_function = False
-
-        for i, line in enumerate(lines):
-            # Check for function/class definition
-            if re.match(self.patterns['function'], line):
-                if current_chunk and (not in_function or current_size >= self.chunk_size):
-                    chunks.append('\n'.join(current_chunk))
-                    current_chunk = []
-                    current_size = 0
-                in_function = True
-
-            current_chunk.append(line)
-            current_size += len(line)
-
-            # Check if we should split
-            if not in_function and current_size >= self.chunk_size:
-                chunks.append('\n'.join(current_chunk))
-                current_chunk = []
-                current_size = 0
-
-            # Check if function ends
-            if in_function and line.strip() == "" and i < len(lines) - 1:
-                if not lines[i + 1].startswith(' '):
-                    in_function = False
-
-        if current_chunk:
-            chunks.append('\n'.join(current_chunk))
-
-        return chunks
-
-    def _split_markdown(self, content: str) -> List[str]:
-        """Split markdown content preserving section boundaries."""
-        chunks = []
-        current_chunk = []
-        current_size = 0
-
-        for line in content.split('\n'):
-            # Check for new section
-            if re.match(self.patterns['markdown_section'], line):
-                if current_chunk and current_size >= self.chunk_size:
-                    chunks.append('\n'.join(current_chunk))
-                    current_chunk = []
-                    current_size = 0
-
-            current_chunk.append(line)
-            current_size += len(line)
-
-            # Split if chunk is too large
-            if current_size >= self.chunk_size:
-                chunks.append('\n'.join(current_chunk))
-                current_chunk = []
-                current_size = 0
-
-        if current_chunk:
-            chunks.append('\n'.join(current_chunk))
-
-        return chunks
-
-    def _split_generic(self, content: str) -> List[str]:
-        """Split generic content using sentence boundaries."""
-        sentences = sent_tokenize(content)
-        chunks = []
-        current_chunk = []
-        current_size = 0
-
-        for sentence in sentences:
-            current_size += len(sentence)
-
-            if current_size >= self.chunk_size:
-                if current_chunk:
-                    chunks.append(' '.join(current_chunk))
-                current_chunk = [sentence]
-                current_size = len(sentence)
-            else:
-                current_chunk.append(sentence)
-
-        if current_chunk:
-            chunks.append(' '.join(current_chunk))
-
-        return chunks
-
-    def _process_chunk(self, chunk: str, content_type: str) -> Dict[str, Any]:
-        """Process chunk and add metadata with proper type handling."""
-        # Extract file path if present
-        file_path = None
-        file_match = re.search(self.patterns['file_header'], chunk)
-        if file_match:
-            file_path = file_match.group(1)
-
-        # Ensure all metadata values are valid types (str, int, float, or bool)
-        metadata = {
-            "content_type": content_type or "unknown",
-            "file_path": file_path or "unknown",
-            "language": self._detect_language(chunk),
-            "size": len(chunk),
-            "tokens": len(word_tokenize(chunk))
-        }
-
-        # Filter out any None values and ensure proper types
-        filtered_metadata = {}
-        for key, value in metadata.items():
-            if value is not None:
-                # Convert to appropriate type if needed
-                if isinstance(value, (str, int, float, bool)):
-                    filtered_metadata[key] = value
-                else:
-                    # Convert other types to string
-                    filtered_metadata[key] = str(value)
-
-        return {
-            "page_content": chunk,
-            "metadata": filtered_metadata
-        }
-
-    def _preprocess_text(self, text: str) -> str:
-        """Preprocess text content."""
-        # Lowercase
-        text = text.lower()
-
-        # Tokenize
-        words = word_tokenize(text)
-
-        # Remove stop words and lemmatize
-        words = [self.lemmatizer.lemmatize(word) for word in words if word not in self.stop_words]
-
-        return ' '.join(words)
-
-    def _detect_language(self, content: str) -> str:
-        """Detect programming language from content."""
-        if '.py' in content or 'def ' in content:
-            return 'python'
-        elif '.js' in content or 'function ' in content:
-            return 'javascript'
-        elif '.java' in content or 'class ' in content:
-            return 'java'
-        return 'unknown'
 
 class RepoRAG:
     """RAG system optimized for repository content."""
 
     def __init__(
         self,
-        groq_api_key: str,
-        model_name: str = "llama-3.1-8b-instant",
+        google_api_key: str,
+        model_name: str = "gemini-2.0-flash",
         embedding_model: str = "BAAI/bge-small-en-v1.5",
-        chunk_size: int = 512,
-        chunk_overlap: int = 128,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
         k_retrieval: int = 4,
         cache_dir: str = "./cache"
     ):
         self.setup_logging()
         self.initialize_components(
-            groq_api_key, model_name, embedding_model,
+            google_api_key, model_name, embedding_model,
             chunk_size, chunk_overlap, k_retrieval, cache_dir
         )
 
@@ -257,7 +43,7 @@ class RepoRAG:
 
     def initialize_components(
         self,
-        groq_api_key: str,
+        google_api_key: str,
         model_name: str,
         embedding_model: str,
         chunk_size: int,
@@ -272,8 +58,19 @@ class RepoRAG:
         self.cache_dir = cache_dir
         self.chat_history = []
 
-        # Initialize custom splitter
-        self.splitter = RepoRAGSplitter(chunk_size, chunk_overlap)
+        # Initialize text splitter optimized for code
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            separators=[
+                "\n\nclass ",
+                "\n\ndef ",
+                "\n\n",
+                "\n",
+                " ",
+                ""
+            ]
+        )
 
         # Initialize embeddings
         self.embeddings = HuggingFaceEmbeddings(
@@ -283,9 +80,10 @@ class RepoRAG:
         )
 
         # Initialize LLM
-        self.llm = ChatGroq(
-            api_key=groq_api_key,
-            model_name=model_name
+        self.llm = ChatGoogleGenerativeAI(
+            google_api_key=google_api_key,
+            model=model_name,
+            temperature=0.1
         )
 
         # Create cache directory
@@ -334,53 +132,27 @@ class RepoRAG:
                 """
         }
 
-    def _filter_documents_metadata(self, documents: List[Document]) -> List[Document]:
-        """Filter document metadata to ensure compatibility with Chroma."""
-        filtered_documents = []
-        for doc in documents:
-            if doc.metadata:
-                # Create new filtered metadata dictionary
-                filtered_metadata = {}
-                for key, value in doc.metadata.items():
-                    if value is not None and isinstance(value, (str, int, float, bool)):
-                        filtered_metadata[key] = value
-                    elif value is not None:
-                        # Convert other types to string
-                        filtered_metadata[key] = str(value)
-
-                # Create new document with filtered metadata
-                filtered_doc = Document(
-                    page_content=doc.page_content,
-                    metadata=filtered_metadata
-                )
-                filtered_documents.append(filtered_doc)
-            else:
-                # If no metadata, add empty dict
-                filtered_doc = Document(
-                    page_content=doc.page_content,
-                    metadata={}
-                )
-                filtered_documents.append(filtered_doc)
-
-        return filtered_documents
-
     def ingest_content(self, content: str) -> None:
-        """Ingest repository content with specialized processing."""
+        """Ingest repository content with code-optimized processing."""
         try:
             # Clear existing vector store
             self.clear_vector_store()
 
-            # Process content with custom splitter
-            documents = self.splitter.split_content(content)
+            # Split content using RecursiveCharacterTextSplitter
+            documents = self.text_splitter.create_documents([content])
 
-            # Filter metadata before creating vector store
-            filtered_documents = self._filter_documents_metadata(documents)
+            # Add metadata to documents
+            for doc in documents:
+                doc.metadata.update({
+                    "content_type": self._detect_content_type(doc.page_content),
+                    "language": self._detect_language(doc.page_content),
+                    "size": len(doc.page_content)
+                })
 
-            # Create vector store with filtered documents
-            self.vector_store = Chroma.from_documents(
-                documents=filtered_documents,
-                embedding=self.embeddings,
-                persist_directory="./repo_chroma_db"
+            # Create FAISS vector store
+            self.vector_store = FAISS.from_documents(
+                documents=documents,
+                embedding=self.embeddings
             )
 
             # Initialize retrieval chain
@@ -391,6 +163,26 @@ class RepoRAG:
         except Exception as e:
             self.logger.error(f"Error during content ingestion: {str(e)}")
             raise
+
+    def _detect_content_type(self, content: str) -> str:
+        """Detect the type of content."""
+        if any(keyword in content for keyword in ['def ', 'class ', 'import ', 'from ']):
+            return "code"
+        elif content.strip().startswith('#') or '```' in content:
+            return "markdown"
+        return "text"
+
+    def _detect_language(self, content: str) -> str:
+        """Detect programming language from content."""
+        if any(keyword in content for keyword in ['def ', 'import ', '__init__']):
+            return 'python'
+        elif any(keyword in content for keyword in ['function ', 'const ', 'let ', 'var ']):
+            return 'javascript'
+        elif any(keyword in content for keyword in ['public class', 'private ', 'public static']):
+            return 'java'
+        elif any(keyword in content for keyword in ['#include', 'int main', 'printf']):
+            return 'c'
+        return 'unknown'
 
     def _initialize_qa_chain(self):
         """Initialize the QA chain with custom prompts and retrieval settings."""
@@ -599,7 +391,6 @@ class RepoRAG:
         """Clear the vector store."""
         if hasattr(self, 'vector_store'):
             self.logger.info("Clearing vector store")
-            shutil.rmtree('./repo_chroma_db', ignore_errors=True)
             self.vector_store = None
 
     def clear_cache(self) -> None:
@@ -607,6 +398,99 @@ class RepoRAG:
         self.logger.info("Clearing cache directory")
         shutil.rmtree(self.cache_dir, ignore_errors=True)
         os.makedirs(self.cache_dir, exist_ok=True)
+
+    def clear_vector_database(self) -> None:
+        """Clear the vector database completely to start fresh with a new repository."""
+        try:
+            self.logger.info("Clearing vector database for new repository")
+            
+            # Clear the in-memory vector store
+            self.vector_store = None
+            
+            # Clear the QA chain
+            if hasattr(self, 'qa_chain'):
+                self.qa_chain = None
+            
+            # Clear chat history (optional - you might want to keep this)
+            self.clear_memory()
+            
+            # Clear cache (optional - you might want to keep this for performance)
+            self.clear_cache()
+            
+            self.logger.info("Vector database cleared successfully - ready for new repository")
+            
+        except Exception as e:
+            self.logger.error(f"Error clearing vector database: {e}")
+            raise
+
+    def switch_repository(self, content: str, clear_history: bool = True, clear_cache: bool = False) -> None:
+        """Switch to a new repository by clearing previous data and ingesting new content.
+        
+        Args:
+            content: The new repository content to ingest
+            clear_history: Whether to clear chat history (default: True)
+            clear_cache: Whether to clear response cache (default: False for performance)
+        """
+        try:
+            self.logger.info("Switching to new repository")
+            
+            # Clear vector store
+            self.clear_vector_store()
+            
+            # Clear QA chain
+            if hasattr(self, 'qa_chain'):
+                self.qa_chain = None
+            
+            # Optionally clear chat history
+            if clear_history:
+                self.clear_memory()
+                self.logger.info("Chat history cleared")
+            
+            # Optionally clear cache
+            if clear_cache:
+                self.clear_cache()
+                self.logger.info("Response cache cleared")
+            
+            # Ingest new content
+            self.ingest_content(content)
+            
+            self.logger.info("Successfully switched to new repository")
+            
+        except Exception as e:
+            self.logger.error(f"Error switching repository: {e}")
+            raise
+
+    def get_repository_info(self) -> Dict[str, Any]:
+        """Get information about the currently loaded repository."""
+        info = {
+            "has_vector_store": self.vector_store is not None,
+            "has_qa_chain": hasattr(self, 'qa_chain') and self.qa_chain is not None,
+            "chat_history_length": len(self.chat_history) // 2,
+            "cache_size": 0
+        }
+        
+        # Get cache information
+        if os.path.exists(self.cache_dir):
+            cache_size = 0
+            for root, _, files in os.walk(self.cache_dir):
+                for file in files:
+                    cache_size += os.path.getsize(os.path.join(root, file))
+            info["cache_size"] = cache_size
+        
+        # Get vector store stats if available
+        if self.vector_store:
+            try:
+                if hasattr(self.vector_store, 'index') and self.vector_store.index:
+                    info["document_count"] = self.vector_store.index.ntotal
+                else:
+                    info["document_count"] = 0
+            except Exception as e:
+                self.logger.warning(f"Error getting document count: {e}")
+                info["document_count"] = "unknown"
+        else:
+            info["document_count"] = 0
+            
+        return info
 
     def get_stats(self) -> Dict[str, Any]:
         """Get statistics about the RAG system."""
@@ -621,22 +505,29 @@ class RepoRAG:
 
         # Get vector store stats if available
         if self.vector_store:
-            collection = self.vector_store._collection
-            docs = collection.get()
-            stats["total_documents"] = len(docs["ids"])
+            # FAISS doesn't have direct access to document count and metadata
+            # We'll estimate based on the index
+            try:
+                if hasattr(self.vector_store, 'index') and self.vector_store.index:
+                    stats["total_documents"] = self.vector_store.index.ntotal
+                
+                # If we have the docstore, get more detailed stats
+                if hasattr(self.vector_store, 'docstore') and self.vector_store.docstore:
+                    for doc_id in self.vector_store.docstore._dict:
+                        doc = self.vector_store.docstore._dict[doc_id]
+                        if hasattr(doc, 'metadata'):
+                            # Count content types
+                            content_type = doc.metadata.get("content_type", "unknown")
+                            stats["content_types"][content_type] = stats["content_types"].get(content_type, 0) + 1
 
-            # Analyze metadata
-            for metadata in docs["metadatas"]:
-                # Count content types
-                content_type = metadata.get("content_type", "unknown")
-                stats["content_types"][content_type] = stats["content_types"].get(content_type, 0) + 1
+                            # Count languages
+                            language = doc.metadata.get("language", "unknown")
+                            stats["languages"][language] = stats["languages"].get(language, 0) + 1
 
-                # Count languages
-                language = metadata.get("language", "unknown")
-                stats["languages"][language] = stats["languages"].get(language, 0) + 1
-
-                # Count tokens
-                stats["total_tokens"] += metadata.get("tokens", 0)
+                            # Estimate tokens (rough approximation)
+                            stats["total_tokens"] += len(doc.page_content.split())
+            except Exception as e:
+                self.logger.warning(f"Error getting FAISS stats: {e}")
 
         # Get cache size
         cache_size = 0
@@ -657,10 +548,6 @@ class RepoRAG:
 
             # Get current stats
             before_stats = self.get_stats()
-
-            # Optimize vector store
-            collection = self.vector_store._collection
-            collection.persist()
 
             # Clear unnecessary cache entries
             self._clean_cache()
@@ -709,10 +596,10 @@ class RepoRAG:
         }
 
     @classmethod
-    def from_config(cls, config: Dict[str, Any], groq_api_key: str) -> 'RepoRAG':
+    def from_config(cls, config: Dict[str, Any], google_api_key: str) -> 'RepoRAG':
         """Create a RepoRAG instance from configuration."""
         instance = cls(
-            groq_api_key=groq_api_key,
+            google_api_key=google_api_key,
             chunk_size=config.get("chunk_size", 1000),
             chunk_overlap=config.get("chunk_overlap", 200),
             k_retrieval=config.get("k_retrieval", 4),
@@ -720,13 +607,102 @@ class RepoRAG:
         )
         return instance
 
-# Helper functions for external use
-def create_repo_rag(groq_api_key: str, **kwargs) -> RepoRAG:
-    """Create a new RepoRAG instance with given configuration."""
-    return RepoRAG(groq_api_key=groq_api_key, **kwargs)
+    def save_vector_store(self, path: str = "./faiss_index") -> None:
+        """Save FAISS vector store to disk."""
+        if self.vector_store:
+            try:
+                self.vector_store.save_local(path)
+                self.logger.info(f"Vector store saved to {path}")
+            except Exception as e:
+                self.logger.error(f"Error saving vector store: {e}")
+                raise
+        else:
+            self.logger.warning("No vector store to save")
 
-def load_repo_rag(config_path: str, groq_api_key: str) -> RepoRAG:
+    def load_vector_store(self, path: str = "./faiss_index") -> None:
+        """Load FAISS vector store from disk."""
+        try:
+            if os.path.exists(path):
+                self.vector_store = FAISS.load_local(
+                    path, 
+                    self.embeddings,
+                    allow_dangerous_deserialization=True
+                )
+                self._initialize_qa_chain()
+                self.logger.info(f"Vector store loaded from {path}")
+            else:
+                self.logger.warning(f"Path {path} does not exist")
+        except Exception as e:
+            self.logger.error(f"Error loading vector store: {e}")
+            raise
+
+    def reset_system(self) -> None:
+        """Completely reset the RAG system to initial state."""
+        try:
+            self.logger.info("Resetting RAG system to initial state")
+            
+            # Clear vector store
+            self.clear_vector_store()
+            
+            # Clear QA chain
+            if hasattr(self, 'qa_chain'):
+                self.qa_chain = None
+            
+            # Clear chat history
+            self.clear_memory()
+            
+            # Clear cache
+            self.clear_cache()
+            
+            # Remove any saved FAISS indices
+            faiss_paths = ["./faiss_index", "./repo_faiss_db"]
+            for path in faiss_paths:
+                if os.path.exists(path):
+                    shutil.rmtree(path, ignore_errors=True)
+                    self.logger.info(f"Removed FAISS index at {path}")
+            
+            self.logger.info("RAG system reset completed")
+            
+        except Exception as e:
+            self.logger.error(f"Error resetting system: {e}")
+            raise
+
+    def is_ready_for_queries(self) -> bool:
+        """Check if the system is ready to answer queries."""
+        return (
+            hasattr(self, 'vector_store') and 
+            self.vector_store is not None and
+            hasattr(self, 'qa_chain') and 
+            self.qa_chain is not None
+        )
+
+    def get_system_status(self) -> Dict[str, Any]:
+        """Get comprehensive system status information."""
+        status = {
+            "ready_for_queries": self.is_ready_for_queries(),
+            "vector_store_loaded": self.vector_store is not None,
+            "qa_chain_initialized": hasattr(self, 'qa_chain') and self.qa_chain is not None,
+            "repository_info": self.get_repository_info(),
+            "system_stats": self.get_stats()
+        }
+        
+        return status
+
+# Helper functions for external use
+def create_repo_rag(google_api_key: str, **kwargs) -> RepoRAG:
+    """Create a new RepoRAG instance with given configuration."""
+    return RepoRAG(google_api_key=google_api_key, **kwargs)
+
+def load_repo_rag(config_path: str, google_api_key: str) -> RepoRAG:
     """Load a RepoRAG instance from a configuration file."""
     with open(config_path, 'r') as f:
         config = pickle.load(f)
-    return RepoRAG.from_config(config, groq_api_key)
+    return RepoRAG.from_config(config, google_api_key)
+
+def switch_to_new_repository(rag_instance: RepoRAG, content: str, clear_history: bool = True) -> None:
+    """Convenience function to switch to a new repository."""
+    rag_instance.switch_repository(content, clear_history=clear_history)
+
+def reset_rag_system(rag_instance: RepoRAG) -> None:
+    """Convenience function to completely reset the RAG system."""
+    rag_instance.reset_system()

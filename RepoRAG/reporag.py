@@ -58,9 +58,9 @@ def get_user_input() -> Dict[str, Any]:
     }
 
     if mode == '2':
-        result['groq_token'] = get_env_or_input(
-            'GROQ_API_KEY',
-            "Groq API key not found in .env. Please enter your key: "
+        result['google_token'] = get_env_or_input(
+            'GOOGLE_API_KEY',
+            "Google API key not found in .env. Please enter your key: "
         )
 
     return result
@@ -142,7 +142,7 @@ def main_interactive() -> None:
             result = main(
                 repo_url=inputs['repo_url'],
                 access_token=inputs['github_token'],
-                groq_api_key=inputs['groq_token'],
+                google_api_key=inputs['google_token'],
                 output_file=inputs['output_file'],
                 rag_mode=True
             )
